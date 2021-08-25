@@ -18,7 +18,7 @@ namespace ClassLibraryTreeView
         }
         private void AddChildren(TreeNode treeNodeRoot, CMClass cmClass)
         {
-            if (cmClass.HasDecendants)
+            if (cmClass.HasDescendants)
             {
                 foreach(CMClass descendant in cmClass.Descendants.Values)
                 {
@@ -96,6 +96,10 @@ namespace ClassLibraryTreeView
 
         private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
+            if (e.Node.Tag == null)
+            {
+                return;
+            }
             string id = e.Node.Tag.ToString();
             TreeNode parentNode = e.Node.Parent;
             string parentText = parentNode.Text.ToString();
@@ -105,9 +109,70 @@ namespace ClassLibraryTreeView
                 parentNode = parentNode.Parent;
             }
 
+            CMClass cmClass = new CMClass();
+
             if (parentText.Equals("Functionals"))
             {
-                CMClass cmClass = CMClass.FindClass(id, model.functionals);
+                cmClass.Clone(CMClass.FindClass(id, model.functionals));
+            }
+
+            if (parentText.Equals("Physicals"))
+            {
+                cmClass.Clone(CMClass.FindClass(id, model.physicals));
+            }
+
+            if (parentText.Equals("Documents"))
+            {
+                cmClass.Clone(CMClass.FindClass(id, model.documents));
+            }
+
+            ShowProperties(cmClass);
+        }
+        private void ShowProperties(CMClass cmClass)
+        {
+            tabControlProperties.TabPages.Clear();
+
+            if (cmClass.HasAttributes)
+            {
+                ListView listView = new ListView();
+                listView.View = View.Details;
+                listView.Columns.Clear();
+                listView.Items.Clear();
+                listView.Columns.Add("Attribute", 150, HorizontalAlignment.Left);
+                listView.Columns.Add("Value", 150, HorizontalAlignment.Left);
+
+                foreach (string key in cmClass.Attributes.Keys)
+                {
+                    string[] items = { $"{key}", $"{cmClass.Attributes[key]}" };
+                    listView.Items.Add(new ListViewItem(items));
+                }
+
+                foreach (ColumnHeader col in listView.Columns)
+                {
+                    col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+                }
+
+                listView.Dock = DockStyle.Fill;
+
+                TabPage pageProperties = new TabPage("Properties");
+                pageProperties.Controls.Add(listView);
+                tabControlProperties.TabPages.Add(pageProperties);
+            }
+
+            if (cmClass.HasPermissibleAttributes)
+            {
+                TreeView treeView = new TreeView();
+
+                foreach (string key in cmClass.PermissibleAttributes.Keys)
+                {
+                    treeView.Nodes.Add(new TreeNode($"{key}"));
+                }
+
+                treeView.Dock = DockStyle.Fill;
+
+                TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
+                pagePermissibleAttributes.Controls.Add(treeView);
+                tabControlProperties.TabPages.Add(pagePermissibleAttributes);
             }
         }
     }

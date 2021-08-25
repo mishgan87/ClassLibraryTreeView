@@ -28,15 +28,15 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.TreeNode treeNode1 = new System.Windows.Forms.TreeNode("Open File");
-            System.Windows.Forms.TreeNode treeNode2 = new System.Windows.Forms.TreeNode("Export to Excel");
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.treeView = new System.Windows.Forms.TreeView();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this.buttonOpenFile = new System.Windows.Forms.ToolStripButton();
+            this.tabControlProperties = new System.Windows.Forms.TabControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
+            this.splitContainer.Panel2.SuspendLayout();
             this.splitContainer.SuspendLayout();
             this.toolStripMenu.SuspendLayout();
             this.SuspendLayout();
@@ -50,13 +50,6 @@
             this.treeView.Location = new System.Drawing.Point(0, 29);
             this.treeView.Margin = new System.Windows.Forms.Padding(4);
             this.treeView.Name = "treeView";
-            treeNode1.Name = "NodeOpenFile";
-            treeNode1.Text = "Open File";
-            treeNode2.Name = "NodeExportToExcel";
-            treeNode2.Text = "Export to Excel";
-            this.treeView.Nodes.AddRange(new System.Windows.Forms.TreeNode[] {
-            treeNode1,
-            treeNode2});
             this.treeView.Size = new System.Drawing.Size(354, 525);
             this.treeView.TabIndex = 0;
             this.treeView.NodeMouseDoubleClick += new System.Windows.Forms.TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseDoubleClick);
@@ -72,6 +65,10 @@
             // 
             this.splitContainer.Panel1.Controls.Add(this.toolStripMenu);
             this.splitContainer.Panel1.Controls.Add(this.treeView);
+            // 
+            // splitContainer.Panel2
+            // 
+            this.splitContainer.Panel2.Controls.Add(this.tabControlProperties);
             this.splitContainer.Size = new System.Drawing.Size(1067, 554);
             this.splitContainer.SplitterDistance = 354;
             this.splitContainer.SplitterWidth = 5;
@@ -97,6 +94,15 @@
             this.buttonOpenFile.Text = "Open File";
             this.buttonOpenFile.Click += new System.EventHandler(this.ButtonOpenFile_Click);
             // 
+            // tabControlProperties
+            // 
+            this.tabControlProperties.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tabControlProperties.Location = new System.Drawing.Point(0, 0);
+            this.tabControlProperties.Name = "tabControlProperties";
+            this.tabControlProperties.SelectedIndex = 0;
+            this.tabControlProperties.Size = new System.Drawing.Size(708, 554);
+            this.tabControlProperties.TabIndex = 0;
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -108,6 +114,7 @@
             this.Text = "ClassLibraryView";
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();
+            this.splitContainer.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.toolStripMenu.ResumeLayout(false);
@@ -122,6 +129,7 @@
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.ToolStrip toolStripMenu;
         private System.Windows.Forms.ToolStripButton buttonOpenFile;
+        private System.Windows.Forms.TabControl tabControlProperties;
     }
 }
 

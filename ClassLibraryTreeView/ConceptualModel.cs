@@ -14,6 +14,10 @@ namespace ClassLibraryTreeView
 
         public ConceptualModel()
         {
+            Init();
+        }
+        public void Init()
+        {
             functionals = new Dictionary<string, CMClass>();
             physicals = new Dictionary<string, CMClass>();
             documents = new Dictionary<string, CMClass>();
@@ -22,9 +26,9 @@ namespace ClassLibraryTreeView
         public void Clear()
         {
             functionals.Clear();
-            attributes.Clear();
             physicals.Clear();
             documents.Clear();
+            attributes.Clear();
         }
         public void ImportXml(string fileName)
         {
@@ -46,6 +50,43 @@ namespace ClassLibraryTreeView
                     documents = CMClass.FillClassMap(element);
                 }
             }
+            // MergeClassTables(functionals, physicals);
+        }
+        private void MergeClassTables(Dictionary<string, CMClass> recipient, Dictionary<string, CMClass> source)
+        {
+            if (recipient.Count == 0 || source.Count == 0)
+            {
+                return;
+            }
+            foreach (CMClass cmClass in recipient.Values)
+            {
+                CMClass result = CMClass.FindClassByName(cmClass.Name, source);
+                if (result != null)
+                {
+                    cmClass.AddDescendant(result.Descendants);
+                }
+                if (cmClass.HasDescendants)
+                {
+                    bool hasDescendants = cmClass.HasDescendants;
+                    Dictionary<string, CMClass> descendants = cmClass.Descendants;
+                    while (hasDescendants)
+                    {
+                        foreach (CMClass descendant in descendants.Values)
+                        {
+                            result = CMClass.FindClassByName(descendant.Name, source);
+                            if (result != null)
+                            {
+                                cmClass.AddDescendant(result.Descendants);
+                            }
+                        }
+
+                    }
+                }
+            }
+        }
+        public void ExportPermissibleGrid(string fileName)
+        {
+
         }
     }
 }

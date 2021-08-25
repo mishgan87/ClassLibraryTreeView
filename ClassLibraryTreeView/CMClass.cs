@@ -25,7 +25,7 @@ namespace ClassLibraryTreeView
             }
         }
         public bool HasAttributes => Attributes != null;
-        public bool HasDecendants => Descendants != null;
+        public bool HasDescendants => Descendants != null;
         public bool HasPermissibleAttributes => PermissibleAttributes != null;
         public Dictionary<string, CMClass> Descendants
         {
@@ -156,6 +156,16 @@ namespace ClassLibraryTreeView
         {
             attributes.Add(id, value);
         }
+        public void AddDescendant(Dictionary<string, CMClass> classes)
+        {
+            foreach(CMClass cmClass in classes.Values)
+            {
+                if (!this.descendants.ContainsKey(cmClass.Id))
+                {
+                    AddDescendant(cmClass);
+                }
+            }
+        }
         public void AddDescendant(CMClass cmClass)
         {
             descendants.Add(cmClass.Id, cmClass);
@@ -193,6 +203,41 @@ namespace ClassLibraryTreeView
             }
             return mapNew;
         }
+        public static CMClass FindClassByName(string name, Dictionary<string, CMClass> map)
+        {
+            if (map == null)
+            {
+                return null;
+            }
+            foreach (CMClass value in map.Values)
+            {
+                if (value.Name.Equals(name))
+                {
+                    return value;
+                }
+                if (!value.HasDescendants)
+                {
+                    continue;
+                }
+                foreach (CMClass descendant in value.Descendants.Values)
+                {
+                    if (descendant.Id.Equals(name))
+                    {
+                        return descendant;
+                    }
+                    if (!descendant.HasDescendants)
+                    {
+                        continue;
+                    }
+                    CMClass cmClass = FindClassByName(name, descendant.Descendants);
+                    if (cmClass != null)
+                    {
+                        return cmClass;
+                    }
+                }
+            }
+            return null;
+        }
         public static CMClass FindClass(string id, Dictionary<string, CMClass> map)
         {
             if (map == null)
@@ -205,7 +250,7 @@ namespace ClassLibraryTreeView
                 {
                     return value;
                 }
-                if (!value.HasDecendants)
+                if (!value.HasDescendants)
                 {
                     continue;
                 }
@@ -215,7 +260,7 @@ namespace ClassLibraryTreeView
                     {
                         return descendant;
                     }
-                    if (!descendant.HasDecendants)
+                    if (!descendant.HasDescendants)
                     {
                         continue;
                     }
@@ -227,6 +272,20 @@ namespace ClassLibraryTreeView
                 }
             }
             return null;
+        }
+        public void Merge(CMClass cmClass)
+        {
+            if(!this.Id.Equals(cmClass.Id))
+            {
+                return;
+            }
+            foreach (CMClass descendant in cmClass.Descendants.Values)
+            {
+                if (!this.Descendants.ContainsKey(descendant.Id))
+                {
+                    this.AddDescendant(cmClass.Descendants[descendant.Id]);
+                }
+            }
         }
     }
 }
