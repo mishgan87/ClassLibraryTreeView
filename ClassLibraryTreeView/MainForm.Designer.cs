@@ -34,6 +34,7 @@
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this.buttonOpenFile = new System.Windows.Forms.ToolStripButton();
             this.tabControlProperties = new System.Windows.Forms.TabControl();
+            this.toolStripButtonExportPermissibleGrid = new System.Windows.Forms.ToolStripButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -77,7 +78,8 @@
             // toolStripMenu
             // 
             this.toolStripMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.buttonOpenFile});
+            this.buttonOpenFile,
+            this.toolStripButtonExportPermissibleGrid});
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
             this.toolStripMenu.Size = new System.Drawing.Size(354, 25);
@@ -102,6 +104,16 @@
             this.tabControlProperties.SelectedIndex = 0;
             this.tabControlProperties.Size = new System.Drawing.Size(708, 554);
             this.tabControlProperties.TabIndex = 0;
+            // 
+            // toolStripButtonExportPermissibleGrid
+            // 
+            this.toolStripButtonExportPermissibleGrid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.toolStripButtonExportPermissibleGrid.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonExportPermissibleGrid.Image")));
+            this.toolStripButtonExportPermissibleGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButtonExportPermissibleGrid.Name = "toolStripButtonExportPermissibleGrid";
+            this.toolStripButtonExportPermissibleGrid.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonExportPermissibleGrid.Text = "Export Permissible Grid";
+            this.toolStripButtonExportPermissibleGrid.Click += new System.EventHandler(this.ToolStripButtonExportPermissibleGrid_Click);
             // 
             // MainForm
             // 
@@ -130,6 +142,7 @@
         private System.Windows.Forms.ToolStrip toolStripMenu;
         private System.Windows.Forms.ToolStripButton buttonOpenFile;
         private System.Windows.Forms.TabControl tabControlProperties;
+        private System.Windows.Forms.ToolStripButton toolStripButtonExportPermissibleGrid;
     }
 }
 

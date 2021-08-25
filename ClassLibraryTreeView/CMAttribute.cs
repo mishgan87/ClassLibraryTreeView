@@ -3,27 +3,74 @@ using System.Xml.Linq;
 
 namespace ClassLibraryTreeView
 {
-    public class CMAttribute : ICMElement
+    public class CMAttribute
     {
+        private Dictionary<string, string> attributes;
+        private Dictionary<string, CMClass> permissibleClasses;
+        public Dictionary<string, string> Attributes
+        {
+            get
+            {
+                if (attributes.Count > 0)
+                {
+                    return attributes;
+                }
+                return null;
+            }
+        }
+        public Dictionary<string, CMClass> PermissibleClasses
+        {
+            get
+            {
+                if (permissibleClasses.Count > 0)
+                {
+                    return permissibleClasses;
+                }
+                return null;
+            }
+        }
         public CMAttribute()
         {
-            Attribute = new Dictionary<string, string>();
+            Init();
         }
         public CMAttribute(XElement source)
         {
-            Attribute = new Dictionary<string, string>();
+            Init();
+            AddAttribute(source);
+        }
+        public void Init()
+        {
+            attributes = new Dictionary<string, string>();
+            permissibleClasses = new Dictionary<string, CMClass>();
+        }
+        public void Clear()
+        {
+            attributes.Clear();
+            permissibleClasses.Clear();
+        }
+        public void AddPermissibleClass(CMClass cmClass)
+        {
+            permissibleClasses.Add(cmClass.Id, cmClass);
+        }
+        public void AddAttribute(string id, string value)
+        {
+            attributes.Add(id, value);
+        }
+        public void AddAttribute(XElement source)
+        {
             foreach (XAttribute attribute in source.Attributes())
             {
-                Attribute.Add($"{attribute.Name.LocalName}", $"{attribute.Value}");
+                attributes.Add($"{attribute.Name.LocalName}", $"{attribute.Value}");
             }
         }
-        public Dictionary<string, string> Attribute { get; set; }
-        public static void CopyAttributeX(Dictionary<string, string> recipient, IEnumerable<XAttribute> source)
+        public static Dictionary<string, CMAttribute> FillAttributesMap(XElement source)
         {
-            foreach (XAttribute attribute in source)
+            Dictionary<string, CMAttribute> map = new Dictionary<string, CMAttribute>();
+            foreach(XElement element in source.Elements())
             {
-                recipient.Add($"{attribute.Name.LocalName}", $"{attribute.Value}");
+                map.Add(element.Attribute("id").ToString(), new CMAttribute(element));
             }
+            return map;
         }
     }
 }
