@@ -161,7 +161,6 @@ namespace ClassLibraryTreeView
             Dictionary<string, CMClass> map = new Dictionary<string, CMClass>();
             foreach (CMClass cmClass in source)
             {
-                cmClass.Descendants.Clear();
                 if (!map.ContainsKey(cmClass.Id))
                 {
                     map.Add(cmClass.Id, cmClass);
@@ -176,7 +175,10 @@ namespace ClassLibraryTreeView
                     CMClass parent = CMClass.FindClass(parentId, map);
                     if (parent != null)
                     {
-                        parent.AddDescendant(cmClass);
+                        if (!parent.Descendants.ContainsKey(cmClass.Id))
+                        {
+                            parent.AddDescendant(cmClass);
+                        }
                     }
                 }
             }
