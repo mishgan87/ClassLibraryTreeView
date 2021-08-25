@@ -5,51 +5,62 @@ namespace ClassLibraryTreeView
 {
     public class CMClass // : ICMElement
     {
-        public Dictionary<string, string> Attribute
+        public string Attribute(string id)
+        {
+            if (attributes.ContainsKey(id))
+            {
+                return attributes[id];
+            }
+            return null;
+        }
+        public Dictionary<string, string> Attributes
         {
             get
             {
-                if (attribute.Count > 0)
+                if (attributes.Count > 0)
                 {
-                    return attribute;
+                    return attributes;
                 }
                 return null;
             }
         }
-        public Dictionary<string, CMClass> Descendant
+        public bool HasAttributes => Attributes != null;
+        public bool HasDecendants => Descendants != null;
+        public bool HasPermissibleAttributes => PermissibleAttributes != null;
+        public Dictionary<string, CMClass> Descendants
         {
             get
             {
-                if (descendant.Count > 0)
+                if (descendants.Count > 0)
                 {
-                    return descendant;
+                    return descendants;
                 }
                 return null;
             }
         }
-        public Dictionary<string, CMAttribute> PermissibleAttribute
+        public Dictionary<string, CMAttribute> PermissibleAttributes
         {
             get
             {
-                if (permissibleAttribute.Count > 0)
+                if (permissibleAttributes.Count > 0)
                 {
-                    return permissibleAttribute;
+                    return permissibleAttributes;
                 }
                 return null;
             }
         }
 
-        private Dictionary<string, string> attribute;
-        private Dictionary<string, CMClass> descendant;
-        private Dictionary<string, CMAttribute> permissibleAttribute;
+        private Dictionary<string, string> attributes;
+        private Dictionary<string, CMClass> descendants;
+        private Dictionary<string, CMAttribute> permissibleAttributes;
         public string ParentId
         {
             get
             {
                 string parentId = null;
-                if (Attribute.ContainsKey("extends"))
+                if (attributes.ContainsKey("extends"))
                 {
-                    parentId = Attribute["extends"];
+                    parentId = attributes["extends"];
                     if (parentId.Equals("not found"))
                     {
                         parentId = null;
@@ -58,14 +69,26 @@ namespace ClassLibraryTreeView
                 return parentId;
             }
         }
+        public string Name
+        {
+            get
+            {
+                string name = null;
+                if (attributes.ContainsKey("name"))
+                {
+                    name = attributes["name"];
+                }
+                return name;
+            }
+        }
         public string Id
         {
             get
             {
                 string id = null;
-                if (Attribute.ContainsKey("id"))
+                if (attributes.ContainsKey("id"))
                 {
-                    id = Attribute["id"];
+                    id = attributes["id"];
                 }
                 return id;
             }
@@ -74,10 +97,19 @@ namespace ClassLibraryTreeView
         {
             Init();
         }
+        public CMClass(CMClass cmClass)
+        {
+            this.attributes = new Dictionary<string, string>(cmClass.attributes);
+            this.descendants = new Dictionary<string, CMClass>(cmClass.descendants);
+            this.permissibleAttributes = new Dictionary<string, CMAttribute>(cmClass.permissibleAttributes);
+        }
         public CMClass(XElement element)
         {
             Init();
-            CMAttribute.CopyAttributeX(this.Attribute, element.Attributes());
+            foreach (XAttribute attribute in element.Attributes())
+            {
+                AddAttribute($"{attribute.Name.LocalName}", $"{attribute.Value}");
+            }
             foreach (XElement child in element.Elements())
             {
                 string childName = child.Name.LocalName;
@@ -85,7 +117,7 @@ namespace ClassLibraryTreeView
                 {
                     foreach (XElement permissibleAttribute in child.Elements())
                     {
-                        this.PermissibleAttribute.Add(new CMAttribute(permissibleAttribute));
+                        AddPermissibleAttribute(new CMAttribute(permissibleAttribute));
                     }
                 }
 
@@ -93,40 +125,40 @@ namespace ClassLibraryTreeView
                 {
                     foreach (XElement descendant in child.Elements())
                     {
-                        this.Descendant.Add(descendant.Attribute("id").Value, new CMClass(descendant));
+                        AddDescendant(new CMClass(descendant));
                     }
                 }
             }
         }
         private void Init()
         {
-            attribute = new Dictionary<string, string>();
-            descendant = new Dictionary<string, CMClass>();
-            permissibleAttribute = new Dictionary<string, CMAttribute>();
+            attributes = new Dictionary<string, string>();
+            descendants = new Dictionary<string, CMClass>();
+            permissibleAttributes = new Dictionary<string, CMAttribute>();
         }
         public void Clone(CMClass cmClass)
         {
-            this.attribute = cmClass.attribute;
-            this.descendant = cmClass.descendant;
-            this.permissibleAttribute = cmClass.permissibleAttribute;
+            this.attributes = cmClass.attributes;
+            this.descendants = cmClass.descendants;
+            this.permissibleAttributes = cmClass.permissibleAttributes;
         }
         public void Clear()
         {
-            this.Attribute.Clear();
-            this.Descendant.Clear();
-            this.PermissibleAttribute.Clear();
+            this.Attributes.Clear();
+            this.Descendants.Clear();
+            this.PermissibleAttributes.Clear();
         }
         public void AddPermissibleAttribute(CMAttribute cmAttribute)
         {
-            permissibleAttribute.Add(cmAttribute.Attribute["id"], cmAttribute);
+            permissibleAttributes.Add(cmAttribute.Attribute["id"], cmAttribute);
         }
         public void AddAttribute(string id, string value)
         {
-            attribute.Add(id, value);
+            attributes.Add(id, value);
         }
         public void AddDescendant(CMClass cmClass)
         {
-            descendant.Add(cmClass.Attribute["id"], cmClass);
+            descendants.Add(cmClass.Id, cmClass);
         }
         public static Dictionary<string, CMClass> FillClassMap(XElement source)
         {
@@ -139,34 +171,62 @@ namespace ClassLibraryTreeView
                 }
             }
             // set classes inheritance
-            Dictionary<string, CMClass> newMap = new Dictionary<string, CMClass>(map);
             foreach (CMClass cmClass in map.Values)
             {
                 string parentId = cmClass.ParentId;
                 if (parentId != null)
                 {
-                    CMClass parent = CMClass.FindClass(parentId, newMap);
+                    CMClass parent = CMClass.FindClass(parentId, map);
                     if (parent != null)
                     {
                         parent.AddDescendant(cmClass);
-                        newMap.Remove(cmClass.Id);
                     }
                 }
             }
-            return newMap;
-        }
-        public static CMClass FindClass(string classId, Dictionary<string, CMClass> classMap)
-        {
-            CMClass cmClass;
-            if (classMap.TryGetValue(classId, out cmClass))
+            Dictionary<string, CMClass> mapNew = new Dictionary<string, CMClass>(map);
+            foreach (CMClass cmClass in map.Values)
             {
-                return cmClass;
+                if (cmClass.ParentId != null)
+                {
+                    mapNew.Remove(cmClass.Id);
+                }
             }
-            else
+            return mapNew;
+        }
+        public static CMClass FindClass(string id, Dictionary<string, CMClass> map)
+        {
+            if (map == null)
             {
-                
                 return null;
             }
+            foreach (CMClass value in map.Values)
+            {
+                if (value.Id.Equals(id))
+                {
+                    return value;
+                }
+                if (!value.HasDecendants)
+                {
+                    continue;
+                }
+                foreach(CMClass descendant in value.Descendants.Values)
+                {
+                    if (descendant.Id.Equals(id))
+                    {
+                        return descendant;
+                    }
+                    if (!descendant.HasDecendants)
+                    {
+                        continue;
+                    }
+                    CMClass cmClass = FindClass(id, descendant.Descendants);
+                    if (cmClass != null)
+                    {
+                        return cmClass;
+                    }
+                }
+            }
+            return null;
         }
     }
 }

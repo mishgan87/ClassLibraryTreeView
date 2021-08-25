@@ -15,24 +15,55 @@ namespace ClassLibraryTreeView
         {
             InitializeComponent();
             model = new ConceptualModel();
-            if(OpenFile())
+        }
+        private void AddChildren(TreeNode treeNodeRoot, CMClass cmClass)
+        {
+            if (cmClass.HasDecendants)
             {
-                ShowModelTreeView();
+                foreach(CMClass descendant in cmClass.Descendants.Values)
+                {
+                    TreeNode treeNode = new TreeNode();
+                    treeNode.Text = descendant.Name;
+                    treeNode.Tag = descendant.Id;
+                    AddChildren(treeNode, descendant);
+                    treeNodeRoot.Nodes.Add(treeNode);
+                }
             }
         }
         private void ShowModelTreeView()
         {
             treeView.Nodes.Clear();
-            /*
-            foreach(CMElement element in model.Elements.Values)
+            TreeNode treeNodeFunctionals = new TreeNode();
+            treeNodeFunctionals.Text = "Functionals";
+            foreach (CMClass cmClass in model.functionals.Values)
             {
                 TreeNode treeNode = new TreeNode();
-                treeNode.Text = element.Name;
-                treeNode.Tag = element.Id;
-                AddSubElements(element, treeNode);
-                treeView.Nodes.Add(treeNode);
+                treeNode.Text = cmClass.Name;
+                treeNode.Tag = cmClass.Id;
+                AddChildren(treeNode, cmClass);
+                treeNodeFunctionals.Nodes.Add(treeNode);
             }
-            */
+
+            TreeNode treeNodePhysicals = new TreeNode();
+            treeNodePhysicals.Text = "Physicals";
+            foreach (CMClass cmClass in model.physicals.Values)
+            {
+                TreeNode treeNode = new TreeNode();
+                treeNode.Text = cmClass.Name;
+                treeNode.Tag = cmClass.Id;
+                AddChildren(treeNode, cmClass);
+                treeNodePhysicals.Nodes.Add(treeNode);
+            }
+
+            if (treeNodeFunctionals.Nodes.Count > 0)
+            {
+                treeView.Nodes.Add(treeNodeFunctionals);
+            }
+
+            if (treeNodePhysicals.Nodes.Count > 0)
+            {
+                treeView.Nodes.Add(treeNodePhysicals);
+            }
         }
         public bool OpenFile()
         {
@@ -53,6 +84,31 @@ namespace ClassLibraryTreeView
                 }
             }
             return true;
+        }
+
+        private void ButtonOpenFile_Click(object sender, EventArgs e)
+        {
+            if (OpenFile())
+            {
+                ShowModelTreeView();
+            }
+        }
+
+        private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            string id = e.Node.Tag.ToString();
+            TreeNode parentNode = e.Node.Parent;
+            string parentText = parentNode.Text.ToString();
+            while (parentNode != null)
+            {
+                parentText = parentNode.Text.ToString();
+                parentNode = parentNode.Parent;
+            }
+
+            if (parentText.Equals("Functionals"))
+            {
+                CMClass cmClass = CMClass.FindClass(id, model.functionals);
+            }
         }
     }
 }
