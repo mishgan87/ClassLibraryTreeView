@@ -22,6 +22,34 @@ namespace ClassLibraryTreeView
                 return depth;
             }
         }
+        public string Presence(string attributeId, string defaultPresence)
+        {
+            string presence = defaultPresence;
+            for(int index = 0; index < permissibleAttributes.Count; index++)
+            {
+                CMAttribute attribute = permissibleAttributes[index];
+                if (attribute.Id.Equals(attributeId))
+                {
+                    presence = "X";
+                    if (attribute.Attributes.ContainsKey("presence"))
+                    {
+                        if (!attribute.Attributes["presence"].Equals(""))
+                        {
+                            presence = attribute.Attributes["presence"].Substring(0, 1);
+                        }
+                    }
+                }
+            }
+            if (presence.Equals("") || presence.Equals("X"))
+            {
+                CMClass parent = Parent;
+                if (parent != null)
+                {
+                    presence = parent.Presence(attributeId, presence);
+                }
+            }
+            return presence;
+        }
         public string Xtype => attributes["xtype"];
         public string Attribute(string id)
         {

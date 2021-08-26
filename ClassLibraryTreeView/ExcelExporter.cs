@@ -96,7 +96,7 @@ namespace ClassLibraryTreeView
             for (int columnIndex = 0; columnIndex < attributesArray.Length; columnIndex++)
             {
                 CMAttribute attribute = attributesArray[columnIndex];
-                string presence = "X";// FindAttribute(attribute, element);
+                string presence = cmClass.Presence(attribute.Id, "");
                 InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
             }
 
