@@ -63,14 +63,13 @@ namespace ClassLibraryTreeView
                 attributes.Add($"{attribute.Name.LocalName}", $"{attribute.Value}");
             }
         }
-        public static Dictionary<string, CMAttribute> FillAttributesMap(XElement source)
+        // public static void AddAttributes(Dictionary<string, CMAttribute> map, XElement element)
+        public static void AddAttributes(List<CMAttribute> list, XElement element)
         {
-            Dictionary<string, CMAttribute> map = new Dictionary<string, CMAttribute>();
-            foreach(XElement element in source.Elements())
+            foreach(XElement attribute in element.Elements())
             {
-                map.Add(element.Attribute("id").ToString(), new CMAttribute(element));
+                list.Add(new CMAttribute(attribute));
             }
-            return map;
         }
     }
 }

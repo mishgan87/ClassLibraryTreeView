@@ -26,42 +26,55 @@ namespace ClassLibraryTreeView
             model = new ConceptualModel();
             fileName = "";
         }
-        private void AddChildren(TreeNode treeNodeRoot, CMClass cmClass)
+        private void AddChildren(TreeNode treeNodeRoot, CMClass cmClass, List<CMClass> cmClassList)
         {
-            if (cmClass.Descendants.Count > 0)
+            foreach (CMClass child in cmClassList)
             {
-                foreach(CMClass descendant in cmClass.Descendants.Values)
+                if (child.ParentId == null)
+                {
+                    continue;
+                }
+                if (child.ParentId.Equals(cmClass.Id))
                 {
                     TreeNode treeNode = new TreeNode();
-                    treeNode.Text = descendant.Name;
-                    treeNode.Tag = descendant.Id;
-                    AddChildren(treeNode, descendant);
+                    treeNode.Text = child.Name;
+                    treeNode.Tag = child.Id;
+                    AddChildren(treeNode, child, cmClassList);
                     treeNodeRoot.Nodes.Add(treeNode);
                 }
             }
         }
-        private void AddClassMap(Dictionary<string, CMClass> map, string text, TreeView treeView)
+        private int AddClass(List<CMClass> cmClassList, string type, TreeView treeView, int beginIndex)
         {
             TreeNode treeNodeRoot = new TreeNode();
-            treeNodeRoot.Text = text;
-            foreach (CMClass cmClass in map.Values)
+            treeNodeRoot.Text = type;
+            int index = 0;
+            for(index = beginIndex; index < cmClassList.Count; index++)
             {
+                if (!cmClassList[index].Xtype.Equals(type))
+                {
+                    break;
+                }
                 TreeNode treeNode = new TreeNode();
-                treeNode.Text = cmClass.Name;
-                treeNode.Tag = cmClass.Id;
-                AddChildren(treeNode, cmClass);
+                treeNode.Text = cmClassList[index].Name;
+                treeNode.Tag = cmClassList[index].Id;
+                AddChildren(treeNode, cmClassList[index], cmClassList);
                 treeNodeRoot.Nodes.Add(treeNode);
             }
             if (treeNodeRoot.Nodes.Count > 0)
             {
                 treeView.Nodes.Add(treeNodeRoot);
             }
+            return index;
         }
         private void ShowModelTreeView()
         {
             treeView.Nodes.Clear();
-            AddClassMap(model.functionals, "Functionals", treeView);
-            AddClassMap(model.physicals, "Physicals", treeView);
+            foreach(string type in model.classesTypes)
+            {
+                TreeNode treeNode = new TreeNode(type);
+                treeView.Nodes.Add(treeNode);
+            }
         }
         public bool OpenFile()
         {
@@ -99,38 +112,20 @@ namespace ClassLibraryTreeView
                 return;
             }
             string id = e.Node.Tag.ToString();
-            TreeNode parentNode = e.Node.Parent;
-            string parentText = parentNode.Text.ToString();
-            while (parentNode != null)
+            foreach(CMClass cmClass in model.classes)
             {
-                parentText = parentNode.Text.ToString();
-                parentNode = parentNode.Parent;
+                if (cmClass.Id.Equals(id))
+                {
+                    ShowProperties(cmClass);
+                    return;
+                }
             }
-
-            CMClass cmClass = new CMClass();
-
-            if (parentText.Equals("Functionals"))
-            {
-                cmClass.Clone(CMClass.FindClass(id, model.functionals));
-            }
-
-            if (parentText.Equals("Physicals"))
-            {
-                cmClass.Clone(CMClass.FindClass(id, model.physicals));
-            }
-
-            if (parentText.Equals("Documents"))
-            {
-                cmClass.Clone(CMClass.FindClass(id, model.documents));
-            }
-
-            ShowProperties(cmClass);
         }
         private void ShowProperties(CMClass cmClass)
         {
             tabControlProperties.TabPages.Clear();
 
-            if (cmClass.Descendants.Count > 0)
+            if (cmClass.Attributes.Count > 0)
             {
                 ListView listView = new ListView();
                 listView.View = View.Details;
@@ -179,7 +174,8 @@ namespace ClassLibraryTreeView
             string newFileName = fileName;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
-            if (model.ExportPermissibleGrid(newFileName) == 0)
+            int result = ExcelExporter.ExportPermissibleGrid(newFileName, model);
+            if (result == 0)
             {
                 MessageBox.Show($"Export done");
             }

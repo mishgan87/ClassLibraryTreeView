@@ -53,6 +53,7 @@
     <Compile Include="CMAttribute.cs" />
     <Compile Include="CMClass.cs" />
     <Compile Include="ConceptualModel.cs" />
+    <Compile Include="ExcelExporter.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

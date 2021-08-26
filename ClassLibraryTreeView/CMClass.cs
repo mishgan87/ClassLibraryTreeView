@@ -9,6 +9,7 @@ namespace ClassLibraryTreeView
         private Dictionary<string, CMClass> descendants;
         private Dictionary<string, CMAttribute> permissibleAttributes;
         public int Depth{ get;}
+        public string Xtype => attributes["xtype"];
         public string Attribute(string id)
         {
             if (attributes.ContainsKey(id))
@@ -30,6 +31,7 @@ namespace ClassLibraryTreeView
         }
         public Dictionary<string, CMClass> Descendants => descendants;
         public Dictionary<string, CMAttribute> PermissibleAttributes => permissibleAttributes;
+        public CMClass Parent { get; set; }
         public string ParentId
         {
             get
@@ -87,6 +89,7 @@ namespace ClassLibraryTreeView
             {
                 AddAttribute($"{attribute.Name.LocalName}", $"{attribute.Value}");
             }
+            AddAttribute($"xtype", $"{element.Parent.Name.LocalName}");
             foreach (XElement child in element.Elements())
             {
                 string childName = child.Name.LocalName;
@@ -106,6 +109,10 @@ namespace ClassLibraryTreeView
                     }
                 }
             }
+        }
+        public bool Equals(CMClass cmClass)
+        {
+            return (this.attributes == cmClass.attributes && this.descendants == cmClass.descendants && this.permissibleAttributes == cmClass.permissibleAttributes);
         }
         private void Init()
         {
@@ -154,7 +161,15 @@ namespace ClassLibraryTreeView
         }
         public void AddDescendant(CMClass cmClass)
         {
-            descendants.Add(cmClass.Id, cmClass);
+            if(descendants.ContainsKey(cmClass.Id))
+            {
+                CMClass descendant = descendants[cmClass.Id];
+
+            }
+            else
+            {
+                descendants.Add(cmClass.Id, cmClass);
+            }
         }
         public static Dictionary<string, CMClass> FillClassMap(List<CMClass> source)
         {
@@ -192,16 +207,133 @@ namespace ClassLibraryTreeView
             }
             return mapNew;
         }
-        public static Dictionary<string, CMClass> FillClassMap(XElement source)
+        public static void FillClassList(XElement source, List<CMClass> list)
         {
-            Dictionary<string, CMClass> map = new Dictionary<string, CMClass>();
-            foreach (XElement child in source.Elements())
+            foreach (XElement element in source.Elements())
+            {
+                if (!element.Name.LocalName.ToLower().Equals("extension"))
+                {
+                    list.Add(new CMClass(element));
+                }
+            }
+            // set classes inheritance
+            /*
+            foreach (CMClass cmClass in list)
+            {
+                string parentId = cmClass.ParentId;
+                if (parentId != null)
+                {
+                    CMClass parent = CMClass.FindClass(parentId, map);
+                    if (parent != null)
+                    {
+                        if (!parent.Descendants.ContainsKey(cmClass.Id))
+                        {
+                            parent.AddDescendant(cmClass);
+                        }
+                    }
+                }
+            }
+
+            foreach (CMClass cmClass in map.Values)
+            {
+                string parentId = cmClass.ParentId;
+                if (parentId != null)
+                {
+                    CMClass parent = CMClass.FindClass(parentId, map);
+                    if (parent != null)
+                    {
+                        parent.AddDescendant(cmClass);
+                    }
+                }
+            }
+            Dictionary<string, CMClass> mapNew = new Dictionary<string, CMClass>(map);
+            foreach (CMClass cmClass in map.Values)
+            {
+                if (cmClass.ParentId != null)
+                {
+                    mapNew.Remove(cmClass.Id);
+                }
+            }
+            return mapNew;
+            return list;
+            */
+        }
+        public static void AddClasses(Dictionary<string, List<CMClass>> map, XElement element)
+        {
+            foreach (XElement child in element.Elements())
+            {
+                if (child.Name.LocalName.ToLower().Equals("extension"))
+                {
+                    continue;
+                }
+
+                string id = null;
+                CMClass cmClass = new CMClass(child);
+
+                if (cmClass.Attributes.ContainsKey("id"))
+                {
+                    id = cmClass.Id;
+                }
+                else
+                {
+                    if (cmClass.Attributes.ContainsKey("name"))
+                    {
+                        id = cmClass.Name;
+                    }
+                }
+
+                if (id == null)
+                {
+                    continue;
+                }
+
+                if (!map.ContainsKey(id))
+                {
+                    map.Add(id, new List<CMClass>());
+                }
+                map[id].Add(new CMClass(cmClass));
+            }
+
+            DefineInheritance(map);
+        }
+        public static void DefineInheritance(Dictionary<string, List<CMClass>> map)
+        {
+            foreach (string id in map.Keys)
+            {
+                List<CMClass> cmClassList = map[id];
+                foreach (CMClass cmClass in cmClassList)
+                {
+                    string parentId = cmClass.ParentId;
+
+                    if (parentId == null)
+                    {
+                        continue;
+                    }
+
+                    if (!map.ContainsKey(parentId))
+                    {
+                        continue;
+                    }
+
+                    List<CMClass> parents = map[parentId];
+
+                    for (int index = 0; index < parents.Count; index++)
+                    {
+                        parents[index].AddDescendant(new CMClass(cmClass));
+                    }
+                }
+            }
+        }
+        public static void AddClasses(List<CMClass> list, XElement element)
+        {
+            foreach (XElement child in element.Elements())
             {
                 if (!child.Name.LocalName.ToLower().Equals("extension"))
                 {
-                    map.Add(child.Attribute("id").Value, new CMClass(child));
+                    list.Add(new CMClass(child));
                 }
             }
+            /*
             // set classes inheritance
             foreach (CMClass cmClass in map.Values)
             {
@@ -224,6 +356,7 @@ namespace ClassLibraryTreeView
                 }
             }
             return mapNew;
+            */
         }
         public static CMClass FindClass(string id, Dictionary<string, CMClass> map)
         {
