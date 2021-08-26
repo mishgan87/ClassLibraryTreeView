@@ -98,6 +98,8 @@ namespace ClassLibraryTreeView
             SetInheritance(func);
             SetInheritance(docs);
             SetInheritance(phys);
+
+            MergeClasses(phys, func);
         }
         private void AddClass(XElement element, Dictionary<string, CMClass> map)
         {
@@ -158,6 +160,28 @@ namespace ClassLibraryTreeView
                 cmClass = docs[id];
             }
             return cmClass;
+        }
+        private void MergeClasses(Dictionary<string, CMClass> source, Dictionary<string, CMClass> recipient)
+        {
+            foreach(CMClass cmClass in recipient.Values)
+            {
+                CMClass sameClass = null;
+                foreach (CMClass cmSourceClass in source.Values)
+                {
+                    if (cmClass.Name.Equals(cmSourceClass.Name))
+                    {
+                        sameClass = cmSourceClass;
+                        break;
+                    }
+                }
+                if (sameClass != null)
+                {
+                    for(int index = 0; index < sameClass.Descendants.Count; index++)
+                    {
+                        cmClass.AddDescendant(sameClass.Descendants[index]);
+                    }
+                }
+            }
         }
     }
 }

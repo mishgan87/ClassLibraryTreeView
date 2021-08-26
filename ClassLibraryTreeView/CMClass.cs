@@ -223,37 +223,5 @@ namespace ClassLibraryTreeView
 
             return true;
         }
-        private CMClass FindClass(string classType, string classId, Dictionary<string, List<CMClass>> map)
-        {
-            foreach (string id in map.Keys)
-            {
-                if (!id.Equals(classId))
-                {
-                    continue;
-                }
-                List<CMClass> cmClassList = map[id];
-                foreach (CMClass cmClass in cmClassList)
-                {
-                    if (cmClass.Xtype.Equals(classType))
-                    {
-                        return cmClass;
-                    }
-                    
-                    if(cmClass.Descendants.Count == 0)
-                    {
-                        continue;
-                    }
-
-                    foreach(CMClass cmClassChild in cmClass.Descendants)
-                    {
-                        if (cmClassChild.Xtype.Equals(classType))
-                        {
-                            return cmClassChild;
-                        }
-                    }
-                }
-            }
-            return null;
-        }
     }
 }
