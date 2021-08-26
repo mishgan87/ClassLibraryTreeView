@@ -68,7 +68,7 @@ namespace ClassLibraryTreeView
                 Dictionary<string, CMClass> phys = model.phys;
 
                 uint rowIndex = 2;
-                rowIndex = AddClass(sheetData, rowIndex, maxDepth,attributesArray, func);
+                rowIndex = AddClass(sheetData, rowIndex, maxDepth,attributesArray, func, phys);
                 rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributesArray, phys);
 
                 workbookPart.Workbook.Save();
@@ -102,6 +102,37 @@ namespace ClassLibraryTreeView
 
             return newRowIndex;
         }
+        static CMClass FindSameInChildren(CMClass cmClass, CMClass source)
+        {
+            CMClass result = null;
+            if (source.Descendants.Count > 0)
+            {
+                foreach (CMClass child in cmClass.Descendants)
+                {
+                    if (child.Name.Equals(cmClass.Name))
+                    {
+                        return child;
+                    }
+                }
+            }
+            return result;
+        }
+        static CMClass FindSameName(CMClass cmClass, Dictionary<string, CMClass> source)
+        {
+            CMClass result = null;
+            foreach (CMClass value in source.Values)
+            {
+                if (!value.HasParent(source))
+                {
+                    if (value.Name.Equals(cmClass.Name))
+                    {
+                        return value;
+                    }
+                    result = FindSameInChildren(cmClass, value);
+                }
+            }
+            return result;
+        }
         static uint AddClass(SheetData sheetData, uint rowIndex, int maxDepth, CMAttribute[] attributesArray, Dictionary<string, CMClass> map, Dictionary<string, CMClass> source = null)
         {
             uint newRowIndex = rowIndex;
@@ -113,20 +144,41 @@ namespace ClassLibraryTreeView
                     {
                         newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, cmClass, attributesArray);
                         newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributesArray, cmClass);
+                        if (source != null)
+                        {
+                            CMClass sameClass = FindSameName(cmClass, source);
+                            if (sameClass != null)
+                            {
+                                newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributesArray, sameClass, cmClass);
+                            }
+                        }
                     }
                 }
             }
             return newRowIndex;
         }
-        static uint AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, CMAttribute[] attributesArray, CMClass cmClass)
+        static uint AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, CMAttribute[] attributesArray, CMClass cmClass, CMClass source = null)
         {
             uint newRowIndex = rowIndex;
             if (cmClass.Descendants.Count != 0)
             {
                 foreach (CMClass child in cmClass.Descendants)
                 {
-                    newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, child, attributesArray);
-                    newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributesArray, child);
+                    if (source != null)
+                    {
+                        foreach (CMClass childSource in source.Descendants)
+                        {
+                            if (!childSource.Equals(child))
+                            {
+                                newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, child, attributesArray);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, child, attributesArray);
+                        newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributesArray, child);
+                    }
                 }
             }
             return newRowIndex;
