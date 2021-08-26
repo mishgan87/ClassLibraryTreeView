@@ -26,55 +26,12 @@ namespace ClassLibraryTreeView
             model = new ConceptualModel();
             fileName = "";
         }
-        private void AddChildren(TreeNode treeNodeRoot, CMClass cmClass, List<CMClass> cmClassList)
-        {
-            foreach (CMClass child in cmClassList)
-            {
-                if (child.ParentId == null)
-                {
-                    continue;
-                }
-                if (child.ParentId.Equals(cmClass.Id))
-                {
-                    TreeNode treeNode = new TreeNode();
-                    treeNode.Text = child.Name;
-                    treeNode.Tag = child.Id;
-                    AddChildren(treeNode, child, cmClassList);
-                    treeNodeRoot.Nodes.Add(treeNode);
-                }
-            }
-        }
-        private int AddClass(List<CMClass> cmClassList, string type, TreeView treeView, int beginIndex)
-        {
-            TreeNode treeNodeRoot = new TreeNode();
-            treeNodeRoot.Text = type;
-            int index = 0;
-            for(index = beginIndex; index < cmClassList.Count; index++)
-            {
-                if (!cmClassList[index].Xtype.Equals(type))
-                {
-                    break;
-                }
-                TreeNode treeNode = new TreeNode();
-                treeNode.Text = cmClassList[index].Name;
-                treeNode.Tag = cmClassList[index].Id;
-                AddChildren(treeNode, cmClassList[index], cmClassList);
-                treeNodeRoot.Nodes.Add(treeNode);
-            }
-            if (treeNodeRoot.Nodes.Count > 0)
-            {
-                treeView.Nodes.Add(treeNodeRoot);
-            }
-            return index;
-        }
         private void ShowModelTreeView()
         {
             treeView.Nodes.Clear();
-            foreach(string type in model.classesTypes)
-            {
-                TreeNode treeNode = new TreeNode(type);
-                treeView.Nodes.Add(treeNode);
-            }
+            treeView.AddClass(model.docs, "Documents");
+            treeView.AddClass(model.func, "Functionals");
+            treeView.AddClass(model.phys, "Physicals");
         }
         public bool OpenFile()
         {
@@ -107,66 +64,57 @@ namespace ClassLibraryTreeView
 
         private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
         {
-            if (e.Node.Tag == null)
+            if (e.Node.Tag != null)
             {
-                return;
-            }
-            string id = e.Node.Tag.ToString();
-            foreach(CMClass cmClass in model.classes)
-            {
-                if (cmClass.Id.Equals(id))
-                {
-                    ShowProperties(cmClass);
-                    return;
-                }
+                CMClass cmClass = model.GetClass(e.Node.Tag.ToString(), e.Node.Name.ToLower());
+                ShowProperties(cmClass);
             }
         }
         private void ShowProperties(CMClass cmClass)
         {
+            if (cmClass == null)
+            {
+                return;
+            }
+
             tabControlProperties.TabPages.Clear();
 
-            if (cmClass.Attributes.Count > 0)
+            ListView listView = new ListView();
+            listView.View = View.Details;
+            listView.Columns.Clear();
+            listView.Items.Clear();
+            listView.Columns.Add("Attribute", 150, HorizontalAlignment.Left);
+            listView.Columns.Add("Value", 150, HorizontalAlignment.Left);
+
+            foreach (string key in cmClass.Attributes.Keys)
             {
-                ListView listView = new ListView();
-                listView.View = View.Details;
-                listView.Columns.Clear();
-                listView.Items.Clear();
-                listView.Columns.Add("Attribute", 150, HorizontalAlignment.Left);
-                listView.Columns.Add("Value", 150, HorizontalAlignment.Left);
-
-                foreach (string key in cmClass.Attributes.Keys)
-                {
-                    string[] items = { $"{key}", $"{cmClass.Attributes[key]}" };
-                    listView.Items.Add(new ListViewItem(items));
-                }
-
-                foreach (ColumnHeader col in listView.Columns)
-                {
-                    col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
-                }
-
-                listView.Dock = DockStyle.Fill;
-
-                TabPage pageProperties = new TabPage("Properties");
-                pageProperties.Controls.Add(listView);
-                tabControlProperties.TabPages.Add(pageProperties);
+                string[] items = { $"{key}", $"{cmClass.Attributes[key]}" };
+                listView.Items.Add(new ListViewItem(items));
             }
 
-            if (cmClass.PermissibleAttributes.Count > 0)
+            foreach (ColumnHeader col in listView.Columns)
             {
-                TreeView treeView = new TreeView();
-
-                foreach (string key in cmClass.PermissibleAttributes.Keys)
-                {
-                    treeView.Nodes.Add(new TreeNode($"{key}"));
-                }
-
-                treeView.Dock = DockStyle.Fill;
-
-                TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
-                pagePermissibleAttributes.Controls.Add(treeView);
-                tabControlProperties.TabPages.Add(pagePermissibleAttributes);
+                col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
             }
+
+            listView.Dock = DockStyle.Fill;
+
+            TabPage pageProperties = new TabPage("Properties");
+            pageProperties.Controls.Add(listView);
+            tabControlProperties.TabPages.Add(pageProperties);
+
+            TreeView treeView = new TreeView();
+            List<CMAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
+            for(int index = 0; index < permissibleAttributes.Count; index++)
+            {
+                treeView.Nodes.Add(new TreeNode($"{permissibleAttributes[index].Id}"));
+            }
+
+            treeView.Dock = DockStyle.Fill;
+
+            TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
+            pagePermissibleAttributes.Controls.Add(treeView);
+            tabControlProperties.TabPages.Add(pagePermissibleAttributes);
         }
 
         private void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)

@@ -50,6 +50,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ClassLibraryTreeView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="CMAttribute.cs" />
     <Compile Include="CMClass.cs" />
     <Compile Include="ConceptualModel.cs" />

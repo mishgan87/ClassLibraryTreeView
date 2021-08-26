@@ -115,7 +115,7 @@ namespace ClassLibraryTreeView
                 return index;
             }
 
-            foreach (CMClass descendant in cmClass.Descendants.Values)
+            foreach (CMClass descendant in cmClass.Descendants)
             {
                 index = InsertClass(descendant, sheetData, index, attributesArray);
             }

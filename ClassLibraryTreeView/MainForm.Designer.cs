@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.treeView = new System.Windows.Forms.TreeView();
+            this.treeView = new ClassLibraryTreeView();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.toolStripMenu = new System.Windows.Forms.ToolStrip();
             this.buttonOpenFile = new System.Windows.Forms.ToolStripButton();
@@ -137,7 +137,8 @@
 
         #endregion
 
-        private System.Windows.Forms.TreeView treeView;
+        // private System.Windows.Forms.TreeView treeView;
+        private ClassLibraryTreeView treeView;
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.ToolStrip toolStripMenu;
         private System.Windows.Forms.ToolStripButton buttonOpenFile;
