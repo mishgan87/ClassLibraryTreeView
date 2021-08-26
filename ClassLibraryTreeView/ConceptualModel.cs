@@ -15,6 +15,37 @@ namespace ClassLibraryTreeView
         public Dictionary<string, CMClass> phys;
         public Dictionary<string, CMClass> docs;
 
+        public int MaxDepth
+        {
+            get
+            {
+                int maxDepth = 1;
+                if (func.Count > 0)
+                {
+                    foreach (CMClass cmClass in func.Values)
+                    {
+                        int depth = cmClass.Depth;
+                        if (depth > maxDepth)
+                        {
+                            maxDepth = depth;
+                        }
+                    }
+                }
+                if (phys.Count > 0)
+                {
+                    foreach (CMClass cmClass in phys.Values)
+                    {
+                        int depth = cmClass.Depth;
+                        if (depth > maxDepth)
+                        {
+                            maxDepth = depth;
+                        }
+                    }
+                }
+                return maxDepth;
+            }
+        }
+
         public ConceptualModel()
         {
             Init();

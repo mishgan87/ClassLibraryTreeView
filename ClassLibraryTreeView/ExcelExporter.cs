@@ -41,16 +41,8 @@ namespace ClassLibraryTreeView
                 {
                     lstColumns = new Columns();
                 }
-                // Вычисляем максимальную вложенность
-                /*
-                int maxDepth = MaxDepth(functionals);
-                int maxDepthPhysicals = MaxDepth(physicals);
-                if(maxDepthPhysicals > maxDepth)
-                {
-                    maxDepth = maxDepthPhysicals;
-                }
-                */
-                int maxDepth = 1;
+
+                int maxDepth = model.MaxDepth;
                 CMAttribute[] attributesArray = model.attributes.ToArray();
                 for (int columnIndex = 0; columnIndex < attributesArray.Length + maxDepth; columnIndex++)
                 {
@@ -69,16 +61,75 @@ namespace ClassLibraryTreeView
                     InsertCell(rowFirst, columnIndex, columnName, CellValues.String, 2);
                 }
                 sheetData.Append(rowFirst);
-                // Заполняем строки именами классов и значениями допустимых атрибутов
-                uint index = 2;
 
-                // index = InsertClasses(functionals, sheetData, index);
-                // index = InsertClasses(physicals, sheetData, index);
+                // Заполняем строки именами классов и значениями допустимых атрибутов
+
+                Dictionary<string, CMClass> func = model.func;
+                Dictionary<string, CMClass> phys = model.phys;
+
+                uint rowIndex = 2;
+                rowIndex = AddClass(sheetData, rowIndex, maxDepth,attributesArray, func);
+                rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributesArray, phys);
 
                 workbookPart.Workbook.Save();
                 document.Close();
             }
             return 0;
+        }
+        static uint WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, CMClass cmClass, CMAttribute[] attributesArray)
+        {
+            uint newRowIndex = rowIndex + 1;
+            Row row = new Row() { RowIndex = newRowIndex };
+            sheetData.Append(row);
+
+            int depthCurrent = cmClass.Depth;
+            for (int depth = 1; depth <= maxDepth; depth++)
+            {
+                string text = "";
+                if (depth == depthCurrent)
+                {
+                    text = $"{cmClass.Name}";
+                }
+                InsertCell(row, depth, text, CellValues.String, 1);
+            }
+
+            for (int columnIndex = 0; columnIndex < attributesArray.Length; columnIndex++)
+            {
+                CMAttribute attribute = attributesArray[columnIndex];
+                string presence = "X";// FindAttribute(attribute, element);
+                InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
+            }
+
+            return newRowIndex;
+        }
+        static uint AddClass(SheetData sheetData, uint rowIndex, int maxDepth, CMAttribute[] attributesArray, Dictionary<string, CMClass> map, Dictionary<string, CMClass> source = null)
+        {
+            uint newRowIndex = rowIndex;
+            if (map.Count > 0)
+            {
+                foreach (CMClass cmClass in map.Values)
+                {
+                    if (!cmClass.HasParent(map))
+                    {
+                        newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, cmClass, attributesArray);
+                        newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributesArray, cmClass);
+                    }
+                }
+            }
+            return newRowIndex;
+        }
+        static uint AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, CMAttribute[] attributesArray, CMClass cmClass)
+        {
+            uint newRowIndex = rowIndex;
+            if (cmClass.Descendants.Count != 0)
+            {
+                foreach (CMClass child in cmClass.Descendants)
+                {
+                    newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, child, attributesArray);
+                    newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributesArray, child);
+                }
+            }
+            return newRowIndex;
         }
         static string ColumnName(CMAttribute attribute)
         {
@@ -92,35 +143,6 @@ namespace ClassLibraryTreeView
                 columnName += $"_{attribute.Attributes["groupId"]}";
             }
             return columnName;
-        }
-        private uint InsertClass(CMClass cmClass, SheetData sheetData, uint beginIndex, CMAttribute[] attributesArray)
-        {
-            uint index = beginIndex;
-            Row row = new Row() { RowIndex = index };
-            sheetData.Append(row);
-
-            InsertCell(row, 1, $"{cmClass.Name}", CellValues.String, 2);
-
-            for (int columnIndex = 0; columnIndex < attributesArray.Length; columnIndex++)
-            {
-                CMAttribute attribute = attributesArray[columnIndex];
-                string presence = "X";// FindAttribute(attribute, element);
-                InsertCell(row, columnIndex + 2, presence, CellValues.String, 0);
-            }
-
-            index++;
-
-            if (cmClass.Descendants.Count == 0)
-            {
-                return index;
-            }
-
-            foreach (CMClass descendant in cmClass.Descendants)
-            {
-                index = InsertClass(descendant, sheetData, index, attributesArray);
-            }
-
-            return index;
         }
         //Добавление Ячейки в строку (На вход подаем: строку, номер колонки, тип значения, стиль)
         static void InsertCell(Row row, int cell_num, string val, CellValues type, uint styleIndex)

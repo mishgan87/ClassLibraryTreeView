@@ -8,7 +8,20 @@ namespace ClassLibraryTreeView
         private Dictionary<string, string> attributes;
         private List<CMClass> descendants;
         private List<CMAttribute> permissibleAttributes;
-        public int Depth { get; }
+        public int Depth
+        {
+            get
+            {
+                int depth = 1;
+                CMClass parent = Parent;
+                while (parent != null)
+                {
+                    depth++;
+                    parent = parent.Parent;
+                }
+                return depth;
+            }
+        }
         public string Xtype => attributes["xtype"];
         public string Attribute(string id)
         {
