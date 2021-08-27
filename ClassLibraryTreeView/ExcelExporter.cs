@@ -1,4 +1,5 @@
-﻿using DocumentFormat.OpenXml;
+﻿using ClassLibraryTreeView.Interfaces;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
@@ -43,20 +44,21 @@ namespace ClassLibraryTreeView
                 }
 
                 int maxDepth = model.MaxDepth;
-                CMAttribute[] attributesArray = model.attributes.ToArray();
-                for (int columnIndex = 0; columnIndex < attributesArray.Length + maxDepth; columnIndex++)
+                IAttribute[] attributes = model.attributes.Values.ToArray();
+                int columnsCount = model.attributes.Count + maxDepth;
+                for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++)
                 {
                     lstColumns.Append(new Column() { Min = 1, Max = 10, Width = 5, CustomWidth = true });
                 }
                 worksheetPart.Worksheet.InsertAt(lstColumns, 0);
 
                 Row rowFirst = new Row() { RowIndex = 1 };
-                for (int columnIndex = 0; columnIndex < attributesArray.Length + maxDepth; columnIndex++)
+                for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++)
                 {
                     string columnName = "";
                     if (columnIndex >= maxDepth)
                     {
-                        columnName = ColumnName(attributesArray[columnIndex - maxDepth]);
+                        columnName = ColumnName(attributes[columnIndex - maxDepth]);
                     }
                     InsertCell(rowFirst, columnIndex, columnName, CellValues.String, 2);
                 }
@@ -64,25 +66,22 @@ namespace ClassLibraryTreeView
 
                 // Заполняем строки именами классов и значениями допустимых атрибутов
 
-                Dictionary<string, CMClass> func = model.func;
-                Dictionary<string, CMClass> phys = model.phys;
-
                 uint rowIndex = 2;
-                rowIndex = AddClass(sheetData, rowIndex, maxDepth,attributesArray, func);
-                rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributesArray, phys);
+                rowIndex = AddClass(sheetData, rowIndex, maxDepth,attributes, model.functionals);
+                rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
 
                 workbookPart.Workbook.Save();
                 document.Close();
             }
             return 0;
         }
-        static uint WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, CMClass cmClass, CMAttribute[] attributesArray)
+        static uint WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, IClass cmClass, Dictionary<string, IClass> map, IAttribute[] attributes)
         {
             uint newRowIndex = rowIndex + 1;
             Row row = new Row() { RowIndex = newRowIndex };
             sheetData.Append(row);
 
-            int depthCurrent = cmClass.Depth;
+            int depthCurrent = ConceptualModel.ClassDepth(cmClass, map);
             for (int depth = 1; depth <= maxDepth; depth++)
             {
                 string text = "";
@@ -93,54 +92,54 @@ namespace ClassLibraryTreeView
                 InsertCell(row, depth, text, CellValues.String, 1);
             }
 
-            for (int columnIndex = 0; columnIndex < attributesArray.Length; columnIndex++)
+            for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
             {
-                CMAttribute attribute = attributesArray[columnIndex];
-                string presence = cmClass.Presence(attribute.Id, "");
+                IAttribute attribute = attributes[columnIndex];
+                string presence = ConceptualModel.AttributePresence(attributes[columnIndex].Id, attributes[columnIndex].Presence, cmClass, map);
                 InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
             }
 
             return newRowIndex;
         }
-        static uint AddClass(SheetData sheetData, uint rowIndex, int maxDepth, CMAttribute[] attributesArray, Dictionary<string, CMClass> map)
+        static uint AddClass(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, Dictionary<string, IClass> map)
         {
             uint newRowIndex = rowIndex;
             if (map.Count > 0)
             {
-                foreach (CMClass cmClass in map.Values)
+                foreach (IClass cmClass in map.Values)
                 {
-                    if (!cmClass.HasParent(map))
+                    if (cmClass.Extends == null)
                     {
-                        newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, cmClass, attributesArray);
-                        newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributesArray, cmClass);
+                        newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, cmClass, map, attributes);
+                        newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributes, cmClass, map);
                     }
                 }
             }
             return newRowIndex;
         }
-        static uint AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, CMAttribute[] attributesArray, CMClass cmClass)
+        static uint AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, IClass cmClass, Dictionary<string, IClass> map)
         {
             uint newRowIndex = rowIndex;
-            if (cmClass.Descendants.Count != 0)
+            if (cmClass.Children.Count != 0)
             {
-                foreach (CMClass child in cmClass.Descendants)
+                foreach (IClass child in cmClass.Children)
                 {
-                    newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, child, attributesArray);
-                    newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributesArray, child);
+                    newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, child, map, attributes);
+                    newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributes, child, map);
                 }
             }
             return newRowIndex;
         }
-        static string ColumnName(CMAttribute attribute)
+        static string ColumnName(IAttribute attribute)
         {
-            string columnName = attribute.Attributes["id"];
-            if (attribute.Attributes.ContainsKey("name"))
+            string columnName = attribute.Id;
+            if (!attribute.Name.Equals(""))
             {
-                columnName = attribute.Attributes["name"];
+                columnName = attribute.Name;
             }
-            if (attribute.Attributes.ContainsKey("groupId"))
+            if (!attribute.Group.Equals(""))
             {
-                columnName += $"_{attribute.Attributes["groupId"]}";
+                columnName += $"_{attribute.Group}";
             }
             return columnName;
         }

@@ -64,7 +64,7 @@ namespace ClassLibraryTreeView.Interfaces
                         }
                         break;
                     case "concept":
-                        Extends = $"{attribute.Value}";
+                        Concept = $"{attribute.Value}";
                         break;
                     case "lifecycletype":
                         LifeCycleType = $"{attribute.Value}";
@@ -87,7 +87,7 @@ namespace ClassLibraryTreeView.Interfaces
                 {
                     foreach (XElement attribute in child.Elements())
                     {
-                        PermissibleAttributes.Add(attribute.Attribute("id").Value);
+                        PermissibleAttributes.Add(new IAttribute(attribute));
                     }
                 }
             }
@@ -106,8 +106,38 @@ namespace ClassLibraryTreeView.Interfaces
             Concept = "";
             LifeCycleType = null;
             NamingTemplates = new List<string>();
-            PermissibleAttributes = new List<string>();
+            PermissibleAttributes = new List<IAttribute>();
             Xtype = "";
+            Children = new List<IClass>();
+        }
+        public bool Equals(IIdentifiable source)
+        {
+            if ( (!Id.Equals(source.Id))
+                 || (!Name.Equals(source.Name))
+                 || (!Description.Equals(source.Description))
+                 || (!IsObsolete.Equals(source.IsObsolete))
+                 || (!SortOrder.Equals(source.SortOrder))
+                 || (!Aspect.Equals(source.Aspect))
+                 || (!Id.Equals(source.Id)) )
+            {
+                return false;
+            }
+
+            IClass someClass = (IClass)source;
+
+            if ((!IsAbstract.Equals(someClass.IsAbstract))
+                 || (!Extends.Equals(someClass.Extends))
+                 || (!Concept.Equals(someClass.Concept))
+                 || (!LifeCycleType.Equals(someClass.LifeCycleType))
+                 || (!NamingTemplates.Equals(someClass.NamingTemplates))
+                 || (!PermissibleAttributes.Equals(someClass.PermissibleAttributes))
+                 || (!Xtype.Equals(someClass.Xtype))
+                 || (!Children.Equals(someClass.Children)) )
+            {
+                return false;
+            }
+
+            return true;
         }
         public void Clone(IIdentifiable source)
         {
@@ -125,8 +155,20 @@ namespace ClassLibraryTreeView.Interfaces
             Concept = someClass.Concept;
             LifeCycleType = someClass.LifeCycleType;
             NamingTemplates = new List<string>(someClass.NamingTemplates);
-            PermissibleAttributes = new List<string>(someClass.PermissibleAttributes);
+            PermissibleAttributes = new List<IAttribute>(someClass.PermissibleAttributes);
             Xtype = someClass.Xtype;
+            Children = new List<IClass>(someClass.Children);
+        }
+        public bool ContainsChild(IClass cmClass)
+        {
+            foreach(IClass child in Children)
+            {
+                if (child.Equals(cmClass))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         // Interface members
@@ -137,15 +179,14 @@ namespace ClassLibraryTreeView.Interfaces
         public string SortOrder { get; set; }
         public List<string> Aspect { get; set; }
         // Class members
-        bool IsAbstract { get; set; }
-        // IClass Extends { get; set; }
-        string Extends { get; set; }
+        public bool IsAbstract { get; set; }
+        public string Extends { get; set; }
         // IIdentifiableConcept Concept { get; set; }
-        string Concept { get; set; }
-        string LifeCycleType { get; set; }
-        List<string> NamingTemplates { get; set; }
-        List<string> PermissibleAttributes { get; set; }
-        string Xtype { get; set; }
-
+        public string Concept { get; set; }
+        public string LifeCycleType { get; set; }
+        public List<string> NamingTemplates { get; set; }
+        public List<IAttribute> PermissibleAttributes { get; set; }
+        public string Xtype { get; set; }
+        public List<IClass> Children { get; set; }
     }
 }

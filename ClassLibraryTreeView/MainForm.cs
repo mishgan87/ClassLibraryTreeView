@@ -52,12 +52,13 @@ namespace ClassLibraryTreeView
             {
                 ClassLibraryTreeView treeView = new ClassLibraryTreeView();
                 treeView.Nodes.Clear();
+                /*
                 treeView.AddClass(model.docs, "Documents");
                 treeView.AddClass(model.func, "Functionals");
                 treeView.AddClass(model.phys, "Physicals");
                 treeView.Dock = DockStyle.Fill;
                 treeView.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseDoubleClick);
-
+                */
                 TabPage page = new TabPage("Classes");
                 page.Controls.Add(treeView);
 

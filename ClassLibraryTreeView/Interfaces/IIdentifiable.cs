@@ -43,5 +43,6 @@ namespace ClassLibraryTreeView.Interfaces
         void Clone(IIdentifiable source);
         void Clone(XElement source);
         void Init();
+        bool Equals(IIdentifiable source);
     }
 }
