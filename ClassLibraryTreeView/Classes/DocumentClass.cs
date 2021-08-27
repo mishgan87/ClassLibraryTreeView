@@ -1,4 +1,4 @@
-﻿namespace ClassLibraryTreeView.Interfaces
+﻿namespace ClassLibraryTreeView.Classes
 {
     // Класс документа
     public class DocumentClass : IClass

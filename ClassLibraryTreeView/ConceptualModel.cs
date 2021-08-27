@@ -3,17 +3,12 @@ using System.Xml.Linq;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using ClassLibraryTreeView.Interfaces;
+using ClassLibraryTreeView.Classes;
 
 namespace ClassLibraryTreeView
 {
     public class ConceptualModel
     {
-        /*
-        public List<CMAttribute> attributes;
-        public Dictionary<string, CMClass> func;
-        public Dictionary<string, CMClass> phys;
-        public Dictionary<string, CMClass> docs;
-        */
         public Dictionary<string, IAttribute> attributes;
         public Dictionary<string, IClass> documents = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> functionals = new Dictionary<string, IClass>();
@@ -51,6 +46,47 @@ namespace ClassLibraryTreeView
             functionals.Clear();
             physicals.Clear();
         }
+        public string[] PermissibleAttributes(IClass cmClass)
+        {
+            Dictionary<string, IClass> map = null;
+            string xtype = cmClass.Xtype.ToLower();
+            if (xtype.Equals("documents"))
+            {
+                map = documents;
+            }
+            if (xtype.Equals("functionals"))
+            {
+                map = functionals;
+            }
+            if (xtype.Equals("physicals"))
+            {
+                map = physicals;
+            }
+            if(map == null)
+            {
+                return null;
+            }
+            List<string> result = new List<string>();
+            if(cmClass.PermissibleAttributes.Count > 0)
+            {
+                foreach(IAttribute attribute in cmClass.PermissibleAttributes)
+                {
+                    result.Add(attribute.Id);
+                }
+            }
+
+            string parent = cmClass.Extends;
+            while (!parent.Equals(""))
+            {
+                foreach (IAttribute attribute in map[parent].PermissibleAttributes)
+                {
+                    result.Add(attribute.Id);
+                }
+                parent = map[parent].Extends;
+            }
+
+            return result.ToArray();
+        }
         public static string AttributePresence(string id, string defaultPresence, IClass cmClass, Dictionary<string, IClass> map)
         {
             string presence = defaultPresence;
@@ -66,10 +102,10 @@ namespace ClassLibraryTreeView
                     }
                 }
             }
-            if ( (presence.Equals("") || presence.Equals("X")) && (cmClass.Extends != null) )
+            if ( (presence.Equals("") || presence.Equals("X")) && (!cmClass.Extends.Equals("")) )
             {
                 IClass parent = map[cmClass.Extends];
-                if (parent != null)
+                if (!parent.Equals(""))
                 {
                     presence = ConceptualModel.AttributePresence(id, presence, parent, map);
                 }
@@ -88,7 +124,7 @@ namespace ClassLibraryTreeView
             }
             int depth = 1;
             string parent = cmClass.Extends;
-            while (parent != null)
+            while (!parent.Equals(""))
             {
                 depth++;
                 parent = map[parent].Extends;
@@ -127,8 +163,6 @@ namespace ClassLibraryTreeView
                         IClass newClass = new IClass(child);
                         functionals.Add(newClass.Id, newClass);
                     }
-
-                    // AddClass(element, func);
                 }
                 if (name.ToLower().Equals("physicals"))
                 {
@@ -137,7 +171,6 @@ namespace ClassLibraryTreeView
                         IClass newClass = new IClass(child);
                         physicals.Add(newClass.Id, newClass);
                     }
-                    // AddClass(element, phys);
                 }
                 if (name.ToLower().Equals("documents"))
                 {
@@ -146,7 +179,6 @@ namespace ClassLibraryTreeView
                         IClass newClass = new IClass(child);
                         documents.Add(newClass.Id, newClass);
                     }
-                    // AddClass(element, docs);
                 }
                 if (name.ToLower().Equals("attributes"))
                 {
@@ -155,19 +187,12 @@ namespace ClassLibraryTreeView
                         IAttribute newAttribute = new IAttribute(child);
                         attributes.Add(newAttribute.Id, newAttribute);
                     }
-                    // CMAttribute.AddAttributes(attributes, element);
                 }
             }
             SetInheritance(documents);
             SetInheritance(functionals);
             SetInheritance(physicals);
             MergeClasses(physicals, functionals);
-            /*
-            SetInheritance(func);
-            SetInheritance(docs);
-            SetInheritance(phys);
-            MergeClasses(phys, func);
-            */
         }
         private void SetInheritance(Dictionary<string, IClass> map)
         {
@@ -175,57 +200,14 @@ namespace ClassLibraryTreeView
             {
                 foreach (IClass cmClass in map.Values)
                 {
-                    if (cmClass.Extends != null)
+                    if (!cmClass.Extends.Equals(""))
                     {
                         map[cmClass.Extends].Children.Add(cmClass);
                     }
                 }
             }
         }
-        private void AddClass(XElement element, Dictionary<string, CMClass> map)
-        {
-            foreach (XElement child in element.Elements())
-            {
-                if (!child.Name.LocalName.ToLower().Equals("extension"))
-                {
-                    string id = null;
-                    CMClass cmClass = new CMClass(child);
-
-                    if (cmClass.Attributes.ContainsKey("id"))
-                    {
-                        id = cmClass.Id;
-                    }
-                    else
-                    {
-                        if (cmClass.Attributes.ContainsKey("name"))
-                        {
-                            id = cmClass.Name;
-                        }
-                    }
-
-                    if (id != null)
-                    {
-                        map.Add(id, new CMClass(cmClass));
-                    }
-                }
-            }
-        }
-        private void SetInheritance(Dictionary<string, CMClass> map)
-        {
-            foreach (CMClass cmClass in map.Values)
-            {
-                if (!cmClass.HasParent(map))
-                {
-                    continue;
-                }
-
-                string parentId = cmClass.ParentId;
-                CMClass parent = map[parentId];
-                cmClass.Parent = parent;
-                parent.AddDescendant(cmClass);
-            }
-        }
-        public IClass GetIClass(string id, string xtype)
+        public IClass GetClass(string id, string xtype)
         {
             if (xtype.ToLower().Equals("functionals"))
             {
@@ -240,25 +222,6 @@ namespace ClassLibraryTreeView
                 return documents[id];
             }
             return null;
-        }
-        public CMClass GetClass(string id, string xtype)
-        {
-            CMClass cmClass = null;
-            /*
-            if (xtype.ToLower().Equals("functionals"))
-            {
-                cmClass = func[id];
-            }
-            if (xtype.ToLower().Equals("physicals"))
-            {
-                cmClass = phys[id];
-            }
-            if (xtype.ToLower().Equals("documents"))
-            {
-                cmClass = docs[id];
-            }
-            */
-            return cmClass;
         }
         private void MergeClasses(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
         {
@@ -278,28 +241,6 @@ namespace ClassLibraryTreeView
                                 }
                             }
                         }
-                    }
-                }
-            }
-        }
-        private void MergeClasses(Dictionary<string, CMClass> source, Dictionary<string, CMClass> recipient)
-        {
-            foreach (CMClass cmClass in recipient.Values)
-            {
-                CMClass sameClass = null;
-                foreach (CMClass cmSourceClass in source.Values)
-                {
-                    if (cmClass.Name.Equals(cmSourceClass.Name))
-                    {
-                        sameClass = cmSourceClass;
-                        break;
-                    }
-                }
-                if (sameClass != null)
-                {
-                    for(int index = 0; index < sameClass.Descendants.Count; index++)
-                    {
-                        cmClass.AddDescendant(sameClass.Descendants[index]);
                     }
                 }
             }

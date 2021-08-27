@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using ClassLibraryTreeView.Interfaces;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace ClassLibraryTreeView.Interfaces
+namespace ClassLibraryTreeView.Classes
 {
     // Интерфейс, определяющий базовые параметры всех классов
     public class IClass : IIdentifiable
@@ -58,9 +59,9 @@ namespace ClassLibraryTreeView.Interfaces
                         break;
                     case "extends":
                         Extends = $"{attribute.Value}";
-                        if (Extends.Equals("") || Extends.Equals("not found"))
+                        if (Extends.Equals("not found"))
                         {
-                            Extends = null;
+                            Extends = "";
                         }
                         break;
                     case "concept":
@@ -102,13 +103,59 @@ namespace ClassLibraryTreeView.Interfaces
             Aspect = new List<string>();
 
             IsAbstract = false;
-            Extends = null;
+            Extends = "";
             Concept = "";
-            LifeCycleType = null;
+            LifeCycleType = "";
             NamingTemplates = new List<string>();
             PermissibleAttributes = new List<IAttribute>();
             Xtype = "";
             Children = new List<IClass>();
+        }
+        public KeyValuePair<string, string>[] Attributes
+        {
+            get
+            {
+                List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
+
+                result.Add(new KeyValuePair<string, string>("Id", Id));
+                result.Add(new KeyValuePair<string, string>("Name", Name));
+                result.Add(new KeyValuePair<string, string>("Description", Description));
+                result.Add(new KeyValuePair<string, string>("IsObsolete", IsAbstract.ToString()));
+                result.Add(new KeyValuePair<string, string>("SortOrder", SortOrder));
+
+                if (Aspect.Count == 0)
+                {
+                    result.Add(new KeyValuePair<string, string>("Aspect", ""));
+                }
+                else
+                {
+                    foreach (string aspect in Aspect)
+                    {
+                        result.Add(new KeyValuePair<string, string>("Aspect", aspect));
+                    }
+                }
+
+                result.Add(new KeyValuePair<string, string>("IsAbstract", IsAbstract.ToString()));
+                result.Add(new KeyValuePair<string, string>("Extends", Extends));
+                result.Add(new KeyValuePair<string, string>("Concept", Concept));
+                result.Add(new KeyValuePair<string, string>("LifeCycleType", LifeCycleType));
+
+                if (NamingTemplates.Count == 0)
+                {
+                    result.Add(new KeyValuePair<string, string>("NamingTemplate", ""));
+                }
+                else
+                {
+                    foreach (string namingTemplate in NamingTemplates)
+                    {
+                        result.Add(new KeyValuePair<string, string>("NamingTemplate", namingTemplate));
+                    }
+                }
+
+                result.Add(new KeyValuePair<string, string>("Xtype", Xtype));
+
+                return result.ToArray();
+            }
         }
         public bool Equals(IIdentifiable source)
         {

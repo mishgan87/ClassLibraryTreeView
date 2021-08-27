@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ClassLibraryTreeView.Classes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ namespace ClassLibraryTreeView
         public ClassLibraryTreeView() : base()
         {
         }
-        private TreeNode NewNode(CMClass cmClass)
+        private TreeNode NewNode(IClass cmClass)
         {
             TreeNode treeNode = new TreeNode();
             treeNode.Text = cmClass.Name;
@@ -20,26 +21,26 @@ namespace ClassLibraryTreeView
             treeNode.Tag = $"{cmClass.Id}";
             return treeNode;
         }
-        private void AddChildren(CMClass cmClass, TreeNode treeNode)
+        private void AddChildren(IClass cmClass, TreeNode treeNode)
         {
-            if (cmClass.Descendants.Count == 0)
+            if (cmClass.Children.Count == 0)
             {
                 return;
             }
 
-            foreach(CMClass child in cmClass.Descendants)
+            foreach(IClass child in cmClass.Children)
             {
                 TreeNode childNode = NewNode(child);
                 AddChildren(child, childNode);
                 treeNode.Nodes.Add(childNode);
             }
         }
-        public void AddClass(Dictionary<string, CMClass> map, string xtype)
+        public void AddClass(Dictionary<string, IClass> map, string xtype)
         {
             TreeNode rootNode = new TreeNode(xtype);
-            foreach (CMClass cmClass in map.Values)
+            foreach (IClass cmClass in map.Values)
             {
-                if (!cmClass.HasParent(map))
+                if (cmClass.Extends.Equals(""))
                 {
                     TreeNode newNode = NewNode(cmClass);
                     AddChildren(cmClass, newNode);

@@ -1,4 +1,4 @@
-﻿namespace ClassLibraryTreeView.Interfaces
+﻿namespace ClassLibraryTreeView.Classes
 {
     // Функциональный класс
     class FunctionalClass : IClass

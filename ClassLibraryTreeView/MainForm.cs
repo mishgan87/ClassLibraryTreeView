@@ -1,4 +1,6 @@
-﻿using DocumentFormat.OpenXml;
+﻿using ClassLibraryTreeView.Classes;
+using ClassLibraryTreeView.Interfaces;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
@@ -52,13 +54,14 @@ namespace ClassLibraryTreeView
             {
                 ClassLibraryTreeView treeView = new ClassLibraryTreeView();
                 treeView.Nodes.Clear();
-                /*
-                treeView.AddClass(model.docs, "Documents");
-                treeView.AddClass(model.func, "Functionals");
-                treeView.AddClass(model.phys, "Physicals");
+                
+                treeView.AddClass(model.documents, "Documents");
+                treeView.AddClass(model.functionals, "Functionals");
+                treeView.AddClass(model.physicals, "Physicals");
                 treeView.Dock = DockStyle.Fill;
                 treeView.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseDoubleClick);
-                */
+                treeView.Font = tabControl.Font;
+
                 TabPage page = new TabPage("Classes");
                 page.Controls.Add(treeView);
 
@@ -71,11 +74,11 @@ namespace ClassLibraryTreeView
         {
             if (e.Node.Tag != null)
             {
-                CMClass cmClass = model.GetClass(e.Node.Tag.ToString(), e.Node.Name.ToLower());
+                IClass cmClass = model.GetClass(e.Node.Tag.ToString(), e.Node.Name.ToLower());
                 ShowProperties(cmClass);
             }
         }
-        private void ShowProperties(CMClass cmClass)
+        private void ShowProperties(IClass cmClass)
         {
             if (cmClass == null)
             {
@@ -84,6 +87,8 @@ namespace ClassLibraryTreeView
 
             tabControlProperties.TabPages.Clear();
 
+            // Insert properties
+
             ListView listView = new ListView();
             listView.View = View.Details;
             listView.Columns.Clear();
@@ -91,9 +96,11 @@ namespace ClassLibraryTreeView
             listView.Columns.Add("Attribute", 150, HorizontalAlignment.Left);
             listView.Columns.Add("Value", 150, HorizontalAlignment.Left);
 
-            foreach (string key in cmClass.Attributes.Keys)
+            KeyValuePair<string, string>[] attributes = cmClass.Attributes;
+
+            foreach (KeyValuePair<string, string> attribute in attributes)
             {
-                string[] items = { $"{key}", $"{cmClass.Attributes[key]}" };
+                string[] items = { $"{attribute.Key}", $"{attribute.Value}" };
                 listView.Items.Add(new ListViewItem(items));
             }
 
@@ -103,19 +110,25 @@ namespace ClassLibraryTreeView
             }
 
             listView.Dock = DockStyle.Fill;
+            listView.Font = tabControlProperties.Font;
 
             TabPage pageProperties = new TabPage("Properties");
             pageProperties.Controls.Add(listView);
             tabControlProperties.TabPages.Add(pageProperties);
 
+            // Insert children
+
+            // Insert permissible attributes
+
             TreeView treeView = new TreeView();
-            List<CMAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
-            for(int index = 0; index < permissibleAttributes.Count; index++)
+            string[] permissibleAttributes = model.PermissibleAttributes(cmClass);
+            for(int index = 0; index < permissibleAttributes.Length; index++)
             {
-                treeView.Nodes.Add(new TreeNode($"{permissibleAttributes[index].Id}"));
+                treeView.Nodes.Add(new TreeNode($"{permissibleAttributes[index]}"));
             }
 
             treeView.Dock = DockStyle.Fill;
+            treeView.Font = tabControlProperties.Font;
 
             TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
             pagePermissibleAttributes.Controls.Add(treeView);

@@ -1,4 +1,5 @@
-﻿using ClassLibraryTreeView.Interfaces;
+﻿using ClassLibraryTreeView.Classes;
+using ClassLibraryTreeView.Interfaces;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -108,7 +109,7 @@ namespace ClassLibraryTreeView
             {
                 foreach (IClass cmClass in map.Values)
                 {
-                    if (cmClass.Extends == null)
+                    if (cmClass.Extends.Equals(""))
                     {
                         newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, cmClass, map, attributes);
                         newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributes, cmClass, map);

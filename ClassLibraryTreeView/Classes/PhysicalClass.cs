@@ -1,4 +1,4 @@
-﻿namespace ClassLibraryTreeView.Interfaces
+﻿namespace ClassLibraryTreeView.Classes
 {
     // Физический класс
     class PhysicalClass : IClass
