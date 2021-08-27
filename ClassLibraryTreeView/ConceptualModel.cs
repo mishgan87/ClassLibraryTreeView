@@ -2,6 +2,7 @@
 using System.Xml.Linq;
 using System.Collections.Generic;
 using System.Windows.Forms;
+using ClassLibraryTreeView.Interfaces;
 
 namespace ClassLibraryTreeView
 {
@@ -75,11 +76,17 @@ namespace ClassLibraryTreeView
         {
             Clear();
             XDocument doc = XDocument.Load(fileName);
+            List<IClass> list = new List<IClass>();
             foreach (XElement element in doc.Elements().First().Elements())
             {
                 string name = element.Name.LocalName;
                 if (name.ToLower().Equals("functionals"))
                 {
+                    foreach (XElement child in element.Elements())
+                    {
+                        list.Add(new IClass(child));
+                    }
+
                     AddClass(element, func);
                 }
                 if (name.ToLower().Equals("physicals"))
@@ -163,7 +170,7 @@ namespace ClassLibraryTreeView
         }
         private void MergeClasses(Dictionary<string, CMClass> source, Dictionary<string, CMClass> recipient)
         {
-            foreach(CMClass cmClass in recipient.Values)
+            foreach (CMClass cmClass in recipient.Values)
             {
                 CMClass sameClass = null;
                 foreach (CMClass cmSourceClass in source.Values)

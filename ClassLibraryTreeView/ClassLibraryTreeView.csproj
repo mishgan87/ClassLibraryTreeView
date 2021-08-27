@@ -57,6 +57,12 @@
     <Compile Include="CMClass.cs" />
     <Compile Include="ConceptualModel.cs" />
     <Compile Include="ExcelExporter.cs" />
+    <Compile Include="Interfaces\DocumentClass.cs" />
+    <Compile Include="Interfaces\FunctionalClass.cs" />
+    <Compile Include="Interfaces\IAttribute.cs" />
+    <Compile Include="Interfaces\IClass.cs" />
+    <Compile Include="Interfaces\IIdentifiable.cs" />
+    <Compile Include="Interfaces\PhysicalClass.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

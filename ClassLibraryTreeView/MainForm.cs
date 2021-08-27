@@ -26,13 +26,6 @@ namespace ClassLibraryTreeView
             model = new ConceptualModel();
             fileName = "";
         }
-        private void ShowModelTreeView()
-        {
-            treeView.Nodes.Clear();
-            treeView.AddClass(model.docs, "Documents");
-            treeView.AddClass(model.func, "Functionals");
-            treeView.AddClass(model.phys, "Physicals");
-        }
         public bool OpenFile()
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
@@ -53,12 +46,23 @@ namespace ClassLibraryTreeView
             }
             return true;
         }
-
         private void ButtonOpenFile_Click(object sender, EventArgs e)
         {
             if (OpenFile())
             {
-                ShowModelTreeView();
+                ClassLibraryTreeView treeView = new ClassLibraryTreeView();
+                treeView.Nodes.Clear();
+                treeView.AddClass(model.docs, "Documents");
+                treeView.AddClass(model.func, "Functionals");
+                treeView.AddClass(model.phys, "Physicals");
+                treeView.Dock = DockStyle.Fill;
+                treeView.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseDoubleClick);
+
+                TabPage page = new TabPage("Classes");
+                page.Controls.Add(treeView);
+
+                tabControl.TabPages.Add(page);
+
             }
         }
 
