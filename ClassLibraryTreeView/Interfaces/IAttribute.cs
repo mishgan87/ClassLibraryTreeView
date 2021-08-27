@@ -95,7 +95,58 @@ namespace ClassLibraryTreeView.Interfaces
             Discipline = someAttribute.Discipline;
             IsUoMRequired = someAttribute.IsUoMRequired;
         }
+        public KeyValuePair<string, string>[] Attributes
+        {
+            get
+            {
+                List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
 
+                result.Add(new KeyValuePair<string, string>("Id", Id));
+                result.Add(new KeyValuePair<string, string>("Name", Name));
+                result.Add(new KeyValuePair<string, string>("Description", Description));
+                result.Add(new KeyValuePair<string, string>("IsObsolete", IsObsolete.ToString()));
+                result.Add(new KeyValuePair<string, string>("SortOrder", SortOrder));
+
+                if (Aspect.Count == 0)
+                {
+                    result.Add(new KeyValuePair<string, string>("Aspect", ""));
+                }
+                else
+                {
+                    foreach (string aspect in Aspect)
+                    {
+                        result.Add(new KeyValuePair<string, string>("Aspect", aspect));
+                    }
+                }
+
+                result.Add(new KeyValuePair<string, string>("ClassOfMeasure", ClassOfMeasure));
+                result.Add(new KeyValuePair<string, string>("DataType", DataType));
+                result.Add(new KeyValuePair<string, string>("GroupID", Group));
+                result.Add(new KeyValuePair<string, string>("Presence", Presence));
+                result.Add(new KeyValuePair<string, string>("ValidationType", ValidationType));
+                result.Add(new KeyValuePair<string, string>("ValidationRule", ValidationRule));
+                result.Add(new KeyValuePair<string, string>("MaxOccurs", MaxOccurs));
+                result.Add(new KeyValuePair<string, string>("MinOccurs", MinOccurs));
+
+                if (MaturityLevels.Count == 0)
+                {
+                    result.Add(new KeyValuePair<string, string>("MaturityLevel", ""));
+                }
+                else
+                {
+                    foreach (string maturityLevel in MaturityLevels)
+                    {
+                        result.Add(new KeyValuePair<string, string>("MaturityLevel", maturityLevel));
+                    }
+                }
+
+                result.Add(new KeyValuePair<string, string>("Concept", Concept));
+                result.Add(new KeyValuePair<string, string>("Discipline", Discipline));
+                result.Add(new KeyValuePair<string, string>("Is UoM Required", IsUoMRequired.ToString()));
+
+                return result.ToArray();
+            }
+        }
         public void Clone(XElement source)
         {
             Init();

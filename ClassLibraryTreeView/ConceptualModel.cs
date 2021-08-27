@@ -192,7 +192,8 @@ namespace ClassLibraryTreeView
             SetInheritance(documents);
             SetInheritance(functionals);
             SetInheritance(physicals);
-            MergeClasses(physicals, functionals);
+            // MergeClasses(physicals, functionals);
+            MergeAndClean(physicals, functionals);
         }
         private void SetInheritance(Dictionary<string, IClass> map)
         {
@@ -223,22 +224,59 @@ namespace ClassLibraryTreeView
             }
             return null;
         }
-        private void MergeClasses(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
+        private void MergeAndClean(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
         {
-            if (source.Count > 0)
+            if (source.Count == 0)
+            {
+                return;
+            }
+
+            List<IClass> classForRemoving = new List<IClass>();
+            foreach (IClass cmClass in recipient.Values)
             {
                 foreach (IClass sourceClass in source.Values)
                 {
-                    foreach (IClass cmClass in recipient.Values)
+                    if (sourceClass.Name.Equals(cmClass.Name))
                     {
-                        if(sourceClass.Name.Equals(cmClass.Name))
+                        classForRemoving.Add(sourceClass);
+                        for (int index = 0; index < sourceClass.Children.Count; index++)
                         {
-                            for(int index = 0; index < sourceClass.Children.Count; index++)
+                            if (!cmClass.ContainsChild(sourceClass.Children[index]))
                             {
-                                if (!cmClass.ContainsChild(sourceClass.Children[index]))
-                                {
-                                    cmClass.Children.Add(sourceClass.Children[index]);
-                                }
+                                cmClass.Children.Add(new IClass(sourceClass.Children[index]));
+                                classForRemoving.Add(sourceClass.Children[index]);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if(classForRemoving.Count > 0)
+            {
+                foreach(IClass cmClass in classForRemoving)
+                {
+                    source.Remove(cmClass.Id);
+                }
+            }
+        }
+        private void MergeClasses(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
+        {
+            if (source.Count == 0)
+            {
+                return;
+            }
+
+            foreach (IClass sourceClass in source.Values)
+            {
+                foreach (IClass cmClass in recipient.Values)
+                {
+                    if (sourceClass.Name.Equals(cmClass.Name))
+                    {
+                        for (int index = 0; index < sourceClass.Children.Count; index++)
+                        {
+                            if (!cmClass.ContainsChild(sourceClass.Children[index]))
+                            {
+                                cmClass.Children.Add(sourceClass.Children[index]);
                             }
                         }
                     }

@@ -52,40 +52,90 @@ namespace ClassLibraryTreeView
         {
             if (OpenFile())
             {
-                ClassLibraryTreeView treeView = new ClassLibraryTreeView();
-                treeView.Nodes.Clear();
+                tabControl.TabPages.Clear();
                 
-                treeView.AddClass(model.documents, "Documents");
-                treeView.AddClass(model.functionals, "Functionals");
-                treeView.AddClass(model.physicals, "Physicals");
-                treeView.Dock = DockStyle.Fill;
-                treeView.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.TreeView_NodeMouseDoubleClick);
-                treeView.Font = tabControl.Font;
+                // Add classes
 
-                TabPage page = new TabPage("Classes");
-                page.Controls.Add(treeView);
+                ClassLibraryTreeView classes = new ClassLibraryTreeView();
+                classes.Nodes.Clear();
+                classes.AddClass(model.documents, "Documents");
+                classes.AddClass(model.functionals, "Functionals");
+                classes.AddClass(model.physicals, "Physicals");
+                classes.Dock = DockStyle.Fill;
+                classes.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
+                classes.Font = tabControl.Font;
 
-                tabControl.TabPages.Add(page);
+                TabPage pageClasses = new TabPage("Classes");
+                pageClasses.Controls.Add(classes);
+                tabControl.TabPages.Add(pageClasses);
 
+                // Add attributes
+
+                ClassLibraryTreeView attributes = new ClassLibraryTreeView();
+                attributes.Nodes.Clear();
+                attributes.AddAttributes(model.attributes, "All");
+                attributes.Dock = DockStyle.Fill;
+                attributes.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.ViewAttributeProperties);
+                attributes.Font = tabControl.Font;
+
+                TabPage pageAttributes = new TabPage("Attributes");
+                pageAttributes.Controls.Add(attributes);
+                tabControl.TabPages.Add(pageAttributes);
             }
         }
+        private void ViewAttributeProperties(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            tabControlProperties.TabPages.Clear();
 
-        private void TreeView_NodeMouseDoubleClick(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            if (e.Node.Tag != null)
-            {
-                IClass cmClass = model.GetClass(e.Node.Tag.ToString(), e.Node.Name.ToLower());
-                ShowProperties(cmClass);
-            }
-        }
-        private void ShowProperties(IClass cmClass)
-        {
-            if (cmClass == null)
+            if (e.Node.Tag == null)
             {
                 return;
             }
 
+            IAttribute attribute = model.attributes[e.Node.Tag.ToString()];
+
+            ListView listView = new ListView();
+            listView.View = View.Details;
+            listView.Columns.Clear();
+            listView.Items.Clear();
+            listView.Columns.Add("Attribute", 150, HorizontalAlignment.Left);
+            listView.Columns.Add("Value", 150, HorizontalAlignment.Left);
+
+            KeyValuePair<string, string>[] attributes = attribute.Attributes;
+
+            foreach (KeyValuePair<string, string> pair in attributes)
+            {
+                string[] items = { $"{pair.Key}", $"{pair.Value}" };
+                listView.Items.Add(new ListViewItem(items));
+            }
+
+            foreach (ColumnHeader col in listView.Columns)
+            {
+                col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
+            }
+
+            listView.Dock = DockStyle.Fill;
+            listView.Font = tabControlProperties.Font;
+
+            TabPage pageProperties = new TabPage("Properties");
+            pageProperties.Controls.Add(listView);
+            tabControlProperties.TabPages.Add(pageProperties);
+        }
+        private void ViewClassProperties(object sender, TreeNodeMouseClickEventArgs e)
+        {
             tabControlProperties.TabPages.Clear();
+
+            if (e.Node.Tag == null)
+            {
+                return;
+            }
+
+            IClass cmClass = model.GetClass(e.Node.Tag.ToString(), e.Node.Name.ToLower());
+
+            if (cmClass == null)
+            {
+                return;
+            }
 
             // Insert properties
 
@@ -122,7 +172,7 @@ namespace ClassLibraryTreeView
 
             TreeView treeView = new TreeView();
             string[] permissibleAttributes = model.PermissibleAttributes(cmClass);
-            for(int index = 0; index < permissibleAttributes.Length; index++)
+            for (int index = 0; index < permissibleAttributes.Length; index++)
             {
                 treeView.Nodes.Add(new TreeNode($"{permissibleAttributes[index]}"));
             }
@@ -134,7 +184,6 @@ namespace ClassLibraryTreeView
             pagePermissibleAttributes.Controls.Add(treeView);
             tabControlProperties.TabPages.Add(pagePermissibleAttributes);
         }
-
         private void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)
         {
             string newFileName = fileName;

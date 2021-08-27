@@ -1,4 +1,5 @@
 ﻿using ClassLibraryTreeView.Classes;
+using ClassLibraryTreeView.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,13 @@ namespace ClassLibraryTreeView
     {
         public ClassLibraryTreeView() : base()
         {
+        }
+        private TreeNode NewNode(IAttribute attribute)
+        {
+            TreeNode treeNode = new TreeNode();
+            treeNode.Text = $"{attribute.Name}";
+            treeNode.Tag = $"{attribute.Id}";
+            return treeNode;
         }
         private TreeNode NewNode(IClass cmClass)
         {
@@ -34,6 +42,16 @@ namespace ClassLibraryTreeView
                 AddChildren(child, childNode);
                 treeNode.Nodes.Add(childNode);
             }
+        }
+        public void AddAttributes(Dictionary<string, IAttribute> attributes, string groupId)
+        {
+            TreeNode rootNode = new TreeNode(groupId);
+            foreach (IAttribute attribute in attributes.Values)
+            {
+                TreeNode newNode = NewNode(attribute);
+                rootNode.Nodes.Add(newNode);
+            }
+            Nodes.Add(rootNode);
         }
         public void AddClass(Dictionary<string, IClass> map, string xtype)
         {

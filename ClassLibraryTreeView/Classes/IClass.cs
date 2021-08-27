@@ -120,7 +120,7 @@ namespace ClassLibraryTreeView.Classes
                 result.Add(new KeyValuePair<string, string>("Id", Id));
                 result.Add(new KeyValuePair<string, string>("Name", Name));
                 result.Add(new KeyValuePair<string, string>("Description", Description));
-                result.Add(new KeyValuePair<string, string>("IsObsolete", IsAbstract.ToString()));
+                result.Add(new KeyValuePair<string, string>("IsObsolete", IsObsolete.ToString()));
                 result.Add(new KeyValuePair<string, string>("SortOrder", SortOrder));
 
                 if (Aspect.Count == 0)
