@@ -62,6 +62,7 @@ namespace ClassLibraryTreeView
                 classes.AddClass(model.documents, "Documents");
                 classes.AddClass(model.functionals, "Functionals");
                 classes.AddClass(model.physicals, "Physicals");
+                classes.AddList(model, "Merged");
                 classes.Dock = DockStyle.Fill;
                 classes.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
                 classes.Font = tabControl.Font;
@@ -185,24 +186,27 @@ namespace ClassLibraryTreeView
             pagePermissibleAttributes.Controls.Add(treeView);
             tabControlProperties.TabPages.Add(pagePermissibleAttributes);
         }
-        private void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)
+        private async void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)
         {
             string newFileName = fileName;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
-            ExcelExporter exporter = new ExcelExporter();
-            // exporter.ExportDone += new EventHandler(this.GetProgress);
+            ExcelExporter exporter = new ExcelExporter(newFileName, model);
+
             exporter.GetProgress += (s, ea) =>
             {
                 progressBar.Value = ea.Progress;
                 progressBar.ToolTipText = ea.Progress.ToString();
             };
 
-            int result = exporter.ExportPermissibleGrid(newFileName, model);
-            if (result == 0)
+            // await exporter.ExportPermissibleGrid();
+            
+            var exportGrid = Task.Factory.StartNew(async () =>
             {
-                progressBar.ToolTipText = $"Export done";
-            }
+                await exporter.ExportPermissibleGrid();
+            });
+            
+            progressBar.ToolTipText = $"Export done";
         }
     }
 }

@@ -206,6 +206,17 @@ namespace ClassLibraryTreeView.Classes
             Xtype = someClass.Xtype;
             Children = new List<IClass>(someClass.Children);
         }
+        public bool ContainsChildName(IClass cmClass)
+        {
+            foreach (IClass child in Children)
+            {
+                if(child.Name.Equals(cmClass.Name))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
         public bool ContainsChild(IClass cmClass)
         {
             foreach(IClass child in Children)

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using ClassLibraryTreeView.Interfaces;
 using ClassLibraryTreeView.Classes;
+using System;
 
 namespace ClassLibraryTreeView
 {
@@ -13,6 +14,8 @@ namespace ClassLibraryTreeView
         public Dictionary<string, IClass> documents = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> functionals = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> physicals = new Dictionary<string, IClass>();
+
+        public List<IClass> merged = new List<IClass>();
 
         public int MaxDepth
         {
@@ -38,6 +41,8 @@ namespace ClassLibraryTreeView
             documents = new Dictionary<string, IClass>();
             functionals = new Dictionary<string, IClass>();
             physicals = new Dictionary<string, IClass>();
+
+            merged = new List<IClass>();
         }
         public void Clear()
         {
@@ -45,6 +50,8 @@ namespace ClassLibraryTreeView
             documents.Clear();
             functionals.Clear();
             physicals.Clear();
+
+            merged.Clear();
         }
         public string[] PermissibleAttributes(IClass cmClass)
         {
@@ -148,7 +155,7 @@ namespace ClassLibraryTreeView
             }
             return maxDepth;
         }
-        public void ImportXml(string fileName)
+        public async void ImportXml(string fileName)
         {
             Clear();
             XDocument doc = XDocument.Load(fileName);
@@ -192,8 +199,9 @@ namespace ClassLibraryTreeView
             SetInheritance(documents);
             SetInheritance(functionals);
             SetInheritance(physicals);
-            MergeClasses(physicals, functionals);
-            // MergeAndClean(physicals, functionals);
+            // MergeClasses(physicals, functionals);
+
+            merged = MergeAndClean(physicals, functionals);
         }
         private void SetInheritance(Dictionary<string, IClass> map)
         {
@@ -224,40 +232,57 @@ namespace ClassLibraryTreeView
             }
             return null;
         }
-        private void MergeAndClean(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
+        private void CopyChildren(IClass source, IClass recipient, Dictionary<string, IClass> map)
         {
-            if (source.Count == 0)
+            for (int indexSource = 0; indexSource < source.Children.Count; indexSource++)
             {
-                return;
+                IClass sourceClass = source.Children[indexSource];
+                IClass sameClass = null;
+                for (int index = 0; index < recipient.Children.Count; index++)
+                {
+                    if (recipient.Children[index].Name.Equals(sourceClass.Id))
+                    {
+                        sameClass = recipient.Children[index];
+                    }
+                }
+                if (sameClass == null)
+                {
+                    recipient.Children.Add(sourceClass);
+                }
+                else
+                {
+                    if (sourceClass.Children.Count > 0)
+                    {
+                        CopyChildren(sourceClass, sameClass, map);
+                    }
+                }
             }
+        }
+        public List<IClass> MergeAndClean(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
+        {
+            List<IClass> result = new List<IClass>();
 
-            List<IClass> classForRemoving = new List<IClass>();
             foreach (IClass cmClass in recipient.Values)
             {
+                result.Add(cmClass);
+
                 foreach (IClass sourceClass in source.Values)
                 {
                     if (sourceClass.Name.Equals(cmClass.Name))
                     {
-                        classForRemoving.Add(sourceClass);
                         for (int index = 0; index < sourceClass.Children.Count; index++)
                         {
-                            if (!cmClass.ContainsChild(sourceClass.Children[index]))
+                            if (!cmClass.ContainsChildName(sourceClass.Children[index]))
                             {
-                                cmClass.Children.Add(new IClass(sourceClass.Children[index]));
-                                classForRemoving.Add(sourceClass.Children[index]);
+                                result.Add(sourceClass.Children[index]);
+                                cmClass.Children.Add(sourceClass.Children[index]);
                             }
                         }
                     }
                 }
             }
 
-            if(classForRemoving.Count > 0)
-            {
-                foreach(IClass cmClass in classForRemoving)
-                {
-                    source.Remove(cmClass.Id);
-                }
-            }
+            return result;
         }
         private void MergeClasses(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
         {

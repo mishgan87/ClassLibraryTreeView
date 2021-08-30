@@ -16,20 +16,21 @@ namespace ClassLibraryTreeView
     {
         public int Progress { get; set; }
         public bool Done { get; set; }
+        public string Text { get; set; }
     }
     class ExcelExporter
     {
         public event EventHandler<ExportProgressEventArgs> GetProgress;
         // public event EventHandler<ExportProgressEventArgs> ExportDone;
-        public ExcelExporter()
+        private ConceptualModel model;
+        private string fileName;
+        public ExcelExporter(string nameOfFile, ConceptualModel modelRef)
         {
-            
+            fileName = nameOfFile;
+            model = modelRef;
         }
-        public int ExportPermissibleGrid(string fileName, ConceptualModel model)
+        public async Task ExportPermissibleGrid()
         {
-            ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
-            eventArgs.Done = false;
-
             using (SpreadsheetDocument document = SpreadsheetDocument.Create(fileName, SpreadsheetDocumentType.Workbook))
             {
                 WorkbookPart workbookPart = document.AddWorkbookPart();
@@ -82,20 +83,73 @@ namespace ClassLibraryTreeView
                 // Заполняем строки именами классов и значениями допустимых атрибутов
 
                 uint rowIndex = 2;
-                rowIndex = AddClass(sheetData, rowIndex, maxDepth,attributes, model.functionals);
-                rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
+
+                // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
+                // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
+
+                rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
+                // rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
+
+                // rowIndex = AddMerged(sheetData, rowIndex, maxDepth, attributes, model);
 
                 workbookPart.Workbook.Save();
                 document.Close();
             }
-
-            eventArgs.Progress = 50;
-            GetProgress(this, eventArgs);
-
-            return 0;
         }
-        static uint WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, IClass cmClass, Dictionary<string, IClass> map, IAttribute[] attributes)
+        private uint AddMerged(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, ConceptualModel model)
         {
+            uint newRowIndex = rowIndex;
+            if (model.merged.Count > 0)
+            {
+                foreach (IClass cmClass in model.merged)
+                {
+                    ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
+                    eventArgs.Done = false;
+
+                    // newRowIndex = rowIndex + 1;
+                    Row row = new Row() { RowIndex = newRowIndex };
+                    sheetData.Append(row);
+                    Dictionary<string, IClass> map = null;
+                    if (cmClass.Xtype.ToLower().Equals("functionals"))
+                    {
+                        map = model.functionals;
+                    }
+                    if (cmClass.Xtype.ToLower().Equals("physicals"))
+                    {
+                        map = model.physicals;
+                    }
+                    int depthCurrent = ConceptualModel.ClassDepth(cmClass, map);
+                    for (int depth = 1; depth <= maxDepth; depth++)
+                    {
+                        string text = "";
+                        if (depth == depthCurrent)
+                        {
+                            text = $"{cmClass.Name}_{cmClass.Xtype}";
+                        }
+                        InsertCell(row, depth, text, CellValues.String, 1);
+                    }
+
+                    for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
+                    {
+                        IAttribute attribute = attributes[columnIndex];
+                        string presence = ConceptualModel.AttributePresence(attributes[columnIndex].Id, attributes[columnIndex].Presence, cmClass, map);
+                        InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
+
+                        // eventArgs.Progress = (attributes.Length / columnIndex) * 100;
+                        // GetProgress.Invoke(this, eventArgs);
+                    }
+
+                    newRowIndex++;
+                }
+            }
+            return newRowIndex;
+        }
+        // static async Task<uint> WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, IClass cmClass, Dictionary<string, IClass> map, IAttribute[] attributes)
+        private uint WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, IClass cmClass, Dictionary<string, IClass> map, IAttribute[] attributes)
+        {
+            ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
+            eventArgs.Done = false;
+
             uint newRowIndex = rowIndex + 1;
             Row row = new Row() { RowIndex = newRowIndex };
             sheetData.Append(row);
@@ -116,11 +170,15 @@ namespace ClassLibraryTreeView
                 IAttribute attribute = attributes[columnIndex];
                 string presence = ConceptualModel.AttributePresence(attributes[columnIndex].Id, attributes[columnIndex].Presence, cmClass, map);
                 InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
+
+                // eventArgs.Progress = (attributes.Length / columnIndex) * 100;
+                // GetProgress.Invoke(this, eventArgs);
             }
 
             return newRowIndex;
         }
-        static uint AddClass(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, Dictionary<string, IClass> map)
+        // static async Task<uint> AddClass(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, Dictionary<string, IClass> map)
+        private uint AddClass(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, Dictionary<string, IClass> map)
         {
             uint newRowIndex = rowIndex;
             if (map.Count > 0)
@@ -129,6 +187,8 @@ namespace ClassLibraryTreeView
                 {
                     if (cmClass.Extends.Equals(""))
                     {
+                        // newRowIndex = await WriteClass(sheetData, newRowIndex, maxDepth, cmClass, map, attributes);
+                        // newRowIndex = await AddChildren(sheetData, newRowIndex, maxDepth, attributes, cmClass, map);
                         newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, cmClass, map, attributes);
                         newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributes, cmClass, map);
                     }
@@ -136,13 +196,16 @@ namespace ClassLibraryTreeView
             }
             return newRowIndex;
         }
-        static uint AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, IClass cmClass, Dictionary<string, IClass> map)
+        // static async Task<uint> AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, IClass cmClass, Dictionary<string, IClass> map)
+        private uint AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, IClass cmClass, Dictionary<string, IClass> map)
         {
             uint newRowIndex = rowIndex;
             if (cmClass.Children.Count != 0)
             {
                 foreach (IClass child in cmClass.Children)
                 {
+                    // newRowIndex = await WriteClass(sheetData, newRowIndex, maxDepth, child, map, attributes);
+                    // newRowIndex = await AddChildren(sheetData, newRowIndex, maxDepth, attributes, child, map);
                     newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, child, map, attributes);
                     newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributes, child, map);
                 }
