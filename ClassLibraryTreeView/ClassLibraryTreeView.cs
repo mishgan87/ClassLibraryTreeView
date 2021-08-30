@@ -43,15 +43,54 @@ namespace ClassLibraryTreeView
                 treeNode.Nodes.Add(childNode);
             }
         }
-        public void AddAttributes(Dictionary<string, IAttribute> attributes, string groupId)
+        public void AddAttributes(Dictionary<string, IAttribute> attributes)
         {
-            TreeNode rootNode = new TreeNode(groupId);
+            TreeNode nodeUnset = new TreeNode("Unset");
+            TreeNode nodeCommon = new TreeNode("Common");
+            TreeNode nodeDocument = new TreeNode("Document");
+            TreeNode nodeHazardous = new TreeNode("Hazardous");
+            TreeNode nodeSpecific = new TreeNode("Specific");
+
             foreach (IAttribute attribute in attributes.Values)
             {
                 TreeNode newNode = NewNode(attribute);
-                rootNode.Nodes.Add(newNode);
+                string groupId = attribute.Group.ToLower();
+                if (groupId.Contains("common"))
+                {
+                    nodeCommon.Nodes.Add(newNode);
+                    
+                }
+                else
+                {
+                    if (groupId.Contains("document"))
+                    {
+                        nodeDocument.Nodes.Add(newNode);
+                    }
+                    else
+                    {
+                        if (groupId.Contains("hazardous"))
+                        {
+                            nodeHazardous.Nodes.Add(newNode);
+                        }
+                        else
+                        {
+                            if (groupId.Contains("specific"))
+                            {
+                                nodeSpecific.Nodes.Add(newNode);
+                            }
+                            else
+                            {
+                                nodeUnset.Nodes.Add(newNode);
+                            }
+                        }
+                    }
+                }
             }
-            Nodes.Add(rootNode);
+            Nodes.Add(nodeUnset);
+            Nodes.Add(nodeCommon);
+            Nodes.Add(nodeDocument);
+            Nodes.Add(nodeHazardous);
+            Nodes.Add(nodeSpecific);
         }
         public void AddClass(Dictionary<string, IClass> map, string xtype)
         {

@@ -1,4 +1,5 @@
-﻿using ClassLibraryTreeView.Classes;
+﻿using ClassLibraryTreeView;
+using ClassLibraryTreeView.Classes;
 using ClassLibraryTreeView.Interfaces;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
@@ -73,7 +74,7 @@ namespace ClassLibraryTreeView
 
                 ClassLibraryTreeView attributes = new ClassLibraryTreeView();
                 attributes.Nodes.Clear();
-                attributes.AddAttributes(model.attributes, "All");
+                attributes.AddAttributes(model.attributes);
                 attributes.Dock = DockStyle.Fill;
                 attributes.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.ViewAttributeProperties);
                 attributes.Font = tabControl.Font;
@@ -189,10 +190,18 @@ namespace ClassLibraryTreeView
             string newFileName = fileName;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
-            int result = ExcelExporter.ExportPermissibleGrid(newFileName, model);
+            ExcelExporter exporter = new ExcelExporter();
+            // exporter.ExportDone += new EventHandler(this.GetProgress);
+            exporter.GetProgress += (s, ea) =>
+            {
+                progressBar.Value = ea.Progress;
+                progressBar.ToolTipText = ea.Progress.ToString();
+            };
+
+            int result = exporter.ExportPermissibleGrid(newFileName, model);
             if (result == 0)
             {
-                MessageBox.Show($"Export done");
+                progressBar.ToolTipText = $"Export done";
             }
         }
     }

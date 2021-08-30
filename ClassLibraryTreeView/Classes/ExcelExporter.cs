@@ -12,10 +12,24 @@ using System.Threading.Tasks;
 
 namespace ClassLibraryTreeView
 {
+    public class ExportProgressEventArgs : EventArgs
+    {
+        public int Progress { get; set; }
+        public bool Done { get; set; }
+    }
     class ExcelExporter
     {
-        public static int ExportPermissibleGrid(string fileName, ConceptualModel model)
+        public event EventHandler<ExportProgressEventArgs> GetProgress;
+        // public event EventHandler<ExportProgressEventArgs> ExportDone;
+        public ExcelExporter()
         {
+            
+        }
+        public int ExportPermissibleGrid(string fileName, ConceptualModel model)
+        {
+            ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
+            eventArgs.Done = false;
+
             using (SpreadsheetDocument document = SpreadsheetDocument.Create(fileName, SpreadsheetDocumentType.Workbook))
             {
                 WorkbookPart workbookPart = document.AddWorkbookPart();
@@ -74,6 +88,10 @@ namespace ClassLibraryTreeView
                 workbookPart.Workbook.Save();
                 document.Close();
             }
+
+            eventArgs.Progress = 50;
+            GetProgress(this, eventArgs);
+
             return 0;
         }
         static uint WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, IClass cmClass, Dictionary<string, IClass> map, IAttribute[] attributes)

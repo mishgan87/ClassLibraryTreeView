@@ -35,6 +35,7 @@
             this.buttonOpenFile = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonExportPermissibleGrid = new System.Windows.Forms.ToolStripButton();
             this.tabControlProperties = new System.Windows.Forms.TabControl();
+            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -68,18 +69,20 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tabControl.Location = new System.Drawing.Point(3, 28);
+            this.tabControl.Location = new System.Drawing.Point(3, 81);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(558, 526);
+            this.tabControl.Size = new System.Drawing.Size(558, 473);
             this.tabControl.TabIndex = 2;
             // 
             // toolStripMenu
             // 
             this.toolStripMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.buttonOpenFile,
-            this.toolStripButtonExportPermissibleGrid});
+            this.toolStripButtonExportPermissibleGrid,
+            this.progressBar});
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
+            this.toolStripMenu.MinimumSize = new System.Drawing.Size(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
             this.toolStripMenu.Size = new System.Drawing.Size(564, 25);
             this.toolStripMenu.TabIndex = 1;
@@ -115,6 +118,11 @@
             this.tabControlProperties.Size = new System.Drawing.Size(498, 554);
             this.tabControlProperties.TabIndex = 0;
             // 
+            // progressBar
+            // 
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(100, 22);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -142,6 +150,7 @@
         private System.Windows.Forms.TabControl tabControlProperties;
         private System.Windows.Forms.ToolStripButton toolStripButtonExportPermissibleGrid;
         private System.Windows.Forms.TabControl tabControl;
+        private System.Windows.Forms.ToolStripProgressBar progressBar;
     }
 }
 

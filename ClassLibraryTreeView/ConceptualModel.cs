@@ -192,8 +192,8 @@ namespace ClassLibraryTreeView
             SetInheritance(documents);
             SetInheritance(functionals);
             SetInheritance(physicals);
-            // MergeClasses(physicals, functionals);
-            MergeAndClean(physicals, functionals);
+            MergeClasses(physicals, functionals);
+            // MergeAndClean(physicals, functionals);
         }
         private void SetInheritance(Dictionary<string, IClass> map)
         {
