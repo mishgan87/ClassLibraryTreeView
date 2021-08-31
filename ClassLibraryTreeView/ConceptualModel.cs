@@ -10,12 +10,12 @@ namespace ClassLibraryTreeView
 {
     public class ConceptualModel
     {
-        public Dictionary<string, IAttribute> attributes;
+        // public Dictionary<string, IAttribute> attributes;
         public Dictionary<string, IClass> documents = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> functionals = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> physicals = new Dictionary<string, IClass>();
 
-        public Dictionary<string, List<string>> attributesGroups = new Dictionary<string, List<string>>();
+        public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
         public List<IClass> merged = new List<IClass>();
 
         public int MaxDepth
@@ -38,12 +38,11 @@ namespace ClassLibraryTreeView
         }
         public void Init()
         {
-            attributes = new Dictionary<string, IAttribute>();
+            attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
             documents = new Dictionary<string, IClass>();
             functionals = new Dictionary<string, IClass>();
             physicals = new Dictionary<string, IClass>();
 
-            attributesGroups = new Dictionary<string, List<string>>();
             merged = new List<IClass>();
         }
         public void Clear()
@@ -53,7 +52,6 @@ namespace ClassLibraryTreeView
             functionals.Clear();
             physicals.Clear();
 
-            attributesGroups.Clear();
             merged.Clear();
         }
         public KeyValuePair<string, string>[] PermissibleAttributes(IClass cmClass)
@@ -213,22 +211,28 @@ namespace ClassLibraryTreeView
                     foreach (XElement child in element.Elements())
                     {
                         IAttribute newAttribute = new IAttribute(child);
-                        attributes.Add(newAttribute.Id, newAttribute);
 
                         string group = newAttribute.Group;
-                        if (!attributesGroups.ContainsKey(group))
+
+                        if (group.Equals(""))
                         {
-                            attributesGroups.Add(group, new List<string>());
+                            group = "Unset";
                         }
-                        attributesGroups[group].Add(newAttribute.Id);
+
+                        if (!attributes.ContainsKey(group))
+                        {
+                            attributes.Add(group, new Dictionary<string, IAttribute>());
+                        }
+                        
+                        attributes[group].Add(newAttribute.Id, newAttribute);
                     }
                 }
             }
             SetInheritance(documents);
             SetInheritance(functionals);
             SetInheritance(physicals);
-            // MergeClasses(physicals, functionals);
             MergeAndClean(physicals, functionals);
+            // MergeClasses(physicals, functionals);
         }
         private void SetInheritance(Dictionary<string, IClass> map)
         {

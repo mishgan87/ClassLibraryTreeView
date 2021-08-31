@@ -60,25 +60,41 @@ namespace ClassLibraryTreeView
                 }
 
                 int maxDepth = model.MaxDepth;
-                IAttribute[] attributes = model.attributes.Values.ToArray();
-                int columnsCount = model.attributes.Count + maxDepth;
-                for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++)
+                Row firstRow = new Row() { RowIndex = 1 };
+
+                for (int i = 0; i < maxDepth; i++)
                 {
-                    lstColumns.Append(new Column() { Min = 1, Max = 10, Width = 5, CustomWidth = true });
+                    lstColumns.Append(new Column() { Min = 1, Max = 10, Width = 2, CustomWidth = false });
+
+                    InsertCell(firstRow, i, "", CellValues.String, 2);
                 }
+
                 worksheetPart.Worksheet.InsertAt(lstColumns, 0);
 
-                Row rowFirst = new Row() { RowIndex = 1 };
-                for (int columnIndex = 0; columnIndex < columnsCount; columnIndex++)
+                List<IAttribute> attributes = new List<IAttribute>();
+                int index = 0;
+                foreach(Dictionary<string, IAttribute> group in model.attributes.Values)
                 {
-                    string columnName = "";
-                    if (columnIndex >= maxDepth)
+                    foreach(IAttribute attribute in group.Values)
                     {
-                        columnName = ColumnName(attributes[columnIndex - maxDepth]);
+                        lstColumns.Append(new Column() { Min = 1, Max = 10, Width = 2, CustomWidth = false });
+                        worksheetPart.Worksheet.InsertAt(new Column() { Min = 1, Max = 10, Width = 2, CustomWidth = false }, index);
+
+                        string name = attribute.Name;
+                        if (name.Equals(""))
+                        {
+                            name = attribute.Id;
+                        }
+
+                        attributes.Add(attribute);
+
+                        InsertCell(firstRow, index + maxDepth, name, CellValues.String, 2);
+
+                        index++;
                     }
-                    InsertCell(rowFirst, columnIndex, columnName, CellValues.String, 2);
                 }
-                sheetData.Append(rowFirst);
+
+                sheetData.Append(firstRow);
 
                 // Заполняем строки именами классов и значениями допустимых атрибутов
 
@@ -86,10 +102,9 @@ namespace ClassLibraryTreeView
 
                 // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
                 // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
-
                 // rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
 
-                rowIndex = AddMerged(sheetData, rowIndex, maxDepth, attributes, model);
+                rowIndex = AddMerged(sheetData, rowIndex, maxDepth, attributes.ToArray(), model);
 
                 workbookPart.Workbook.Save();
                 document.Close();
@@ -106,7 +121,6 @@ namespace ClassLibraryTreeView
                     ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
                     eventArgs.Done = false;
 
-                    // newRowIndex = rowIndex + 1;
                     Row row = new Row() { RowIndex = newRowIndex };
                     sheetData.Append(row);
 
@@ -116,7 +130,8 @@ namespace ClassLibraryTreeView
                         string text = "";
                         if (depth == depthCurrent)
                         {
-                            text = $"{cmClass.Name}_{cmClass.Xtype}";
+                            // text = $"{cmClass.Name}_{cmClass.Xtype}";
+                            text = $"{cmClass.Name}";
                         }
                         InsertCell(row, depth, text, CellValues.String, 1);
                     }
@@ -124,7 +139,7 @@ namespace ClassLibraryTreeView
                     for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
                     {
                         IAttribute attribute = attributes[columnIndex];
-                        string presence = model.AttributePresence(attributes[columnIndex].Id, attributes[columnIndex].Presence, cmClass);
+                        string presence = model.AttributePresence(attribute.Id, attribute.Presence, cmClass);
                         InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
                     }
 
@@ -205,19 +220,6 @@ namespace ClassLibraryTreeView
                 }
             }
             return newRowIndex;
-        }
-        static string ColumnName(IAttribute attribute)
-        {
-            string columnName = attribute.Id;
-            if (!attribute.Name.Equals(""))
-            {
-                columnName = attribute.Name;
-            }
-            if (!attribute.Group.Equals(""))
-            {
-                columnName += $"_{attribute.Group}";
-            }
-            return columnName;
         }
         //Добавление Ячейки в строку (На вход подаем: строку, номер колонки, тип значения, стиль)
         static void InsertCell(Row row, int cell_num, string val, CellValues type, uint styleIndex)

@@ -75,7 +75,7 @@ namespace ClassLibraryTreeView
 
                 ClassLibraryTreeView attributes = new ClassLibraryTreeView();
                 attributes.Nodes.Clear();
-                attributes.AddAttributes(model.attributes);
+                attributes.AddAttributes(model);
                 attributes.Dock = DockStyle.Fill;
                 attributes.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.ViewAttributeProperties);
                 attributes.Font = tabControl.Font;
@@ -94,14 +94,17 @@ namespace ClassLibraryTreeView
                 return;
             }
 
-            IAttribute attribute = model.attributes[e.Node.Tag.ToString()];
+            string group = e.Node.Name;
+            string id = e.Node.Tag.ToString();
+
+            IAttribute attribute = model.attributes[group][id];
 
             ListView listView = new ListView();
             listView.View = View.Details;
             listView.Columns.Clear();
             listView.Items.Clear();
-            listView.Columns.Add("Attribute", 150, HorizontalAlignment.Left);
-            listView.Columns.Add("Value", 150, HorizontalAlignment.Left);
+            listView.Columns.Add("Attribute", 300, HorizontalAlignment.Left);
+            listView.Columns.Add("Value", 300, HorizontalAlignment.Left);
 
             KeyValuePair<string, string>[] attributes = attribute.Attributes;
 
@@ -109,11 +112,6 @@ namespace ClassLibraryTreeView
             {
                 string[] items = { $"{pair.Key}", $"{pair.Value}" };
                 listView.Items.Add(new ListViewItem(items));
-            }
-
-            foreach (ColumnHeader col in listView.Columns)
-            {
-                col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
             }
 
             listView.Dock = DockStyle.Fill;
