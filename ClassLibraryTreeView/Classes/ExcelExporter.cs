@@ -100,51 +100,67 @@ namespace ClassLibraryTreeView
 
             // Заполняем строки именами классов и значениями допустимых атрибутов
 
-            uint rowIndex = 2;
             // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
             // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
             // rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes.ToArray(), model.functionals);
-            rowIndex = AddMerged(sheetData, rowIndex, attributes.ToArray(), model);
+            AddMerged(sheetData, attributes.ToArray(), model);
         }
-        private uint AddMerged(SheetData sheetData, uint rowIndex, IAttribute[] attributes, ConceptualModel model)
+        private void AddClassPresence(IClass cmClass, int maxDepth, SheetData sheetData, IAttribute[] attributes)
         {
-            ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
-            uint newRowIndex = rowIndex;
+            Row row = new Row() { RowIndex = (uint)(sheetData.Count() + 1), Height = 5 };
+            if (cmClass.Children.Count > 0)
+            {
+                row = new Row() { RowIndex = (uint)(sheetData.Count() + 1), Height = 5, Collapsed = true };
+            }
+            sheetData.Append(row);
+
+            int depthCurrent = model.ClassDepth(cmClass);
+            for (int depth = 1; depth <= maxDepth; depth++)
+            {
+                string text = "";
+                if (depth == depthCurrent)
+                {
+                    text = $"{cmClass.Name}";
+                }
+                InsertCell(row, depth, text, CellValues.String, 6);
+            }
+
+            for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
+            {
+                string presence = model.Presence(cmClass, attributes[columnIndex]);
+                InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 7);
+            }
+        }
+        private void AddChildren(IClass cmClass, int maxDepth, SheetData sheetData, IAttribute[] attributes)
+        {
+            if (cmClass.Children.Count > 0)
+            {
+                foreach (IClass child in cmClass.Children)
+                {
+                    AddClassPresence(child, maxDepth, sheetData, attributes);
+                    AddChildren(child, maxDepth, sheetData, attributes);
+                }
+            }
+        }
+        private void AddMerged(SheetData sheetData, IAttribute[] attributes, ConceptualModel model)
+        {
             if (model.merged.Count > 0)
             {
                 int maxDepth = model.MaxDepth;
 
                 foreach (IClass cmClass in model.merged)
                 {
-                    Row row = new Row() { RowIndex = newRowIndex, Height = 5 };
-                    sheetData.Append(row);
-
-                    int depthCurrent = model.ClassDepth(cmClass);
-                    for (int depth = 1; depth <= maxDepth; depth++)
+                    if (cmClass.Extends.Equals(""))
                     {
-                        string text = "";
-                        if (depth == depthCurrent)
-                        {
-                            // text = $"{cmClass.Name}_{cmClass.Xtype}";
-                            text = $"{cmClass.Name}";
-                        }
-                        InsertCell(row, depth, text, CellValues.String, 6);
+                        AddClassPresence(cmClass, maxDepth, sheetData, attributes);
+                        AddChildren(cmClass, maxDepth, sheetData, attributes);
                     }
-
-                    for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
-                    {
-                        string presence = model.Presence(cmClass, attributes[columnIndex]);
-                        InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 7);
-                    }
-
-                    // sheetData.Append(row);
-                    newRowIndex++;
-
-                    // eventArgs.Progress = ((int)newRowIndex / model.merged.Count) * 100;
-                    // GetProgress.Invoke(this, eventArgs);
                 }
             }
-            return newRowIndex;
+
+            // ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
+            // eventArgs.Progress = ((int)newRowIndex / model.merged.Count) * 100;
+            // GetProgress.Invoke(this, eventArgs);
         }
         private uint WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, IClass cmClass, Dictionary<string, IClass> map, IAttribute[] attributes)
         {
@@ -272,13 +288,19 @@ namespace ClassLibraryTreeView
 
                     // 1 - Зелёный
                     new Fill(
-                        new PatternFill( new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "00FF00" } } )
+                        new PatternFill( new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "FFFF00" } } )
                         { PatternType = PatternValues.Solid }
                     ),
 
                     // 2 - Синий
                     new Fill(
                         new PatternFill( new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "0000FF" } } )
+                        { PatternType = PatternValues.Solid }
+                    ),
+
+                    // 3 - Зелёный
+                    new Fill(
+                        new PatternFill(new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "FFFF00" } })
                         { PatternType = PatternValues.Solid }
                     )
                 ),
@@ -366,7 +388,7 @@ namespace ClassLibraryTreeView
                     new CellFormat(
                         new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center }
                     )
-                    { FontId = 1, FillId = 1, BorderId = 2, ApplyAlignment = true },
+                    { FontId = 1, FillId = 3, BorderId = 2, ApplyAlignment = true },
 
                     // 7 - значение presence
                     new CellFormat(

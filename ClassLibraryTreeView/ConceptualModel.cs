@@ -107,8 +107,8 @@ namespace ClassLibraryTreeView
                     {
                         presence = permissibleAttribute.Presence;
                     }
-                    /*
-                    if (presence.Equals("X") && !cmClass.Extends.Equals(""))
+
+                    if (presence.Equals("") && !cmClass.Extends.Equals(""))
                     {
                         IClass parent = map[cmClass.Extends];
                         if (!parent.Equals(""))
@@ -116,7 +116,7 @@ namespace ClassLibraryTreeView
                             presence = Presence(parent, attribute);
                         }
                     }
-                    */
+
                     break;
                 }
             }
