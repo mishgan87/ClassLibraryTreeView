@@ -29,7 +29,8 @@ namespace ClassLibraryTreeView
             fileName = nameOfFile;
             model = modelRef;
         }
-        public async Task ExportPermissibleGrid()
+        // public async Task ExportPermissibleGrid()
+        public void ExportPermissibleGrid()
         {
             using (SpreadsheetDocument document = SpreadsheetDocument.Create(fileName, SpreadsheetDocumentType.Workbook))
             {
@@ -62,22 +63,19 @@ namespace ClassLibraryTreeView
                 int maxDepth = model.MaxDepth;
                 Row firstRow = new Row() { RowIndex = 1 };
 
-                for (int i = 0; i < maxDepth; i++)
+                int index = 0;
+                for (index = 0; index < maxDepth; index++)
                 {
-                    lstColumns.Append(new Column() { Min = 1, Max = 10, Width = 2, CustomWidth = false });
-
-                    InsertCell(firstRow, i, "", CellValues.String, 2);
+                    worksheetPart.Worksheet.InsertAt(new Column() { Min = 1, Max = 10, Width = 2, CustomWidth = false }, index);
+                    InsertCell(firstRow, index, "", CellValues.String, 5);
                 }
 
-                worksheetPart.Worksheet.InsertAt(lstColumns, 0);
-
+                index = 0;
                 List<IAttribute> attributes = new List<IAttribute>();
-                int index = 0;
                 foreach(Dictionary<string, IAttribute> group in model.attributes.Values)
                 {
                     foreach(IAttribute attribute in group.Values)
                     {
-                        lstColumns.Append(new Column() { Min = 1, Max = 10, Width = 2, CustomWidth = false });
                         worksheetPart.Worksheet.InsertAt(new Column() { Min = 1, Max = 10, Width = 2, CustomWidth = false }, index);
 
                         string name = attribute.Name;
@@ -87,9 +85,7 @@ namespace ClassLibraryTreeView
                         }
 
                         attributes.Add(attribute);
-
-                        InsertCell(firstRow, index + maxDepth, name, CellValues.String, 2);
-
+                        InsertCell(firstRow, index + maxDepth, name, CellValues.String, 5);
                         index++;
                     }
                 }
@@ -102,8 +98,8 @@ namespace ClassLibraryTreeView
 
                 // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
                 // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
-                // rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
 
+                // rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes.ToArray(), model.functionals);
                 rowIndex = AddMerged(sheetData, rowIndex, maxDepth, attributes.ToArray(), model);
 
                 workbookPart.Workbook.Save();
@@ -112,15 +108,12 @@ namespace ClassLibraryTreeView
         }
         private uint AddMerged(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, ConceptualModel model)
         {
-            int index = 0;
+            ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
             uint newRowIndex = rowIndex;
             if (model.merged.Count > 0)
             {
                 foreach (IClass cmClass in model.merged)
                 {
-                    ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
-                    eventArgs.Done = false;
-
                     Row row = new Row() { RowIndex = newRowIndex };
                     sheetData.Append(row);
 
@@ -138,17 +131,15 @@ namespace ClassLibraryTreeView
 
                     for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
                     {
-                        IAttribute attribute = attributes[columnIndex];
-                        string presence = model.AttributePresence(attribute.Id, attribute.Presence, cmClass);
-                        InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
+                        string presence = model.Presence(cmClass, attributes[columnIndex]);
+                        InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 2);
                     }
 
+                    // sheetData.Append(row);
                     newRowIndex++;
 
-                    eventArgs.Progress = (index / model.merged.Count) * 100;
-                    GetProgress.Invoke(this, eventArgs);
-
-                    index++;
+                    // eventArgs.Progress = ((int)newRowIndex / model.merged.Count) * 100;
+                    // GetProgress.Invoke(this, eventArgs);
                 }
             }
             return newRowIndex;
@@ -177,7 +168,7 @@ namespace ClassLibraryTreeView
             for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
             {
                 IAttribute attribute = attributes[columnIndex];
-                string presence = model.AttributePresence(attributes[columnIndex].Id, attributes[columnIndex].Presence, cmClass);
+                string presence = model.Presence(cmClass, attributes[columnIndex]);
                 InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
 
                 // eventArgs.Progress = (attributes.Length / columnIndex) * 100;
@@ -221,7 +212,7 @@ namespace ClassLibraryTreeView
             }
             return newRowIndex;
         }
-        //Добавление Ячейки в строку (На вход подаем: строку, номер колонки, тип значения, стиль)
+        ///Добавление Ячейки в строку (На вход подаем: строку, номер колонки, тип значения, стиль)
         static void InsertCell(Row row, int cell_num, string val, CellValues type, uint styleIndex)
         {
             Cell refCell = null;
@@ -233,10 +224,9 @@ namespace ClassLibraryTreeView
             newCell.DataType = new EnumValue<CellValues>(type);
 
         }
-
-        //Важный метод, при вставки текстовых значений надо использовать.
-        //Метод убирает из строки запрещенные спец символы.
-        //Если не использовать, то при наличии в строке таких символов, вылетит ошибка.
+        // Важный метод, при вставки текстовых значений надо использовать.
+        // Убирает из строки запрещенные спец символы.
+        // Если не использовать, то при наличии в строке таких символов, вылетит ошибка.
         private string ReplaceHexadecimalSymbols(string txt)
         {
             string r = "[\x00-\x08\x0B\x0C\x0E-\x1F\x26]";
@@ -327,12 +317,12 @@ namespace ClassLibraryTreeView
                 ),
                 new CellFormats(
                     new CellFormat() { FontId = 0, FillId = 0, BorderId = 0 },                          // Стиль под номером 0 - The default cell style.  (по умолчанию)
-                    new CellFormat(new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center, WrapText = true }) { FontId = 1, FillId = 2, BorderId = 1, ApplyFont = true },       // Стиль под номером 1 - Bold 
-                    new CellFormat(new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center, WrapText = true }) { FontId = 2, FillId = 0, BorderId = 2, ApplyFont = true },       // Стиль под номером 2 - REgular
+                    new CellFormat(new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center, WrapText = true }) { FontId = 1, FillId = 2, BorderId = 1, ApplyFont = true },       // Стиль под номером 1 - Bold 
+                    new CellFormat(new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center, WrapText = true }) { FontId = 2, FillId = 0, BorderId = 2, ApplyFont = true },       // Стиль под номером 2 - REgular
                     new CellFormat() { FontId = 3, FillId = 0, BorderId = 2, ApplyFont = true, NumberFormatId = 4 },       // Стиль под номером 3 - Times Roman
                     new CellFormat() { FontId = 0, FillId = 2, BorderId = 0, ApplyFill = true },       // Стиль под номером 4 - Yellow Fill
                     new CellFormat(                                                                   // Стиль под номером 5 - Alignment
-                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center }
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center , TextRotation = 90 }
                     )
                     { FontId = 0, FillId = 0, BorderId = 0, ApplyAlignment = true },
                     new CellFormat() { FontId = 0, FillId = 0, BorderId = 1, ApplyBorder = true },      // Стиль под номером 6 - Border

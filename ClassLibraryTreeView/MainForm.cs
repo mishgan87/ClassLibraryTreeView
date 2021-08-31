@@ -29,11 +29,11 @@ namespace ClassLibraryTreeView
             model = new ConceptualModel();
             fileName = "";
         }
-        public bool OpenFile()
+        private void OpenFile(object sender, EventArgs e)
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
-                openFileDialog.InitialDirectory = "c:\\";
+                openFileDialog.InitialDirectory = ".";
                 openFileDialog.Filter = "XML files (*.xml)|*.xml";
                 openFileDialog.FilterIndex = 2;
                 openFileDialog.RestoreDirectory = true;
@@ -45,44 +45,38 @@ namespace ClassLibraryTreeView
                     text = text.Remove(text.LastIndexOf("."), text.Length - text.LastIndexOf("."));
                     text = text.Substring(text.LastIndexOf("\\") + 1, text.Length - text.LastIndexOf("\\") - 1);
                     this.Text = $"{text}";
+
+                    tabControl.TabPages.Clear();
+
+                    // Add classes
+
+                    ClassLibraryTreeView classes = new ClassLibraryTreeView();
+                    classes.Nodes.Clear();
+                    classes.AddClass(model.documents, "Documents");
+                    classes.AddClass(model.functionals, "Functionals");
+                    classes.AddClass(model.physicals, "Physicals");
+                    // classes.AddList(model, "Merged");
+                    classes.Dock = DockStyle.Fill;
+                    classes.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
+                    classes.Font = tabControl.Font;
+
+                    TabPage pageClasses = new TabPage("Classes");
+                    pageClasses.Controls.Add(classes);
+                    tabControl.TabPages.Add(pageClasses);
+
+                    // Add attributes
+
+                    ClassLibraryTreeView attributes = new ClassLibraryTreeView();
+                    attributes.Nodes.Clear();
+                    attributes.AddAttributes(model);
+                    attributes.Dock = DockStyle.Fill;
+                    attributes.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewAttributeProperties);
+                    attributes.Font = tabControl.Font;
+
+                    TabPage pageAttributes = new TabPage("Attributes");
+                    pageAttributes.Controls.Add(attributes);
+                    tabControl.TabPages.Add(pageAttributes);
                 }
-            }
-            return true;
-        }
-        private void ButtonOpenFile_Click(object sender, EventArgs e)
-        {
-            if (OpenFile())
-            {
-                tabControl.TabPages.Clear();
-                
-                // Add classes
-
-                ClassLibraryTreeView classes = new ClassLibraryTreeView();
-                classes.Nodes.Clear();
-                classes.AddClass(model.documents, "Documents");
-                classes.AddClass(model.functionals, "Functionals");
-                classes.AddClass(model.physicals, "Physicals");
-                classes.AddList(model, "Merged");
-                classes.Dock = DockStyle.Fill;
-                classes.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
-                classes.Font = tabControl.Font;
-
-                TabPage pageClasses = new TabPage("Classes");
-                pageClasses.Controls.Add(classes);
-                tabControl.TabPages.Add(pageClasses);
-
-                // Add attributes
-
-                ClassLibraryTreeView attributes = new ClassLibraryTreeView();
-                attributes.Nodes.Clear();
-                attributes.AddAttributes(model);
-                attributes.Dock = DockStyle.Fill;
-                attributes.NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.ViewAttributeProperties);
-                attributes.Font = tabControl.Font;
-
-                TabPage pageAttributes = new TabPage("Attributes");
-                pageAttributes.Controls.Add(attributes);
-                tabControl.TabPages.Add(pageAttributes);
             }
         }
         private void ViewAttributeProperties(object sender, TreeNodeMouseClickEventArgs e)
@@ -169,13 +163,13 @@ namespace ClassLibraryTreeView
             listViewAttributes.View = View.Details;
             listViewAttributes.Columns.Clear();
             listViewAttributes.Items.Clear();
-            listViewAttributes.Columns.Add("Attribute", 300, HorizontalAlignment.Left);
+            listViewAttributes.Columns.Add("Id", 300, HorizontalAlignment.Left);
+            listViewAttributes.Columns.Add("Name", 300, HorizontalAlignment.Left);
             listViewAttributes.Columns.Add("Presence", 300, HorizontalAlignment.Left);
 
-            KeyValuePair<string, string>[] permissibleAttributes = model.PermissibleAttributes(cmClass);
-            for (int index = 0; index < permissibleAttributes.Length; index++)
+            foreach(IAttribute attribute in model.PermissibleAttributes(cmClass))
             {
-                string[] items = { $"{permissibleAttributes[index].Key}", $"{permissibleAttributes[index].Value}" };
+                string[] items = { $"{attribute.Id}", $"{attribute.Name}", $"{attribute.Presence}" };
                 listViewAttributes.Items.Add(new ListViewItem(items));
             }
 
@@ -186,27 +180,25 @@ namespace ClassLibraryTreeView
             pagePermissibleAttributes.Controls.Add(listViewAttributes);
             tabControlProperties.TabPages.Add(pagePermissibleAttributes);
         }
-        private async void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)
+        // private async void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)
+        private void ExportPermissibleGrid(object sender, EventArgs e)
         {
             string newFileName = fileName;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
             ExcelExporter exporter = new ExcelExporter(newFileName, model);
+            exporter.ExportPermissibleGrid();
+            /*
             exporter.GetProgress += (s, ea) =>
             {
                 progressBar.Value = ea.Progress;
                 progressBar.ToolTipText = ea.Progress.ToString();
             };
-            // porter.GetProgress += new EventHandler<ExportProgressEventArgs>()
-
-            // await exporter.ExportPermissibleGrid();
-            
             var exportGrid = Task.Factory.StartNew(async () =>
             {
                 await exporter.ExportPermissibleGrid();
             });
-
-            progressBar.Value = 100;
+            */
             MessageBox.Show($"Export done");
         }
     }

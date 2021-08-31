@@ -54,7 +54,7 @@ namespace ClassLibraryTreeView
 
             merged.Clear();
         }
-        public KeyValuePair<string, string>[] PermissibleAttributes(IClass cmClass)
+        public List<IAttribute> PermissibleAttributes(IClass cmClass)
         {
             Dictionary<string, IClass> map = null;
             string xtype = cmClass.Xtype.ToLower();
@@ -74,28 +74,19 @@ namespace ClassLibraryTreeView
             {
                 return null;
             }
-            List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
-            if(cmClass.PermissibleAttributes.Count > 0)
-            {
-                foreach(IAttribute attribute in cmClass.PermissibleAttributes)
-                {
-                    result.Add(new KeyValuePair<string, string>(attribute.Id, attribute.Presence));
-                }
-            }
+            List<IAttribute> result = new List<IAttribute>();
+            result.AddRange(cmClass.PermissibleAttributes);
 
             string parent = cmClass.Extends;
             while (!parent.Equals(""))
             {
-                foreach (IAttribute attribute in map[parent].PermissibleAttributes)
-                {
-                    result.Add(new KeyValuePair<string, string>(attribute.Id, attribute.Presence));
-                }
+                result.AddRange(map[parent].PermissibleAttributes);
                 parent = map[parent].Extends;
             }
 
-            return result.ToArray();
+            return result;
         }
-        public string AttributePresence(string id, string defaultPresence, IClass cmClass)
+        public string Presence(IClass cmClass, IAttribute attribute)
         {
             Dictionary<string, IClass> map = null;
             if (cmClass.Xtype.ToLower().Equals("functionals"))
@@ -106,27 +97,30 @@ namespace ClassLibraryTreeView
             {
                 map = physicals;
             }
-            string presence = defaultPresence;
-            for (int index = 0; index < cmClass.PermissibleAttributes.Count; index++)
+            string presence = "";
+            foreach(IAttribute permissibleAttribute in cmClass.PermissibleAttributes)
             {
-                IAttribute attribute = cmClass.PermissibleAttributes[index];
-                if (attribute.Id.Equals(id))
+                if (permissibleAttribute.Id.Equals(attribute.Id))
                 {
                     presence = "X";
-                    if (!attribute.Presence.Equals(""))
+                    if (!permissibleAttribute.Presence.Equals(""))
                     {
-                        presence = attribute.Presence;
+                        presence = permissibleAttribute.Presence;
                     }
+                    /*
+                    if (presence.Equals("X") && !cmClass.Extends.Equals(""))
+                    {
+                        IClass parent = map[cmClass.Extends];
+                        if (!parent.Equals(""))
+                        {
+                            presence = Presence(parent, attribute);
+                        }
+                    }
+                    */
+                    break;
                 }
             }
-            if ( (presence.Equals("") || presence.Equals("X")) && (!cmClass.Extends.Equals("")) )
-            {
-                IClass parent = map[cmClass.Extends];
-                if (!parent.Equals(""))
-                {
-                    presence = AttributePresence(id, presence, parent);
-                }
-            }
+
             if (presence.Length > 1)
             {
                 presence = presence.Substring(0, 1);

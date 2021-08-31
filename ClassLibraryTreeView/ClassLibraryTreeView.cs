@@ -2,6 +2,7 @@
 using ClassLibraryTreeView.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,6 +21,14 @@ namespace ClassLibraryTreeView
             treeNode.Text = cmClass.Name;
             treeNode.Name = $"{cmClass.Xtype}";
             treeNode.Tag = $"{cmClass.Id}";
+            if (cmClass.Xtype.ToLower().Equals("functionals"))
+            {
+                treeNode.ForeColor = Color.Green;
+            }
+            if (cmClass.Xtype.ToLower().Equals("physicals"))
+            {
+                treeNode.ForeColor = Color.DarkBlue;
+            }
             return treeNode;
         }
         private void AddChildren(IClass cmClass, TreeNode treeNode)

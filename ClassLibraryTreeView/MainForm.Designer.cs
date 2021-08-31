@@ -1,4 +1,6 @@
-﻿namespace ClassLibraryTreeView
+﻿using System.Windows.Forms;
+
+namespace ClassLibraryTreeView
 {
     partial class MainForm
     {
@@ -35,7 +37,6 @@
             this.buttonOpenFile = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonExportPermissibleGrid = new System.Windows.Forms.ToolStripButton();
             this.tabControlProperties = new System.Windows.Forms.TabControl();
-            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -79,10 +80,8 @@
             // 
             this.toolStripMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.buttonOpenFile,
-            this.toolStripButtonExportPermissibleGrid,
-            this.progressBar});
+            this.toolStripButtonExportPermissibleGrid});
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
-            this.toolStripMenu.MinimumSize = new System.Drawing.Size(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
             this.toolStripMenu.Size = new System.Drawing.Size(564, 25);
             this.toolStripMenu.TabIndex = 1;
@@ -96,7 +95,7 @@
             this.buttonOpenFile.Name = "buttonOpenFile";
             this.buttonOpenFile.Size = new System.Drawing.Size(23, 22);
             this.buttonOpenFile.Text = "Open File";
-            this.buttonOpenFile.Click += new System.EventHandler(this.ButtonOpenFile_Click);
+            this.buttonOpenFile.Click += new System.EventHandler(this.OpenFile);
             // 
             // toolStripButtonExportPermissibleGrid
             // 
@@ -106,22 +105,17 @@
             this.toolStripButtonExportPermissibleGrid.Name = "toolStripButtonExportPermissibleGrid";
             this.toolStripButtonExportPermissibleGrid.Size = new System.Drawing.Size(23, 22);
             this.toolStripButtonExportPermissibleGrid.Text = "Export Permissible Grid";
-            this.toolStripButtonExportPermissibleGrid.Click += new System.EventHandler(this.ToolStripButtonExportPermissibleGrid_Click);
+            this.toolStripButtonExportPermissibleGrid.Click += new System.EventHandler(this.ExportPermissibleGrid);
             // 
             // tabControlProperties
             // 
             this.tabControlProperties.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControlProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tabControlProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tabControlProperties.Location = new System.Drawing.Point(0, 0);
             this.tabControlProperties.Name = "tabControlProperties";
             this.tabControlProperties.SelectedIndex = 0;
             this.tabControlProperties.Size = new System.Drawing.Size(498, 554);
             this.tabControlProperties.TabIndex = 0;
-            // 
-            // progressBar
-            // 
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(100, 22);
             // 
             // MainForm
             // 
@@ -141,6 +135,7 @@
             this.toolStripMenu.PerformLayout();
             this.ResumeLayout(false);
 
+            WindowState = FormWindowState.Maximized;
         }
 
         #endregion
@@ -150,7 +145,6 @@
         private System.Windows.Forms.TabControl tabControlProperties;
         private System.Windows.Forms.ToolStripButton toolStripButtonExportPermissibleGrid;
         private System.Windows.Forms.TabControl tabControl;
-        private System.Windows.Forms.ToolStripProgressBar progressBar;
     }
 }
 
