@@ -64,17 +64,20 @@ namespace ClassLibraryTreeView
         }
         public void AddClass(Dictionary<string, IClass> map, string xtype)
         {
-            TreeNode rootNode = new TreeNode(xtype);
-            foreach (IClass cmClass in map.Values)
+            if (map.Count > 0)
             {
-                if (cmClass.Extends.Equals(""))
+                TreeNode rootNode = new TreeNode(xtype);
+                foreach (IClass cmClass in map.Values)
                 {
-                    TreeNode newNode = NewNode(cmClass);
-                    AddChildren(cmClass, newNode);
-                    rootNode.Nodes.Add(newNode);
+                    if (cmClass.Extends.Equals(""))
+                    {
+                        TreeNode newNode = NewNode(cmClass);
+                        AddChildren(cmClass, newNode);
+                        rootNode.Nodes.Add(newNode);
+                    }
                 }
+                Nodes.Add(rootNode);
             }
-            Nodes.Add(rootNode);
         }
         public void AddList(ConceptualModel model, string text)
         {

@@ -55,7 +55,7 @@ namespace ClassLibraryTreeView
                     classes.AddClass(model.documents, "Documents");
                     classes.AddClass(model.functionals, "Functionals");
                     classes.AddClass(model.physicals, "Physicals");
-                    // classes.AddList(model, "Merged");
+                    classes.AddList(model, "Merged");
                     classes.Dock = DockStyle.Fill;
                     classes.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
                     classes.Font = tabControl.Font;

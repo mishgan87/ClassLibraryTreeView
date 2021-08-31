@@ -21,7 +21,7 @@ namespace ClassLibraryTreeView
     class ExcelExporter
     {
         public event EventHandler<ExportProgressEventArgs> GetProgress;
-        // public event EventHandler<ExportProgressEventArgs> ExportDone;
+        public event EventHandler<ExportProgressEventArgs> ExportDone;
         private ConceptualModel model;
         private string fileName;
         public ExcelExporter(string nameOfFile, ConceptualModel modelRef)
@@ -43,78 +43,80 @@ namespace ClassLibraryTreeView
                 worksheetPart.Worksheet = new Worksheet(new SheetData());
                 WorkbookStylesPart wbsp = workbookPart.AddNewPart<WorkbookStylesPart>();
 
-                // Добавляем в документ набор стилей
                 wbsp.Stylesheet = GenerateStyleSheet();
                 wbsp.Stylesheet.Save();
 
-                //Создаем лист в книге
                 Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
                 Sheet sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = $"New List" };
                 sheets.Append(sheet);
-                SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
 
-                // Задаем колонки и их ширину
-                Columns lstColumns = worksheetPart.Worksheet.GetFirstChild<Columns>();
-                if (lstColumns == null)
-                {
-                    lstColumns = new Columns();
-                }
-
-                int maxDepth = model.MaxDepth;
-                Row firstRow = new Row() { RowIndex = 1 };
-
-                int index = 0;
-                for (index = 0; index < maxDepth; index++)
-                {
-                    worksheetPart.Worksheet.InsertAt(new Column() { Min = 1, Max = 10, Width = 2, CustomWidth = false }, index);
-                    InsertCell(firstRow, index, "", CellValues.String, 5);
-                }
-
-                index = 0;
-                List<IAttribute> attributes = new List<IAttribute>();
-                foreach(Dictionary<string, IAttribute> group in model.attributes.Values)
-                {
-                    foreach(IAttribute attribute in group.Values)
-                    {
-                        worksheetPart.Worksheet.InsertAt(new Column() { Min = 1, Max = 10, Width = 2, CustomWidth = false }, index);
-
-                        string name = attribute.Name;
-                        if (name.Equals(""))
-                        {
-                            name = attribute.Id;
-                        }
-
-                        attributes.Add(attribute);
-                        InsertCell(firstRow, index + maxDepth, name, CellValues.String, 5);
-                        index++;
-                    }
-                }
-
-                sheetData.Append(firstRow);
-
-                // Заполняем строки именами классов и значениями допустимых атрибутов
-
-                uint rowIndex = 2;
-
-                // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
-                // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
-
-                // rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes.ToArray(), model.functionals);
-                rowIndex = AddMerged(sheetData, rowIndex, maxDepth, attributes.ToArray(), model);
+                AddColumns(worksheetPart);
 
                 workbookPart.Workbook.Save();
                 document.Close();
             }
         }
-        private uint AddMerged(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, ConceptualModel model)
+        // Добавление и настройка солбцов
+        private void AddColumns(WorksheetPart worksheetPart)
+        {
+            SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+            Columns list = worksheetPart.Worksheet.GetFirstChild<Columns>();
+            if (list == null)
+            {
+                list = new Columns();
+            }
+
+            int maxDepth = model.MaxDepth;
+            Row firstRow = new Row() { RowIndex = 1 };
+
+            int index = 0;
+            for (index = 0; index < maxDepth; index++)
+            {
+                list.Append(new Column() { Min = 50, Max = 50, Width = 50, CustomWidth = true });
+                InsertCell(firstRow, index, "", CellValues.String, 6);
+            }
+
+            index = 0;
+            List<IAttribute> attributes = new List<IAttribute>();
+            foreach (Dictionary<string, IAttribute> group in model.attributes.Values)
+            {
+                foreach (IAttribute attribute in group.Values)
+                {
+                    list.Append(new Column() { Min = 5, Max = 5, Width = 5, CustomWidth = true });
+                    string name = attribute.Name;
+                    if (name.Equals(""))
+                    {
+                        name = attribute.Id;
+                    }
+                    attributes.Add(attribute);
+                    InsertCell(firstRow, index + maxDepth, name, CellValues.String, 5);
+                    index++;
+                }
+            }
+
+            worksheetPart.Worksheet.InsertAt(list, 0);
+
+            sheetData.Append(firstRow);
+
+            // Заполняем строки именами классов и значениями допустимых атрибутов
+
+            uint rowIndex = 2;
+            // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
+            // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
+            // rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes.ToArray(), model.functionals);
+            rowIndex = AddMerged(sheetData, rowIndex, attributes.ToArray(), model);
+        }
+        private uint AddMerged(SheetData sheetData, uint rowIndex, IAttribute[] attributes, ConceptualModel model)
         {
             ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
             uint newRowIndex = rowIndex;
             if (model.merged.Count > 0)
             {
+                int maxDepth = model.MaxDepth;
+
                 foreach (IClass cmClass in model.merged)
                 {
-                    Row row = new Row() { RowIndex = newRowIndex };
+                    Row row = new Row() { RowIndex = newRowIndex, Height = 5 };
                     sheetData.Append(row);
 
                     int depthCurrent = model.ClassDepth(cmClass);
@@ -126,13 +128,13 @@ namespace ClassLibraryTreeView
                             // text = $"{cmClass.Name}_{cmClass.Xtype}";
                             text = $"{cmClass.Name}";
                         }
-                        InsertCell(row, depth, text, CellValues.String, 1);
+                        InsertCell(row, depth, text, CellValues.String, 6);
                     }
 
                     for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
                     {
                         string presence = model.Presence(cmClass, attributes[columnIndex]);
-                        InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 2);
+                        InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 7);
                     }
 
                     // sheetData.Append(row);
@@ -144,7 +146,6 @@ namespace ClassLibraryTreeView
             }
             return newRowIndex;
         }
-        // static async Task<uint> WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, IClass cmClass, Dictionary<string, IClass> map, IAttribute[] attributes)
         private uint WriteClass(SheetData sheetData, uint rowIndex, int maxDepth, IClass cmClass, Dictionary<string, IClass> map, IAttribute[] attributes)
         {
             ExportProgressEventArgs eventArgs = new ExportProgressEventArgs();
@@ -177,7 +178,6 @@ namespace ClassLibraryTreeView
 
             return newRowIndex;
         }
-        // static async Task<uint> AddClass(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, Dictionary<string, IClass> map)
         private uint AddClass(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, Dictionary<string, IClass> map)
         {
             uint newRowIndex = rowIndex;
@@ -187,8 +187,6 @@ namespace ClassLibraryTreeView
                 {
                     if (cmClass.Extends.Equals(""))
                     {
-                        // newRowIndex = await WriteClass(sheetData, newRowIndex, maxDepth, cmClass, map, attributes);
-                        // newRowIndex = await AddChildren(sheetData, newRowIndex, maxDepth, attributes, cmClass, map);
                         newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, cmClass, map, attributes);
                         newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributes, cmClass, map);
                     }
@@ -196,7 +194,6 @@ namespace ClassLibraryTreeView
             }
             return newRowIndex;
         }
-        // static async Task<uint> AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, IClass cmClass, Dictionary<string, IClass> map)
         private uint AddChildren(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, IClass cmClass, Dictionary<string, IClass> map)
         {
             uint newRowIndex = rowIndex;
@@ -204,8 +201,6 @@ namespace ClassLibraryTreeView
             {
                 foreach (IClass child in cmClass.Children)
                 {
-                    // newRowIndex = await WriteClass(sheetData, newRowIndex, maxDepth, child, map, attributes);
-                    // newRowIndex = await AddChildren(sheetData, newRowIndex, maxDepth, attributes, child, map);
                     newRowIndex = WriteClass(sheetData, newRowIndex, maxDepth, child, map, attributes);
                     newRowIndex = AddChildren(sheetData, newRowIndex, maxDepth, attributes, child, map);
                 }
@@ -233,52 +228,74 @@ namespace ClassLibraryTreeView
             return Regex.Replace(txt, r, "", RegexOptions.Compiled);
         }
 
-        //Метод генерирует стили для ячеек (за основу взят код, найденный где-то в интернете)
+        // Генерирует стили ячеек
         static Stylesheet GenerateStyleSheet()
         {
             return new Stylesheet(
+
+                // Шрифты
                 new Fonts(
-                    new Font(                                                               // Стиль под номером 0 - Шрифт по умолчанию.
+
+                    // 0 - Шрифт по умолчанию
+                    new Font(
                         new FontSize() { Val = 11 },
                         new Color() { Rgb = new HexBinaryValue() { Value = "000000" } },
                         new FontName() { Val = "Calibri" }),
-                    new Font(                                                               // Стиль под номером 1 - Жирный шрифт Times New Roman.
+
+                    // 1 - Times New Roman - 11 - Жирный - Чёрный
+                    new Font(
                         new Bold(),
-                        new FontSize() { Val = 11 },
+                        new FontSize() { Val = 10 },
                         new Color() { Rgb = new HexBinaryValue() { Value = "000000" } },
                         new FontName() { Val = "Times New Roman" }),
-                    new Font(                                                               // Стиль под номером 2 - Обычный шрифт Times New Roman.
-                        new FontSize() { Val = 11 },
-                        new Color() { Rgb = new HexBinaryValue() { Value = "000000" } },
+
+                    // 2 - Times New Roman - 12 - Белый
+                    new Font(
+                        new FontSize() { Val = 12 },
+                        new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } },
                         new FontName() { Val = "Times New Roman" }),
-                    new Font(                                                               // Стиль под номером 3 - Шрифт Times New Roman размером 14.
-                        new FontSize() { Val = 14 },
+
+                    // 3 - Times New Roman - 12 - Чёрный.
+                    new Font(
+                        new FontSize() { Val = 12 },
                         new Color() { Rgb = new HexBinaryValue() { Value = "000000" } },
                         new FontName() { Val = "Times New Roman" })
                 ),
+
+                // Заполнение цветом
                 new Fills(
-                    new Fill(                                                           // Стиль под номером 0 - Заполнение ячейки по умолчанию.
-                        new PatternFill() { PatternType = PatternValues.None }),
-                    new Fill(                                                           // Стиль под номером 1 - Заполнение ячейки серым цветом
-                        new PatternFill(
-                            new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "FFAAAAAA" } }
-                            )
-                        { PatternType = PatternValues.Solid }),
-                    new Fill(                                                           // Стиль под номером 2 - Заполнение ячейки красным.
-                        new PatternFill(
-                            new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "FFFFAAAA" } }
-                        )
-                        { PatternType = PatternValues.Solid })
-                )
-                ,
+
+                    // 0 - Без заполнения
+                    new Fill(
+                        new PatternFill() { PatternType = PatternValues.None }
+                    ),
+
+                    // 1 - Зелёный
+                    new Fill(
+                        new PatternFill( new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "00FF00" } } )
+                        { PatternType = PatternValues.Solid }
+                    ),
+
+                    // 2 - Синий
+                    new Fill(
+                        new PatternFill( new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "0000FF" } } )
+                        { PatternType = PatternValues.Solid }
+                    )
+                ),
+
+                // Границы ячейки
                 new Borders(
-                    new Border(                                                         // Стиль под номером 0 - Грани.
+
+                    // 0 - Грани
+                    new Border(
                         new LeftBorder(),
                         new RightBorder(),
                         new TopBorder(),
                         new BottomBorder(),
                         new DiagonalBorder()),
-                    new Border(                                                         // Стиль под номером 1 - Грани
+
+                    // 1 - Грани
+                    new Border(
                         new LeftBorder(
                             new Color() { Auto = true }
                         )
@@ -295,8 +312,11 @@ namespace ClassLibraryTreeView
                             new Color() { Indexed = (UInt32Value)64U }
                         )
                         { Style = BorderStyleValues.Medium },
-                        new DiagonalBorder()),
-                    new Border(                                                         // Стиль под номером 2 - Грани.
+                        new DiagonalBorder()
+                    ),
+
+                    // 2 - Грани
+                    new Border(
                         new LeftBorder(
                             new Color() { Auto = true }
                         )
@@ -315,20 +335,52 @@ namespace ClassLibraryTreeView
                         { Style = BorderStyleValues.Thin },
                         new DiagonalBorder())
                 ),
+
+                // Формат ячейки
                 new CellFormats(
-                    new CellFormat() { FontId = 0, FillId = 0, BorderId = 0 },                          // Стиль под номером 0 - The default cell style.  (по умолчанию)
-                    new CellFormat(new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center, WrapText = true }) { FontId = 1, FillId = 2, BorderId = 1, ApplyFont = true },       // Стиль под номером 1 - Bold 
-                    new CellFormat(new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center, WrapText = true }) { FontId = 2, FillId = 0, BorderId = 2, ApplyFont = true },       // Стиль под номером 2 - REgular
-                    new CellFormat() { FontId = 3, FillId = 0, BorderId = 2, ApplyFont = true, NumberFormatId = 4 },       // Стиль под номером 3 - Times Roman
-                    new CellFormat() { FontId = 0, FillId = 2, BorderId = 0, ApplyFill = true },       // Стиль под номером 4 - Yellow Fill
-                    new CellFormat(                                                                   // Стиль под номером 5 - Alignment
-                        new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center , TextRotation = 90 }
+
+                    // 0 - The default cell style
+                    new CellFormat() { FontId = 0, FillId = 0, BorderId = 0 },
+
+                    // 1
+                    new CellFormat(new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center, WrapText = true })
+                    { FontId = 1, FillId = 2, BorderId = 1, ApplyFont = true },
+
+                    // 2
+                    new CellFormat(new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center, WrapText = true })
+                    { FontId = 2, FillId = 0, BorderId = 2, ApplyFont = true },
+
+                    // 3
+                    new CellFormat() { FontId = 3, FillId = 0, BorderId = 2, ApplyFont = true, NumberFormatId = 4 },
+
+                    // 4
+                    new CellFormat() { FontId = 0, FillId = 2, BorderId = 0, ApplyFill = true },
+
+                    // 5 - атрибуты в шапке таблицы
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Bottom , TextRotation = 90 }
                     )
-                    { FontId = 0, FillId = 0, BorderId = 0, ApplyAlignment = true },
-                    new CellFormat() { FontId = 0, FillId = 0, BorderId = 1, ApplyBorder = true },      // Стиль под номером 6 - Border
-                    new CellFormat(new Alignment() { Horizontal = HorizontalAlignmentValues.Right, Vertical = VerticalAlignmentValues.Center, WrapText = true }) { FontId = 2, FillId = 0, BorderId = 2, ApplyFont = true, NumberFormatId = 4 }       // Стиль под номером 7 - Задает числовой формат полю.
+                    { FontId = 2, FillId = 2, BorderId = 2, ApplyAlignment = true },
+
+                    // 6 - имена классов
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center }
+                    )
+                    { FontId = 1, FillId = 1, BorderId = 2, ApplyAlignment = true },
+
+                    // 7 - значение presence
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center }
+                    )
+                    { FontId = 0, FillId = 0, BorderId = 2, ApplyAlignment = true },
+
+                    // 8 - Задает числовой формат полю
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Right, Vertical = VerticalAlignmentValues.Center, WrapText = true }
+                    )
+                    { FontId = 2, FillId = 0, BorderId = 2, ApplyFont = true, NumberFormatId = 4 }
                 )
-            ); // Выход
+            );
         }
     }
 }
