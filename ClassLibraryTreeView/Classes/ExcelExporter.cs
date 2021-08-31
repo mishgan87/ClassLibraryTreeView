@@ -87,10 +87,9 @@ namespace ClassLibraryTreeView
                 // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
                 // rowIndex = await AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
 
-                rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
-                // rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes, model.physicals);
+                // rowIndex = AddClass(sheetData, rowIndex, maxDepth, attributes, model.functionals);
 
-                // rowIndex = AddMerged(sheetData, rowIndex, maxDepth, attributes, model);
+                rowIndex = AddMerged(sheetData, rowIndex, maxDepth, attributes, model);
 
                 workbookPart.Workbook.Save();
                 document.Close();
@@ -98,6 +97,7 @@ namespace ClassLibraryTreeView
         }
         private uint AddMerged(SheetData sheetData, uint rowIndex, int maxDepth, IAttribute[] attributes, ConceptualModel model)
         {
+            int index = 0;
             uint newRowIndex = rowIndex;
             if (model.merged.Count > 0)
             {
@@ -109,16 +109,8 @@ namespace ClassLibraryTreeView
                     // newRowIndex = rowIndex + 1;
                     Row row = new Row() { RowIndex = newRowIndex };
                     sheetData.Append(row);
-                    Dictionary<string, IClass> map = null;
-                    if (cmClass.Xtype.ToLower().Equals("functionals"))
-                    {
-                        map = model.functionals;
-                    }
-                    if (cmClass.Xtype.ToLower().Equals("physicals"))
-                    {
-                        map = model.physicals;
-                    }
-                    int depthCurrent = ConceptualModel.ClassDepth(cmClass, map);
+
+                    int depthCurrent = model.ClassDepth(cmClass);
                     for (int depth = 1; depth <= maxDepth; depth++)
                     {
                         string text = "";
@@ -132,14 +124,16 @@ namespace ClassLibraryTreeView
                     for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
                     {
                         IAttribute attribute = attributes[columnIndex];
-                        string presence = ConceptualModel.AttributePresence(attributes[columnIndex].Id, attributes[columnIndex].Presence, cmClass, map);
+                        string presence = model.AttributePresence(attributes[columnIndex].Id, attributes[columnIndex].Presence, cmClass);
                         InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
-
-                        // eventArgs.Progress = (attributes.Length / columnIndex) * 100;
-                        // GetProgress.Invoke(this, eventArgs);
                     }
 
                     newRowIndex++;
+
+                    eventArgs.Progress = (index / model.merged.Count) * 100;
+                    GetProgress.Invoke(this, eventArgs);
+
+                    index++;
                 }
             }
             return newRowIndex;
@@ -154,7 +148,7 @@ namespace ClassLibraryTreeView
             Row row = new Row() { RowIndex = newRowIndex };
             sheetData.Append(row);
 
-            int depthCurrent = ConceptualModel.ClassDepth(cmClass, map);
+            int depthCurrent = model.ClassDepth(cmClass);
             for (int depth = 1; depth <= maxDepth; depth++)
             {
                 string text = "";
@@ -168,7 +162,7 @@ namespace ClassLibraryTreeView
             for (int columnIndex = 0; columnIndex < attributes.Length; columnIndex++)
             {
                 IAttribute attribute = attributes[columnIndex];
-                string presence = ConceptualModel.AttributePresence(attributes[columnIndex].Id, attributes[columnIndex].Presence, cmClass, map);
+                string presence = model.AttributePresence(attributes[columnIndex].Id, attributes[columnIndex].Presence, cmClass);
                 InsertCell(row, columnIndex + maxDepth, presence, CellValues.String, 0);
 
                 // eventArgs.Progress = (attributes.Length / columnIndex) * 100;

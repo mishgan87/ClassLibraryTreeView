@@ -139,14 +139,14 @@ namespace ClassLibraryTreeView
                 return;
             }
 
-            // Insert properties
+            // Add properties
 
             ListView listView = new ListView();
             listView.View = View.Details;
             listView.Columns.Clear();
             listView.Items.Clear();
-            listView.Columns.Add("Attribute", 150, HorizontalAlignment.Left);
-            listView.Columns.Add("Value", 150, HorizontalAlignment.Left);
+            listView.Columns.Add("Attribute", 300, HorizontalAlignment.Left);
+            listView.Columns.Add("Value", 300, HorizontalAlignment.Left);
 
             KeyValuePair<string, string>[] attributes = cmClass.Attributes;
 
@@ -156,11 +156,6 @@ namespace ClassLibraryTreeView
                 listView.Items.Add(new ListViewItem(items));
             }
 
-            foreach (ColumnHeader col in listView.Columns)
-            {
-                col.AutoResize(ColumnHeaderAutoResizeStyle.ColumnContent);
-            }
-
             listView.Dock = DockStyle.Fill;
             listView.Font = tabControlProperties.Font;
 
@@ -168,22 +163,29 @@ namespace ClassLibraryTreeView
             pageProperties.Controls.Add(listView);
             tabControlProperties.TabPages.Add(pageProperties);
 
-            // Insert children
+            // Add children
 
-            // Insert permissible attributes
+            // Add permissible attributes
 
-            TreeView treeView = new TreeView();
-            string[] permissibleAttributes = model.PermissibleAttributes(cmClass);
+            ListView listViewAttributes = new ListView();
+            listViewAttributes.View = View.Details;
+            listViewAttributes.Columns.Clear();
+            listViewAttributes.Items.Clear();
+            listViewAttributes.Columns.Add("Attribute", 300, HorizontalAlignment.Left);
+            listViewAttributes.Columns.Add("Presence", 300, HorizontalAlignment.Left);
+
+            KeyValuePair<string, string>[] permissibleAttributes = model.PermissibleAttributes(cmClass);
             for (int index = 0; index < permissibleAttributes.Length; index++)
             {
-                treeView.Nodes.Add(new TreeNode($"{permissibleAttributes[index]}"));
+                string[] items = { $"{permissibleAttributes[index].Key}", $"{permissibleAttributes[index].Value}" };
+                listViewAttributes.Items.Add(new ListViewItem(items));
             }
 
-            treeView.Dock = DockStyle.Fill;
-            treeView.Font = tabControlProperties.Font;
+            listViewAttributes.Dock = DockStyle.Fill;
+            listViewAttributes.Font = tabControlProperties.Font;
 
             TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
-            pagePermissibleAttributes.Controls.Add(treeView);
+            pagePermissibleAttributes.Controls.Add(listViewAttributes);
             tabControlProperties.TabPages.Add(pagePermissibleAttributes);
         }
         private async void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)
@@ -192,12 +194,12 @@ namespace ClassLibraryTreeView
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
             ExcelExporter exporter = new ExcelExporter(newFileName, model);
-
             exporter.GetProgress += (s, ea) =>
             {
                 progressBar.Value = ea.Progress;
                 progressBar.ToolTipText = ea.Progress.ToString();
             };
+            // porter.GetProgress += new EventHandler<ExportProgressEventArgs>()
 
             // await exporter.ExportPermissibleGrid();
             
@@ -205,8 +207,9 @@ namespace ClassLibraryTreeView
             {
                 await exporter.ExportPermissibleGrid();
             });
-            
-            progressBar.ToolTipText = $"Export done";
+
+            progressBar.Value = 100;
+            MessageBox.Show($"Export done");
         }
     }
 }

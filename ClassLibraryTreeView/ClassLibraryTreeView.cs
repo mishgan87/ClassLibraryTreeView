@@ -106,13 +106,8 @@ namespace ClassLibraryTreeView
             }
             Nodes.Add(rootNode);
         }
-        private void AddChildren(ConceptualModel model, IClass cmClass, TreeNode treeNode)
-        {
-
-        }
         public void AddList(ConceptualModel model, string text)
         {
-            //             = model.MergeAndClean(model.physicals, model.functionals);
             TreeNode rootNode = new TreeNode(text);
             foreach (IClass cmClass in model.merged)
             {
