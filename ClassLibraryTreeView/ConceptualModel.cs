@@ -80,7 +80,12 @@ namespace ClassLibraryTreeView
             string parent = cmClass.Extends;
             while (!parent.Equals(""))
             {
-                result.AddRange(map[parent].PermissibleAttributes);
+                foreach(IAttribute parentAttribute in map[parent].PermissibleAttributes)
+                {
+                    IAttribute attribute = new IAttribute(parentAttribute);
+                    attribute.Presence = "";
+                    result.Add(attribute);
+                }
                 parent = map[parent].Extends;
             }
 
@@ -88,44 +93,19 @@ namespace ClassLibraryTreeView
         }
         public string Presence(IClass cmClass, IAttribute attribute)
         {
-            Dictionary<string, IClass> map = null;
-            if (cmClass.Xtype.ToLower().Equals("functionals"))
-            {
-                map = functionals;
-            }
-            if (cmClass.Xtype.ToLower().Equals("physicals"))
-            {
-                map = physicals;
-            }
-            string presence = "";
-            foreach(IAttribute permissibleAttribute in cmClass.PermissibleAttributes)
+            List<IAttribute> permissibleAttributes = PermissibleAttributes(cmClass);
+            foreach (IAttribute permissibleAttribute in permissibleAttributes)
             {
                 if (permissibleAttribute.Id.Equals(attribute.Id))
                 {
-                    presence = "X";
                     if (!permissibleAttribute.Presence.Equals(""))
                     {
-                        presence = permissibleAttribute.Presence;
+                        return permissibleAttribute.Presence.Substring(0, 1);
                     }
-
-                    if (presence.Equals("") && !cmClass.Extends.Equals(""))
-                    {
-                        IClass parent = map[cmClass.Extends];
-                        if (!parent.Equals(""))
-                        {
-                            presence = Presence(parent, attribute);
-                        }
-                    }
-
-                    break;
+                    return "X";
                 }
             }
-
-            if (presence.Length > 1)
-            {
-                presence = presence.Substring(0, 1);
-            }
-            return presence;
+            return "";
         }
         public int ClassDepth(IClass cmClass)
         {
@@ -142,7 +122,7 @@ namespace ClassLibraryTreeView
             {
                 return 0;
             }
-            int depth = 1;
+            int depth = 0;
             string parent = cmClass.Extends;
             while (!parent.Equals(""))
             {
@@ -157,7 +137,7 @@ namespace ClassLibraryTreeView
             {
                 return 0;
             }
-            int maxDepth = 1;
+            int maxDepth = 0;
             foreach (IClass cmClass in map.Values)
             {
                 int depth = ClassDepth(cmClass);
@@ -167,6 +147,17 @@ namespace ClassLibraryTreeView
                 }
             }
             return maxDepth;
+        }
+        private void MapFromXElement(XElement element, Dictionary<string, IClass> map)
+        {
+            foreach (XElement child in element.Elements())
+            {
+                if (!child.Name.LocalName.ToLower().Equals("extension"))
+                {
+                    IClass newClass = new IClass(child);
+                    map.Add(newClass.Id, newClass);
+                }
+            }
         }
         public async void ImportXml(string fileName)
         {
@@ -178,27 +169,15 @@ namespace ClassLibraryTreeView
                 string name = element.Name.LocalName;
                 if (name.ToLower().Equals("functionals"))
                 {
-                    foreach (XElement child in element.Elements())
-                    {
-                        IClass newClass = new IClass(child);
-                        functionals.Add(newClass.Id, newClass);
-                    }
+                    MapFromXElement(element, functionals);
                 }
                 if (name.ToLower().Equals("physicals"))
                 {
-                    foreach (XElement child in element.Elements())
-                    {
-                        IClass newClass = new IClass(child);
-                        physicals.Add(newClass.Id, newClass);
-                    }
+                    MapFromXElement(element, physicals);
                 }
                 if (name.ToLower().Equals("documents"))
                 {
-                    foreach (XElement child in element.Elements())
-                    {
-                        IClass newClass = new IClass(child);
-                        documents.Add(newClass.Id, newClass);
-                    }
+                    MapFromXElement(element, documents);
                 }
                 if (name.ToLower().Equals("attributes"))
                 {

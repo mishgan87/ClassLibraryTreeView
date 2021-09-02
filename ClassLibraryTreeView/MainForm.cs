@@ -167,7 +167,9 @@ namespace ClassLibraryTreeView
             listViewAttributes.Columns.Add("Name", 300, HorizontalAlignment.Left);
             listViewAttributes.Columns.Add("Presence", 300, HorizontalAlignment.Left);
 
-            foreach(IAttribute attribute in model.PermissibleAttributes(cmClass))
+            List<IAttribute> permissibleAttributes = model.PermissibleAttributes(cmClass);
+
+            foreach (IAttribute attribute in permissibleAttributes)
             {
                 string[] items = { $"{attribute.Id}", $"{attribute.Name}", $"{attribute.Presence}" };
                 listViewAttributes.Items.Add(new ListViewItem(items));
