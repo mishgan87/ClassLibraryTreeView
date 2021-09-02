@@ -182,7 +182,6 @@ namespace ClassLibraryTreeView
             pagePermissibleAttributes.Controls.Add(listViewAttributes);
             tabControlProperties.TabPages.Add(pagePermissibleAttributes);
         }
-        // private async void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)
         private void ExportPermissibleGrid(object sender, EventArgs e)
         {
             string newFileName = fileName;
@@ -191,7 +190,7 @@ namespace ClassLibraryTreeView
             ExcelExporter exporter = new ExcelExporter(newFileName, model);
             exporter.ExportPermissibleGrid();
             /*
-            exporter.GetProgress += (s, ea) =>
+            exporter.GetProgress += (sndr, args) =>
             {
                 progressBar.Value = ea.Progress;
                 progressBar.ToolTipText = ea.Progress.ToString();

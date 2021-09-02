@@ -8,6 +8,21 @@ using System;
 
 namespace ClassLibraryTreeView
 {
+    public class GridCell
+    {
+        public GridCell()
+        {
+            Text = "";
+            StyleIndex = 0;
+        }
+        public GridCell(string text, uint style)
+        {
+            Text = text;
+            StyleIndex = style;
+        }
+        public string Text { get; set; }
+        public uint StyleIndex { get; set; }
+    }
     public class ConceptualModel
     {
         // public Dictionary<string, IAttribute> attributes;
@@ -17,6 +32,8 @@ namespace ClassLibraryTreeView
 
         public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
         public List<IClass> merged = new List<IClass>();
+
+        public int AttributesCount = 0;
 
         public int MaxDepth
         {
@@ -44,6 +61,8 @@ namespace ClassLibraryTreeView
             physicals = new Dictionary<string, IClass>();
 
             merged = new List<IClass>();
+
+            AttributesCount = 0;
         }
         public void Clear()
         {
@@ -53,6 +72,8 @@ namespace ClassLibraryTreeView
             physicals.Clear();
 
             merged.Clear();
+
+            AttributesCount = 0;
         }
         public List<IAttribute> PermissibleAttributes(IClass cmClass)
         {
@@ -159,7 +180,7 @@ namespace ClassLibraryTreeView
                 }
             }
         }
-        public async void ImportXml(string fileName)
+        public void ImportXml(string fileName)
         {
             Clear();
             XDocument doc = XDocument.Load(fileName);
@@ -198,6 +219,8 @@ namespace ClassLibraryTreeView
                         }
                         
                         attributes[group].Add(newAttribute.Id, newAttribute);
+
+                        AttributesCount++;
                     }
                 }
             }
@@ -238,10 +261,10 @@ namespace ClassLibraryTreeView
         }
         private void MergeAndClean(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
         {
-            merged.Clear();
+            List<IClass> classes = new List<IClass>();
             foreach (IClass cmClass in recipient.Values)
             {
-                merged.Add(cmClass);
+                classes.Add(cmClass);
                 foreach (IClass sourceClass in source.Values)
                 {
                     if (sourceClass.Name.Equals(cmClass.Name))
@@ -250,13 +273,121 @@ namespace ClassLibraryTreeView
                         {
                             if (!cmClass.ContainsChildName(sourceClass.Children[index]))
                             {
-                                merged.Add(sourceClass.Children[index]);
+                                classes.Add(sourceClass.Children[index]);
                                 cmClass.Children.Add(sourceClass.Children[index]);
                             }
                         }
                     }
                 }
             }
+
+            merged.Clear();
+            foreach (IClass cmClass in classes)
+            {
+                if (cmClass.Extends.Equals(""))
+                {
+                    merged.Add(cmClass);
+                    AddClassChildren(cmClass, merged);
+                }
+            }
+        }
+        public void AddClassChildren(IClass cmClass, List<IClass> classes)
+        {
+            foreach(IClass child in cmClass.Children)
+            {
+                classes.Add(child);
+                AddClassChildren(child, classes);
+            }
+        }
+        public GridCell[,] GeneratePermissibleGrid()
+        {
+            GridCell[,] grid = null;
+
+            if (merged.Count > 0)
+            {
+                // Заполняем шапку таблицы
+
+                int maxDepth = MaxDepth + 1;
+
+                grid = new GridCell[merged.Count + 2, maxDepth + AttributesCount + 1];
+
+                for (int depth = 0; depth <= maxDepth; depth++)
+                {
+                    grid[0, depth] = new GridCell();
+                    grid[1, depth] = new GridCell();
+                }
+
+                grid[1, 0].Text = $"Classes ({merged.Count})";
+                grid[1, maxDepth].Text = $"Class ID";
+
+                // Заполняем список атрибутов
+
+                int col = maxDepth + 1;
+                foreach (Dictionary<string, IAttribute> group in attributes.Values)
+                {
+                    foreach (IAttribute attribute in group.Values)
+                    {
+                        grid[0, col] = new GridCell($"{attribute.Name} : {attribute.Id}", 5);
+                        grid[1, col] = new GridCell();
+
+                        int row = 2;
+                        foreach (IClass cmClass in merged)
+                        {
+                            int classDepth = ClassDepth(cmClass);
+
+                            for (int depth = 0; depth < maxDepth; depth++)
+                            {
+                                grid[row, depth] = new GridCell("", 6);
+                            }
+
+                            grid[row, classDepth].Text = $"{cmClass.Name}";
+                            grid[row, maxDepth] = new GridCell($"{cmClass.Id}", 9);
+
+                            grid[row, col] = new GridCell(Presence(cmClass, attribute), 7);
+
+                            row++;
+                        }
+
+                        col++;
+                    }
+                }
+            }
+
+            return grid;
+        }
+        private void AddChildrenPresence(IClass cmClass, int maxDepth, IAttribute[] attributes, List<GridCell[]> grid)
+        {
+            if (cmClass.Children.Count > 0)
+            {
+                foreach (IClass child in cmClass.Children)
+                {
+                    AddPresence(child, maxDepth, attributes, grid);
+                }
+            }
+        }
+        private void AddPresence(IClass cmClass, int maxDepth, IAttribute[] attributes, List<GridCell[]> grid)
+        {
+            GridCell[] row = new GridCell[maxDepth + attributes.Length + 1];
+            int classDepth = ClassDepth(cmClass);
+
+            for (int depth = 0; depth < maxDepth; depth++)
+            {
+                row[depth].Text = "";
+                row[depth].StyleIndex = 6;
+            }
+
+            row[classDepth].Text = $"{cmClass.Name}";
+            row[maxDepth].Text = $"{cmClass.Id}";
+
+            for (int index = 1; index <= attributes.Length; index++)
+            {
+                row[index + maxDepth].Text = Presence(cmClass, attributes[index - 1]);
+                row[index + maxDepth].StyleIndex = 7;
+            }
+
+            grid.Add(row);
+
+            AddChildrenPresence(cmClass, maxDepth, attributes, grid);
         }
     }
 }

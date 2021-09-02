@@ -20,8 +20,8 @@ namespace ClassLibraryTreeView
     }
     class ExcelExporter
     {
-        public event EventHandler<ExportProgressEventArgs> GetProgress;
-        public event EventHandler<ExportProgressEventArgs> ExportDone;
+        // public event EventHandler<ExportProgressEventArgs> GetProgress;
+        // public event EventHandler<ExportProgressEventArgs> ExportDone;
         private ConceptualModel model;
         private string fileName;
         public ExcelExporter(string nameOfFile, ConceptualModel modelRef)
@@ -29,7 +29,6 @@ namespace ClassLibraryTreeView
             fileName = nameOfFile;
             model = modelRef;
         }
-        // public async Task ExportPermissibleGrid()
         public void ExportPermissibleGrid()
         {
             using (SpreadsheetDocument document = SpreadsheetDocument.Create(fileName, SpreadsheetDocumentType.Workbook))
@@ -52,7 +51,11 @@ namespace ClassLibraryTreeView
                 sheets.Append(sheet);
                 SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
 
-                // Задаем колонки и их ширину
+                // Создаём permissible grid
+                int maxDepth = model.MaxDepth + 1;
+                GridCell[,] grid = model.GeneratePermissibleGrid();
+
+                // Задаем колонки
 
                 Columns columnsList = worksheetPart.Worksheet.GetFirstChild<Columns>();
                 if (columnsList == null)
@@ -60,82 +63,29 @@ namespace ClassLibraryTreeView
                     columnsList = new Columns();
                 }
 
-                int maxDepth = model.MaxDepth + 1;
                 for (int depth = 0; depth < maxDepth; depth++)
                 {
-                    columnsList.Append(new Column() { BestFit = true });
+                    columnsList.Append(new Column() { Width = 50, CustomWidth = true });
                 }
 
-                List<IAttribute> attributesList = new List<IAttribute>();
-                foreach (Dictionary<string, IAttribute> group in model.attributes.Values)
+                for (int depth = maxDepth; depth < grid.GetLength(1); depth++)
                 {
-                    foreach (IAttribute attribute in group.Values)
-                    {
-                        attributesList.Add(attribute);
-                        columnsList.Append(new Column() { BestFit = true });
-                    }
+                    columnsList.Append(new Column() { Width = 5, CustomWidth = true });
                 }
-                IAttribute[] attributes = attributesList.ToArray();
 
                 worksheetPart.Worksheet.InsertAt(columnsList, 0);
-
-                // Заполняем шапку таблицы
-
-                List<string[]> grid = new List<string[]>();
-                grid.Add(new string[maxDepth + attributes.Length + 1]);
-                grid.Add(new string[maxDepth + attributes.Length + 1]);
-                for (int index = 0; index < maxDepth; index++)
-                {
-                    grid[0][index] = "";
-                    grid[1][index] = "";
-                }
-                
-                grid[1][0] = $"Classes ({model.merged.Count})";
-                grid[1][maxDepth] = $"Class ID";
-
-                for (int index = 1; index <= attributes.Length; index++)
-                {
-                    grid[0][index + maxDepth] = $"{attributes[index - 1].Name}";
-                    grid[1][index + maxDepth] = "";
-                }
-
-                // Заполняем значения атрибутов
-
-                if (model.merged.Count > 0)
-                {
-                    foreach (IClass cmClass in model.merged)
-                    {
-                        if (cmClass.Extends.Equals(""))
-                        {
-                            AddPresence(cmClass, maxDepth, attributes, grid);
-                        }
-                    }
-                }
 
                 // Пишем таблицу в эксель
 
                 uint rowIndex = 1;
-                foreach(string[] row in grid)
+                for (int row = 0; row < grid.GetLength(0); row++)
                 {
                     Row sheetRow = new Row() { RowIndex = rowIndex };
                     sheetData.Append(sheetRow);
 
-                    for (int index = 0; index < row.Length; index++)
+                    for (int col = 0; col < grid.GetLength(1); col++)
                     {
-                        uint styleId = 0;
-
-                        if ( (index >= maxDepth) && (sheetRow.RowIndex == 1) )
-                        {
-                            styleId = 5;
-                        }
-
-                        if ( (sheetRow.RowIndex > 2) && (index < maxDepth) )
-                        {
-                            sheetRow.Height = 5;
-                            styleId = 6;
-                        }
-
-                        AddCell(sheetRow, index + 1, row[index], styleId);
+                        AddCell(sheetRow, col + 1, grid[row, col]);
                     }
 
                     rowIndex++;
@@ -144,7 +94,7 @@ namespace ClassLibraryTreeView
                 workbookPart.Workbook.Save();
                 document.Close();
             }
-            /*
+
             using (SpreadsheetDocument document = SpreadsheetDocument.Open(fileName, true))
             {
                 IEnumerable<Sheet> sheets = document.WorkbookPart.Workbook.Descendants<Sheet>().Where(s => s.Name == "Permissible Grid");
@@ -163,7 +113,7 @@ namespace ClassLibraryTreeView
                 worksheet.Save();
                 document.Close();
             }
-            */
+
         }
         private static string GetExcelColumnName(int number)
         {
@@ -176,76 +126,8 @@ namespace ClassLibraryTreeView
             }
             return name;
         }
-        private void AddChildrenPresence(IClass cmClass, int maxDepth, IAttribute[] attributes, List<string[]> grid)
-        {
-            if (cmClass.Children.Count > 0)
-            {
-                foreach (IClass child in cmClass.Children)
-                {
-                    AddPresence(child, maxDepth, attributes, grid);
-                }
-            }
-        }
-        private void AddPresence(IClass cmClass, int maxDepth, IAttribute[] attributes, List<string[]> grid)
-        {
-            string[] row = new string[maxDepth + attributes.Length + 1];
-            int classDepth = model.ClassDepth(cmClass);
-            
-            for (int depth = 0; depth < maxDepth; depth++)
-            {
-                row[depth] = "";
-            }
-
-            row[classDepth] = $"{cmClass.Name}";
-            row[maxDepth] = $"{cmClass.Id}";
-
-            for (int index = 1; index <= attributes.Length; index++)
-            {
-                row[index + maxDepth] = model.Presence(cmClass, attributes[index - 1]);
-            }
-
-            grid.Add(row);
-
-            AddChildrenPresence(cmClass, maxDepth, attributes, grid);
-        }
-        private void WritePresence(IClass cmClass, int maxDepth, IAttribute[] attributes, SheetData sheetData)
-        {
-            Row row = new Row() { RowIndex = (uint)(sheetData.Count() + 1), Height = 5 };
-            sheetData.Append(row);
-            int depthCurrent = model.ClassDepth(cmClass);
-            for (int depth = 1; depth <= maxDepth + 1; depth++)
-            {
-                string text = "";
-                if (depth == depthCurrent)
-                {
-                    text = $"{cmClass.Name}";
-                }
-                if (depth == maxDepth + 1)
-                {
-                    text = $"{cmClass.Id}";
-                }
-                AddCell(row, depth, text, 6);
-            }
-
-            for (int col = 0; col < attributes.Length; col++)
-            {
-                string presence = model.Presence(cmClass, attributes[col]);
-                AddCell(row, col + maxDepth + 1, presence, 7);
-            }
-        }
-        private void WriteChildren(IClass cmClass, int maxDepth, IAttribute[] attributes, SheetData sheetData)
-        {
-            if (cmClass.Children.Count > 0)
-            {
-                foreach (IClass child in cmClass.Children)
-                {
-                    WritePresence(child, maxDepth, attributes, sheetData);
-                    WriteChildren(child, maxDepth, attributes, sheetData);
-                }
-            }
-        }
         // Добавление ячейки в строку
-        static void AddCell(Row row, int col, string value, uint styleIndex)
+        static void AddCell(Row row, int col, GridCell cell)
         {
             /*
             // Cell refCell = null;
@@ -260,10 +142,10 @@ namespace ClassLibraryTreeView
             return newCell;
             */
             Cell refCell = null;
-            Cell newCell = new Cell() { CellReference = $"{GetExcelColumnName(col)}{row.RowIndex}", StyleIndex = styleIndex };
+            Cell newCell = new Cell() { CellReference = $"{GetExcelColumnName(col)}{row.RowIndex}", StyleIndex = cell.StyleIndex };
             row.InsertBefore(newCell, refCell);
 
-            newCell.CellValue = new CellValue(value);
+            newCell.CellValue = new CellValue(cell.Text);
             newCell.DataType = new EnumValue<CellValues>(CellValues.String);
         }
         // Важный метод, при вставки текстовых значений надо использовать.
@@ -332,6 +214,12 @@ namespace ClassLibraryTreeView
                     // 3 - Зелёный
                     new Fill(
                         new PatternFill(new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "FFFF00" } })
+                        { PatternType = PatternValues.Solid }
+                    ),
+
+                    // 4 - Лайм
+                    new Fill(
+                        new PatternFill(new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "0080000" } })
                         { PatternType = PatternValues.Solid }
                     )
                 ),
@@ -431,7 +319,13 @@ namespace ClassLibraryTreeView
                     new CellFormat(
                         new Alignment() { Horizontal = HorizontalAlignmentValues.Right, Vertical = VerticalAlignmentValues.Center, WrapText = true }
                     )
-                    { FontId = 2, FillId = 0, BorderId = 2, ApplyFont = true, NumberFormatId = 4 }
+                    { FontId = 2, FillId = 0, BorderId = 2, ApplyFont = true, NumberFormatId = 4 },
+
+                    // 9 - class id
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center }
+                    )
+                    { FontId = 1, FillId = 4, BorderId = 2, ApplyAlignment = true }
                 )
             );
         }
