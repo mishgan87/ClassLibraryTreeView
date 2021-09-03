@@ -84,8 +84,12 @@ namespace ClassLibraryTreeView
             TreeNode rootNode = new TreeNode(text);
             foreach (IClass cmClass in model.merged)
             {
-                TreeNode newNode = NewNode(cmClass);
-                rootNode.Nodes.Add(newNode);
+                if (cmClass.Extends.Equals(""))
+                {
+                    TreeNode newNode = NewNode(cmClass);
+                    AddChildren(cmClass, newNode);
+                    rootNode.Nodes.Add(newNode);
+                }
             }
             Nodes.Add(rootNode);
         }

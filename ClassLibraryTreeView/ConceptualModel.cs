@@ -299,62 +299,6 @@ namespace ClassLibraryTreeView
                 AddClassChildren(child, classes);
             }
         }
-        public GridCell[,] GeneratePermissibleGrid()
-        {
-            GridCell[,] grid = null;
-
-            if (merged.Count > 0)
-            {
-                // Заполняем шапку таблицы
-
-                int maxDepth = MaxDepth + 1;
-
-                grid = new GridCell[merged.Count + 2, maxDepth + AttributesCount + 1];
-
-                for (int depth = 0; depth <= maxDepth; depth++)
-                {
-                    grid[0, depth] = new GridCell();
-                    grid[1, depth] = new GridCell();
-                }
-
-                grid[1, 0].Text = $"Classes ({merged.Count})";
-                grid[1, maxDepth].Text = $"Class ID";
-
-                // Заполняем список атрибутов
-
-                int col = maxDepth + 1;
-                foreach (Dictionary<string, IAttribute> group in attributes.Values)
-                {
-                    foreach (IAttribute attribute in group.Values)
-                    {
-                        grid[0, col] = new GridCell($"{attribute.Name} : {attribute.Id}", 5);
-                        grid[1, col] = new GridCell();
-
-                        int row = 2;
-                        foreach (IClass cmClass in merged)
-                        {
-                            int classDepth = ClassDepth(cmClass);
-
-                            for (int depth = 0; depth < maxDepth; depth++)
-                            {
-                                grid[row, depth] = new GridCell("", 6);
-                            }
-
-                            grid[row, classDepth].Text = $"{cmClass.Name}";
-                            grid[row, maxDepth] = new GridCell($"{cmClass.Id}", 9);
-
-                            grid[row, col] = new GridCell(Presence(cmClass, attribute), 7);
-
-                            row++;
-                        }
-
-                        col++;
-                    }
-                }
-            }
-
-            return grid;
-        }
         private void AddChildrenPresence(IClass cmClass, int maxDepth, IAttribute[] attributes, List<GridCell[]> grid)
         {
             if (cmClass.Children.Count > 0)
