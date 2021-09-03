@@ -12,16 +12,10 @@ using System.Threading.Tasks;
 
 namespace ClassLibraryTreeView
 {
-    public class ExportProgressEventArgs : EventArgs
-    {
-        public int Progress { get; set; }
-        public bool Done { get; set; }
-        public string Text { get; set; }
-    }
     class ExcelExporter
     {
         // public event EventHandler<ExportProgressEventArgs> GetProgress;
-        // public event EventHandler<ExportProgressEventArgs> ExportDone;
+        // public event EventHandler ExportDone;
         private ConceptualModel model;
         private string fileName;
         public ExcelExporter(string nameOfFile, ConceptualModel modelRef)
@@ -64,12 +58,9 @@ namespace ClassLibraryTreeView
                 // Get the sheetData cell table
                 SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
 
-                // Вставляем список объединённых ячеек
-                /*
-                Worksheet worksheet = worksheetPart.Worksheet;
+                // Массив объединённых ячеек
                 MergeCells mergeCells = new MergeCells();
-                worksheet.InsertAfter(mergeCells, worksheet.Elements<SheetData>().First());
-                */
+
                 // Заполняем permissible grid
 
                 List<IClass> merged = model.merged;
@@ -80,33 +71,64 @@ namespace ClassLibraryTreeView
 
                     // Заполняем шапку таблицы
 
-                    Row rowFirst = new Row() { RowIndex = 1 };
-                    sheetData.Append(rowFirst);
-                    Row rowSecond = new Row() { RowIndex = 2 };
-                    sheetData.Append(rowSecond);
-                    Row rowThird = new Row() { RowIndex = 3 };
-                    sheetData.Append(rowThird);
+                    Cell cell = null;
+                    string mergeRange = "";
 
-                    AddCell(rowThird, 0, $"Classes ({merged.Count})", 0);
-                    AddCell(rowThird, maxDepth, $"Class ID", 0);
+                    uint rowIndex = 1;
+
+                    Row[] header = new Row[3];
+                    for(rowIndex = 1; rowIndex <= 3; rowIndex++)
+                    {
+                        header[rowIndex - 1] = new Row() { RowIndex = rowIndex };
+                        sheetData.Append(header[rowIndex - 1]);
+                    }
+
+                    for (int col = 0; col <= maxDepth; col++)
+                    {
+                        string text = "";
+                        uint styleIndex = 0;
+                        /*
+                        text = $"Classes ({merged.Count})";
+                        styleIndex = 9;
+                        text = $"Class ID";
+                        mergeRange = cell.CellReference.Value;
+                        mergeRange += $":{cell.CellReference.Value}";
+                        */
+                        cell = AddCell(header[0], col, text, styleIndex);
+                    }
 
                     maxDepth++;
                     int attributeIndex = 0;
                     IAttribute[] attributes = new IAttribute[model.AttributesCount];
                     foreach (KeyValuePair<string, Dictionary<string, IAttribute>> group in model.attributes)
                     {
-                        AddCell(rowFirst, maxDepth + attributeIndex, group.Key, 0);
+                        cell = AddCell(header[0], maxDepth + attributeIndex, group.Key, 0);
+                        mergeRange = cell.CellReference.Value;
+                        int localAttributeIndex = 0;
                         foreach (IAttribute attribute in group.Value.Values)
                         {
-                            AddCell(rowSecond, maxDepth + attributeIndex, $"{attribute.Name} : {attribute.Id}", 3);
+                            if (localAttributeIndex > 0)
+                            {
+                                cell = AddCell(header[0], maxDepth + attributeIndex, "", 0);
+                                if (localAttributeIndex == group.Value.Count - 1)
+                                {
+                                    mergeRange += $":{cell.CellReference.Value}";
+                                }
+                            }
                             attributes[attributeIndex] = attribute;
+                            cell = AddCell(header[1], maxDepth + attributeIndex, $"{attribute.Name} : {attribute.Id}", 3);
+                            cell = AddCell(header[2], maxDepth + attributeIndex, "", 0);
+                            localAttributeIndex++;
                             attributeIndex++;
                         }
+                        mergeCells.Append(new MergeCell() { Reference = new StringValue(mergeRange) });
                     }
 
-                    // Заполняем таблицу классами и присутсвием в них атрибутов
+                    //mergeCells.Append(new MergeCell() { Reference = new StringValue(mergeRange) });
 
-                    uint rowIndex = 4;
+
+                    // Заполняем таблицу классами и присутсвием в них атрибутов
+                    /*
                     foreach (IClass cmClass in merged)
                     {
                         Row row = new Row() { RowIndex = rowIndex };
@@ -114,31 +136,52 @@ namespace ClassLibraryTreeView
 
                         int classDepth = model.ClassDepth(cmClass) + 1;
 
-                        AddCell(row, classDepth, $"{cmClass.Name}", 1);
-                        AddCell(row, maxDepth - 1, $"{cmClass.Id}", 2);
+                        cell = AddCell(row, classDepth, $"{cmClass.Name}", 1);
+                        cell = AddCell(row, maxDepth - 1, $"{cmClass.Id}", 2);
 
-                        for(attributeIndex = 0; attributeIndex < model.AttributesCount; attributeIndex++)
+                        for (attributeIndex = 0; attributeIndex < model.AttributesCount; attributeIndex++)
                         {
                             IAttribute attribute = attributes[attributeIndex];
-                            AddCell(row, maxDepth + attributeIndex, model.Presence(cmClass, attribute), 4);
+                            string presence = model.Presence(cmClass, attribute);
+                            uint styleIndex = 0;
+                            
+                            switch(presence)
+                            {
+                                case "X":
+                                    styleIndex = 5;
+                                    break;
+                                case "O":
+                                    styleIndex = 6;
+                                    break;
+                                case "P":
+                                    styleIndex = 7;
+                                    break;
+                                case "R":
+                                    styleIndex = 8;
+                                    break;
+                                default:
+                                    break;
+                            }
+                            
+                            cell = AddCell(row, maxDepth + attributeIndex, presence, styleIndex);
                         }
 
                         rowIndex++;
                     }
+                    */
                 }
 
-                /*
-                MergeCell mergeCell = new MergeCell()
-                {
-                    Reference = new StringValue("A1:B1")
-                };
-                mergeCells.Append(mergeCell);
-                worksheet.Save();
-                */
+                // Добавляем к документу список объединённых ячеек
+
+                // IEnumerable<Sheet> sheetsGrid = document.WorkbookPart.Workbook.Descendants<Sheet>().Where(s => s.Name == "Permissible Grid");
+                // WorksheetPart worksheetpart = (WorksheetPart)document.WorkbookPart.GetPartById(sheetsGrid.First().Id);
+                // worksheetpart.Worksheet.InsertAfter(mergeCells, worksheetpart.Worksheet.Elements<SheetData>().First());
+                
+                worksheetPart.Worksheet.InsertAfter(mergeCells, worksheetPart.Worksheet.Elements<SheetData>().First());
+                worksheetPart.Worksheet.Save();
                 workbookpart.Workbook.Save();
                 document.Close();
             }
-
         }
         private static string GetExcelColumnName(int number)
         {
@@ -152,18 +195,20 @@ namespace ClassLibraryTreeView
             return name;
         }
         // Add the cell to the cell table
-        static void AddCell(Row row, int columnIndex, string text, uint styleIndex)
+        static Cell AddCell(Row row, int columnIndex, string text, uint styleIndex)
         {
             Cell refCell = null;
             Cell newCell = new Cell()
             {
-                CellReference = $"{GetExcelColumnName(columnIndex)}{row.RowIndex}",
+                CellReference = $"{GetExcelColumnName(columnIndex + 1)}{row.RowIndex}",
                 StyleIndex = styleIndex
             };
             row.InsertBefore(newCell, refCell);
 
             newCell.CellValue = new CellValue(text);
             newCell.DataType = new EnumValue<CellValues>(CellValues.String);
+
+            return newCell;
         }
         // Важный метод, при вставки текстовых значений надо использовать.
         // Убирает из строки запрещенные спец символы.
@@ -182,18 +227,31 @@ namespace ClassLibraryTreeView
 
                 new Fonts(
 
-                    // 0 - Times New Roman - 12 - Чёрный
+                    // 0 - Times New Roman - 10 - Чёрный
                     new Font(
                         // new Bold(),
-                        new FontSize() { Val = 12 },
+                        new FontSize() { Val = 10 },
                         new Color() { Rgb = new HexBinaryValue() { Value = "000000" } },
-                        new FontName() { Val = "Times New Roman" }),
+                        new FontName() { Val = "Calibri" }),
 
-                    // 1 - Times New Roman - 12 - Белый
+                    // 1 - Times New Roman - 10 - Белый
                     new Font(
-                        new FontSize() { Val = 12 },
+                        new FontSize() { Val = 10 },
                         new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } },
-                        new FontName() { Val = "Times New Roman" })
+                        new FontName() { Val = "Calibri" }),
+
+                    // 2 - Times New Roman - 10 - Чёрный
+                    new Font(
+                        // new Bold(),
+                        new FontSize() { Val = 11 },
+                        new Color() { Rgb = new HexBinaryValue() { Value = "000000" } },
+                        new FontName() { Val = "Calibri" }),
+
+                    // 3 - Times New Roman - 11 - Белый
+                    new Font(
+                        new FontSize() { Val = 11 },
+                        new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } },
+                        new FontName() { Val = "Calibri" })
                 ),
 
                 // Заполнение цветом
@@ -222,6 +280,41 @@ namespace ClassLibraryTreeView
                     new DocumentFormat.OpenXml.Spreadsheet.PatternFill(
                     new DocumentFormat.OpenXml.Spreadsheet.ForegroundColor() { Rgb = new HexBinaryValue() { Value = "FFFFFF00" } }
                     )
+                    { PatternType = PatternValues.Solid }),
+
+                    // 4 - Presence Unselect
+                    new Fill(
+                    new DocumentFormat.OpenXml.Spreadsheet.PatternFill(
+                    new DocumentFormat.OpenXml.Spreadsheet.ForegroundColor() { Rgb = new HexBinaryValue() { Value = "00CCCC" } }
+                    )
+                    { PatternType = PatternValues.Solid }),
+                    
+                    // 5 - Presence NotApplicable
+                    new Fill(
+                    new DocumentFormat.OpenXml.Spreadsheet.PatternFill(
+                    new DocumentFormat.OpenXml.Spreadsheet.ForegroundColor() { Rgb = new HexBinaryValue() { Value = "00CC66" } }
+                    )
+                    { PatternType = PatternValues.Solid }),
+                    
+                    // 6 - Presence Optional
+                    new Fill(
+                    new DocumentFormat.OpenXml.Spreadsheet.PatternFill(
+                    new DocumentFormat.OpenXml.Spreadsheet.ForegroundColor() { Rgb = new HexBinaryValue() { Value = "80FF00" } }
+                    )
+                    { PatternType = PatternValues.Solid }),
+
+                    // 7 - Presence Preferred
+                    new Fill(
+                    new DocumentFormat.OpenXml.Spreadsheet.PatternFill(
+                    new DocumentFormat.OpenXml.Spreadsheet.ForegroundColor() { Rgb = new HexBinaryValue() { Value = "FF6666" } }
+                    )
+                    { PatternType = PatternValues.Solid }),
+
+                    // 8 - Presence Required
+                    new Fill(
+                    new DocumentFormat.OpenXml.Spreadsheet.PatternFill(
+                    new DocumentFormat.OpenXml.Spreadsheet.ForegroundColor() { Rgb = new HexBinaryValue() { Value = "6666FF" } }
+                    )
                     { PatternType = PatternValues.Solid })
 
                 ),
@@ -242,19 +335,19 @@ namespace ClassLibraryTreeView
                         new LeftBorder(
                             new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } }
                         )
-                        { Style = BorderStyleValues.Medium },
+                        { Style = BorderStyleValues.Thin },
                         new RightBorder(
                             new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } }
                         )
-                        { Style = BorderStyleValues.Medium },
+                        { Style = BorderStyleValues.Thin },
                         new TopBorder(
                             new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } }
                         )
-                        { Style = BorderStyleValues.Medium },
+                        { Style = BorderStyleValues.Thin },
                         new BottomBorder(
                             new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } }
                         )
-                        { Style = BorderStyleValues.Medium },
+                        { Style = BorderStyleValues.Thin },
                         new DiagonalBorder()
                     )
 
@@ -282,13 +375,43 @@ namespace ClassLibraryTreeView
                     new CellFormat(
                         new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Bottom, TextRotation = 90 }
                     )
-                    { FontId = 1, FillId = 2, BorderId = 1, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
+                    { FontId = 3, FillId = 2, BorderId = 1, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
 
-                    // 4 - attribute presence
+                    // 4 - Presence Unselect
                     new CellFormat(
                         new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center }
                     )
-                    { FontId = 0, FillId = 0, BorderId = 0, ApplyAlignment = true, ApplyFill = true, ApplyFont = true }
+                    { FontId = 0, FillId = 4, BorderId = 0, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
+
+                    // 5 - Presence NotApplicable
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center }
+                    )
+                    { FontId = 0, FillId = 5, BorderId = 0, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
+
+                    // 6 - Presence Optional
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center }
+                    )
+                    { FontId = 0, FillId = 6, BorderId = 0, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
+
+                    // 7 - Presence Preferred
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center }
+                    )
+                    { FontId = 0, FillId = 7, BorderId = 0, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
+
+                    // 8 - Presence Required
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center }
+                    )
+                    { FontId = 0, FillId = 8, BorderId = 0, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
+
+                    // 9 - Other
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Bottom }
+                    )
+                    { FontId = 3, FillId = 2, BorderId = 1, ApplyAlignment = true, ApplyFill = true, ApplyFont = true }
 
                 )
             );

@@ -182,24 +182,21 @@ namespace ClassLibraryTreeView
             pagePermissibleAttributes.Controls.Add(listViewAttributes);
             tabControlProperties.TabPages.Add(pagePermissibleAttributes);
         }
-        private void ExportPermissibleGrid(object sender, EventArgs e)
+        private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
             string newFileName = fileName;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
             ExcelExporter exporter = new ExcelExporter(newFileName, model);
-            exporter.ExportPermissibleGrid();
-            /*
-            exporter.GetProgress += (sndr, args) =>
-            {
-                progressBar.Value = ea.Progress;
-                progressBar.ToolTipText = ea.Progress.ToString();
-            };
-            var exportGrid = Task.Factory.StartNew(async () =>
-            {
-                await exporter.ExportPermissibleGrid();
-            });
-            */
+
+            this.buttonOpenFile.Enabled = false;
+            this.toolStripButtonExportPermissibleGrid.Enabled = false;
+
+            await Task.Run(() => exporter.ExportPermissibleGrid());
+
+            this.buttonOpenFile.Enabled = true;
+            this.toolStripButtonExportPermissibleGrid.Enabled = true;
+
             MessageBox.Show($"Export done");
         }
     }
