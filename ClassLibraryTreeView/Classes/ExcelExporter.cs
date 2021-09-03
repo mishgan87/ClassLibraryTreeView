@@ -85,17 +85,43 @@ namespace ClassLibraryTreeView
 
                     for (int col = 0; col <= maxDepth; col++)
                     {
+                        cell = AddCell(header[0], col, "", 0);
+                        if (col == 0)
+                        {
+                            mergeRange = cell.CellReference.Value;
+                        }
+
+                        cell = AddCell(header[1], col, "", 0);
+                        if (col == maxDepth)
+                        {
+                            mergeRange += $":{cell.CellReference.Value}";
+                        }
+
                         string text = "";
                         uint styleIndex = 0;
-                        /*
-                        text = $"Classes ({merged.Count})";
-                        styleIndex = 9;
-                        text = $"Class ID";
-                        mergeRange = cell.CellReference.Value;
-                        mergeRange += $":{cell.CellReference.Value}";
-                        */
-                        cell = AddCell(header[0], col, text, styleIndex);
+                        if (col == 0)
+                        {
+                            text = $"Classes ({merged.Count})";
+                            styleIndex = 9;
+                        }
+                        if (col == maxDepth - 1)
+                        {
+                            text = $"Discipline";
+                            styleIndex = 0;
+                        }
+                        if (col == maxDepth)
+                        {
+                            text = $"Class ID";
+                            styleIndex = 2;
+                        }
+                        cell = AddCell(header[2], col, text, styleIndex);
+                        if (col == maxDepth)
+                        {
+                            mergeCells.Append(new MergeCell() { Reference = new StringValue($"A3:{GetExcelColumnName(maxDepth - 1)}3") });
+                        }
                     }
+
+                    mergeCells.Append(new MergeCell() { Reference = new StringValue(mergeRange) });
 
                     maxDepth++;
                     int attributeIndex = 0;
@@ -124,20 +150,45 @@ namespace ClassLibraryTreeView
                         mergeCells.Append(new MergeCell() { Reference = new StringValue(mergeRange) });
                     }
 
-                    //mergeCells.Append(new MergeCell() { Reference = new StringValue(mergeRange) });
-
-
                     // Заполняем таблицу классами и присутсвием в них атрибутов
-                    /*
+                    rowIndex = 4;
                     foreach (IClass cmClass in merged)
                     {
                         Row row = new Row() { RowIndex = rowIndex };
                         sheetData.Append(row);
 
-                        int classDepth = model.ClassDepth(cmClass) + 1;
+                        int classDepth = model.ClassDepth(cmClass);
 
-                        cell = AddCell(row, classDepth, $"{cmClass.Name}", 1);
-                        cell = AddCell(row, maxDepth - 1, $"{cmClass.Id}", 2);
+                        for (int col = 0; col <= maxDepth - 1; col++)
+                        {
+                            string text = "";
+                            uint styleIndex = 0;
+                            if (col == classDepth)
+                            {
+                                text = $"{cmClass.Name}";
+                                styleIndex = 1;
+                            }
+                            if (col == maxDepth - 2)
+                            {
+                                // text = $"{cmClass.Id}";
+                                styleIndex = 2;
+                            }
+                            if (col == maxDepth - 1)
+                            {
+                                text = $"{cmClass.Id}";
+                                styleIndex = 2;
+                            }
+                            cell = AddCell(row, col, text, styleIndex);
+                        }
+
+                        string start = $"{GetExcelColumnName(classDepth + 1)}{rowIndex}";
+                        string finish = $"{GetExcelColumnName(maxDepth - 2)}{rowIndex}";
+                        string str = $"{start}:{finish}";
+                        mergeCells.Append(
+                                    new MergeCell()
+                                    {
+                                        Reference = new StringValue(str)
+                                    });
 
                         for (attributeIndex = 0; attributeIndex < model.AttributesCount; attributeIndex++)
                         {
@@ -168,7 +219,7 @@ namespace ClassLibraryTreeView
 
                         rowIndex++;
                     }
-                    */
+
                 }
 
                 // Добавляем к документу список объединённых ячеек
