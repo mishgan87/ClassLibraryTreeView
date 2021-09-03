@@ -215,14 +215,21 @@ namespace ClassLibraryTreeView
                     new Fill(
                         new PatternFill( new ForegroundColor() { Rgb = new HexBinaryValue() { Value = "0000FF" } } )
                         { PatternType = PatternValues.Solid }
+                    ),
+
+                    // 3 - Жёлтый
+                    new Fill(
+                    new DocumentFormat.OpenXml.Spreadsheet.PatternFill(
+                    new DocumentFormat.OpenXml.Spreadsheet.ForegroundColor() { Rgb = new HexBinaryValue() { Value = "FFFFFF00" } }
                     )
+                    { PatternType = PatternValues.Solid })
 
                 ),
 
                 // Границы ячейки
                 new Borders(
 
-                    // 0 - Грани
+                    // 0 - Граней нет
                     new Border(
                         new LeftBorder(),
                         new RightBorder(),
@@ -230,46 +237,27 @@ namespace ClassLibraryTreeView
                         new BottomBorder(),
                         new DiagonalBorder()),
 
-                    // 1 - Грани
+                    // 1 - Грани все, белые
                     new Border(
                         new LeftBorder(
-                            new Color() { Auto = true }
+                            new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } }
                         )
                         { Style = BorderStyleValues.Medium },
                         new RightBorder(
-                            new Color() { Indexed = (UInt32Value)64U }
+                            new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } }
                         )
                         { Style = BorderStyleValues.Medium },
                         new TopBorder(
-                            new Color() { Auto = true }
+                            new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } }
                         )
                         { Style = BorderStyleValues.Medium },
                         new BottomBorder(
-                            new Color() { Indexed = (UInt32Value)64U }
+                            new Color() { Rgb = new HexBinaryValue() { Value = "FFFFFFFF" } }
                         )
                         { Style = BorderStyleValues.Medium },
                         new DiagonalBorder()
-                    ),
+                    )
 
-                    // 2 - Грани
-                    new Border(
-                        new LeftBorder(
-                            new Color() { Auto = true }
-                        )
-                        { Style = BorderStyleValues.Thin },
-                        new RightBorder(
-                            new Color() { Indexed = (UInt32Value)64U }
-                        )
-                        { Style = BorderStyleValues.Thin },
-                        new TopBorder(
-                            new Color() { Auto = true }
-                        )
-                        { Style = BorderStyleValues.Thin },
-                        new BottomBorder(
-                            new Color() { Indexed = (UInt32Value)64U }
-                        )
-                        { Style = BorderStyleValues.Thin },
-                        new DiagonalBorder())
                 ),
 
                 // Формат ячейки
@@ -282,25 +270,25 @@ namespace ClassLibraryTreeView
                     new CellFormat(
                         new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center }
                     )
-                    { FontId = 0, FillId = 1, BorderId = 2, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
+                    { FontId = 0, FillId = 0, BorderId = 0, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
 
                     // 2 - class id
                     new CellFormat(
                         new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center }
                     )
-                    { FontId = 0, FillId = 0, BorderId = 2, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
+                    { FontId = 0, FillId = 3, BorderId = 0, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
 
                     // 3 - attribute name
                     new CellFormat(
                         new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Bottom, TextRotation = 90 }
                     )
-                    { FontId = 1, FillId = 2, BorderId = 2, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
+                    { FontId = 1, FillId = 2, BorderId = 1, ApplyAlignment = true, ApplyFill = true, ApplyFont = true },
 
                     // 4 - attribute presence
                     new CellFormat(
                         new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center }
                     )
-                    { FontId = 0, FillId = 0, BorderId = 2, ApplyAlignment = true, ApplyFill = true, ApplyFont = true }
+                    { FontId = 0, FillId = 0, BorderId = 0, ApplyAlignment = true, ApplyFill = true, ApplyFont = true }
 
                 )
             );
