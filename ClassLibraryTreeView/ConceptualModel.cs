@@ -30,6 +30,10 @@ namespace ClassLibraryTreeView
         public Dictionary<string, IClass> functionals = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> physicals = new Dictionary<string, IClass>();
 
+        public Dictionary<string, MeasureClass> measureClasses = new Dictionary<string, MeasureClass>();
+        public Dictionary<string, MeasureUnit> measureUnits = new Dictionary<string, MeasureUnit>();
+        public Dictionary<string, EnumerationList> enumerations = new Dictionary<string, EnumerationList>();
+
         public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
         public List<IClass> merged = new List<IClass>();
 
@@ -60,6 +64,10 @@ namespace ClassLibraryTreeView
             functionals = new Dictionary<string, IClass>();
             physicals = new Dictionary<string, IClass>();
 
+            measureClasses = new Dictionary<string, MeasureClass>();
+            measureUnits = new Dictionary<string, MeasureUnit>();
+            enumerations = new Dictionary<string, EnumerationList>();
+
             merged = new List<IClass>();
 
             AttributesCount = 0;
@@ -70,6 +78,10 @@ namespace ClassLibraryTreeView
             documents.Clear();
             functionals.Clear();
             physicals.Clear();
+
+            enumerations.Clear();
+            measureUnits.Clear();
+            measureClasses.Clear();
 
             merged.Clear();
 
@@ -180,6 +192,51 @@ namespace ClassLibraryTreeView
                 }
             }
         }
+        private void GetUoM(XElement referenceDataElement)
+        {
+            foreach (XElement element in referenceDataElement.Elements())
+            {
+                string name = element.Name.LocalName.ToLower();
+
+                if (name.Equals("units"))
+                {
+                    foreach (XElement child in element.Elements())
+                    {
+                        MeasureUnit measureUnit = new MeasureUnit(child);
+                        measureUnits.Add(measureUnit.Id, measureUnit);
+                    }
+                }
+
+                if (name.Equals("measureclasses"))
+                {
+                    foreach (XElement child in element.Elements())
+                    {
+                        MeasureClass measureClass = new MeasureClass(child);
+                        measureClasses.Add(measureClass.Id, measureClass);
+                    }
+                }
+            }
+        }
+        private void GetReferenceData(XElement referenceDataElement)
+        {
+            foreach (XElement element in referenceDataElement.Elements())
+            {
+                string name = element.Name.LocalName;
+                if (name.ToLower().Equals("enumerations"))
+                {
+                    foreach (XElement child in element.Elements())
+                    {
+                        EnumerationList enumerationList = new EnumerationList(child);
+                        enumerations.Add(enumerationList.Id, enumerationList);
+                    }
+                }
+
+                if (name.ToLower().Equals("uom"))
+                {
+                    GetUoM(element);
+                }
+            }
+        }
         public void ImportXml(string fileName)
         {
             Clear();
@@ -188,6 +245,10 @@ namespace ClassLibraryTreeView
             foreach (XElement element in doc.Elements().First().Elements())
             {
                 string name = element.Name.LocalName;
+                if (name.ToLower().Equals("referencedata"))
+                {
+                    GetReferenceData(element);
+                }
                 if (name.ToLower().Equals("functionals"))
                 {
                     MapFromXElement(element, functionals);
@@ -228,7 +289,6 @@ namespace ClassLibraryTreeView
             SetInheritance(functionals);
             SetInheritance(physicals);
             MergeAndClean(physicals, functionals);
-            // MergeClasses(physicals, functionals);
         }
         private void SetInheritance(Dictionary<string, IClass> map)
         {

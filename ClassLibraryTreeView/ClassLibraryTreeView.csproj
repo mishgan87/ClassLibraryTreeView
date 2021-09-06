@@ -50,6 +50,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\MeasureClass.cs" />
     <Compile Include="ClassLibraryTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -57,10 +58,12 @@
     <Compile Include="Classes\ExcelExporter.cs" />
     <Compile Include="Classes\DocumentClass.cs" />
     <Compile Include="Classes\FunctionalClass.cs" />
+    <Compile Include="Classes\EnumerationList.cs" />
     <Compile Include="Interfaces\IAttribute.cs" />
     <Compile Include="Classes\IClass.cs" />
     <Compile Include="Interfaces\IIdentifiable.cs" />
     <Compile Include="Classes\PhysicalClass.cs" />
+    <Compile Include="Classes\MeasureUnit.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>

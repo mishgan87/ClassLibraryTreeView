@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,9 +39,10 @@ namespace ClassLibraryTreeView.Interfaces
         bool IsObsolete { get; set; }
         string SortOrder { get; set; }
         List<string> Aspect { get; set; }
+        KeyValuePair<string, string>[] Attributes();
+        bool Equals(IIdentifiable source);
         void Clone(IIdentifiable source);
         void Clone(XElement source);
         void Init();
-        bool Equals(IIdentifiable source);
     }
 }

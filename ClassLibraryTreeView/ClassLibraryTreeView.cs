@@ -62,6 +62,46 @@ namespace ClassLibraryTreeView
                 Nodes.Add(groupNode);
             }
         }
+        public void AddEnumerations(ConceptualModel model)
+        {
+            TreeNode rootNode = new TreeNode($"Enumerations");
+            Dictionary<string, EnumerationList> map = model.enumerations;
+            foreach (string key in map.Keys)
+            {
+                TreeNode treeNode = new TreeNode(key);
+                treeNode.Name = map[key].Description;
+                treeNode.Text = map[key].Name;
+                treeNode.Tag = map[key].Id;
+                rootNode.Nodes.Add(treeNode);
+            }
+            Nodes.Add(rootNode);
+        }
+        public void AddMeasure(ConceptualModel model)
+        {
+            TreeNode rootUnitsNode = new TreeNode($"Measure Units");
+            Dictionary<string, MeasureUnit> map = model.measureUnits;
+            foreach (string key in map.Keys)
+            {
+                TreeNode treeNode = new TreeNode(key);
+                treeNode.Name = map[key].Description;
+                treeNode.Text = map[key].Name;
+                treeNode.Tag = map[key].Id;
+                rootUnitsNode.Nodes.Add(treeNode);
+            }
+            Nodes.Add(rootUnitsNode);
+
+            TreeNode rootClassesNode = new TreeNode($"Measure Classes");
+            Dictionary<string, MeasureClass> mapClasses = model.measureClasses;
+            foreach (string key in mapClasses.Keys)
+            {
+                TreeNode treeNode = new TreeNode(key);
+                treeNode.Name = mapClasses[key].Description;
+                treeNode.Text = mapClasses[key].Name;
+                treeNode.Tag = mapClasses[key].Id;
+                rootClassesNode.Nodes.Add(treeNode);
+            }
+            Nodes.Add(rootClassesNode);
+        }
         public void AddClass(Dictionary<string, IClass> map, string xtype)
         {
             if (map.Count > 0)

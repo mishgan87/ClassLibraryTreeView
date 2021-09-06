@@ -70,20 +70,24 @@ namespace ClassLibraryTreeView
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tabControl.Font = new System.Drawing.Font("Microsoft Sans Serif", 14F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tabControl.Location = new System.Drawing.Point(3, 81);
+            this.tabControl.Location = new System.Drawing.Point(37, 3);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(558, 473);
+            this.tabControl.Size = new System.Drawing.Size(524, 551);
             this.tabControl.TabIndex = 2;
+            this.tabControl.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.TabControl_DrawItem);
+            this.tabControl.DrawMode = TabDrawMode.OwnerDrawFixed;
             // 
             // toolStripMenu
             // 
+            this.toolStripMenu.Dock = System.Windows.Forms.DockStyle.Left;
+            this.toolStripMenu.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStripMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.buttonOpenFile,
             this.toolStripButtonExportPermissibleGrid});
             this.toolStripMenu.Location = new System.Drawing.Point(0, 0);
             this.toolStripMenu.Name = "toolStripMenu";
-            this.toolStripMenu.Size = new System.Drawing.Size(564, 25);
+            this.toolStripMenu.Size = new System.Drawing.Size(24, 554);
             this.toolStripMenu.TabIndex = 1;
             this.toolStripMenu.Text = "toolStrip1";
             // 
@@ -93,7 +97,7 @@ namespace ClassLibraryTreeView
             this.buttonOpenFile.Image = ((System.Drawing.Image)(resources.GetObject("buttonOpenFile.Image")));
             this.buttonOpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.buttonOpenFile.Name = "buttonOpenFile";
-            this.buttonOpenFile.Size = new System.Drawing.Size(23, 22);
+            this.buttonOpenFile.Size = new System.Drawing.Size(21, 20);
             this.buttonOpenFile.Text = "Open File";
             this.buttonOpenFile.Click += new System.EventHandler(this.OpenFile);
             // 
@@ -103,7 +107,7 @@ namespace ClassLibraryTreeView
             this.toolStripButtonExportPermissibleGrid.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButtonExportPermissibleGrid.Image")));
             this.toolStripButtonExportPermissibleGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonExportPermissibleGrid.Name = "toolStripButtonExportPermissibleGrid";
-            this.toolStripButtonExportPermissibleGrid.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonExportPermissibleGrid.Size = new System.Drawing.Size(21, 20);
             this.toolStripButtonExportPermissibleGrid.Text = "Export Permissible Grid";
             this.toolStripButtonExportPermissibleGrid.Click += new System.EventHandler(this.ExportPermissibleGrid);
             // 
@@ -126,6 +130,7 @@ namespace ClassLibraryTreeView
             this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "MainForm";
             this.Text = "ClassLibraryView";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel1.PerformLayout();
             this.splitContainer.Panel2.ResumeLayout(false);
@@ -135,7 +140,6 @@ namespace ClassLibraryTreeView
             this.toolStripMenu.PerformLayout();
             this.ResumeLayout(false);
 
-            WindowState = FormWindowState.Maximized;
         }
 
         #endregion
