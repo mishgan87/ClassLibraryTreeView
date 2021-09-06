@@ -90,7 +90,7 @@ namespace ClassLibraryTreeView
                     pageEnumerations.Controls.Add(enumeartionsTree);
                     tabControl.TabPages.Add(pageEnumerations);
 
-                    // Add measure units
+                    // Add measure units and classes
 
                     ClassLibraryTreeView measureTree = new ClassLibraryTreeView();
                     measureTree.Nodes.Clear();
@@ -103,12 +103,22 @@ namespace ClassLibraryTreeView
                     pageMeasure.Controls.Add(measureTree);
                     tabControl.TabPages.Add(pageMeasure);
 
-                    // Add measure classes
+                    ClassLibraryTreeView taxonomiesTree = new ClassLibraryTreeView();
+                    taxonomiesTree.Nodes.Clear();
+                    taxonomiesTree.AddTaxonomies(model);
+                    taxonomiesTree.Dock = DockStyle.Fill;
+                    taxonomiesTree.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewTaxonomyProperties);
+                    taxonomiesTree.Font = tabControl.Font;
+
+                    TabPage pageTaxonomies = new TabPage("Taxonomies");
+                    pageTaxonomies.Controls.Add(taxonomiesTree);
+                    tabControl.TabPages.Add(pageTaxonomies);
 
                     TabColors[pageClasses] = System.Drawing.Color.Magenta;
                     TabColors[pageAttributes] = System.Drawing.Color.Yellow;
                     TabColors[pageEnumerations] = System.Drawing.Color.Gray;
                     TabColors[pageMeasure] = System.Drawing.Color.Orange;
+                    TabColors[pageTaxonomies] = System.Drawing.Color.LightBlue;
                     tabControl.Invalidate();
                 }
             }
@@ -139,14 +149,85 @@ namespace ClassLibraryTreeView
             tabPage.Controls.Add(listView);
             tabControl.TabPages.Add(tabPage);
         }
+        private void ViewTaxonomyProperties(object sender, TreeNodeMouseClickEventArgs e)
+        {
+            tabControlProperties.TabPages.Clear();
+            if (e.Node.Tag != null)
+            {
+                if (e.Node.Parent != null)
+                {
+                    if (e.Node.Parent.Text.ToLower().Contains("taxonomies"))
+                    {
+                        string id = e.Node.Tag.ToString();
+                        AddPropertiesTab(model.taxonomies[id], tabControlProperties);
+                        ListView listViewItems = new ListView();
+                        listViewItems.View = View.Details;
+                        listViewItems.Columns.Clear();
+                        listViewItems.Items.Clear();
+                        listViewItems.Columns.Add("Id", 300, HorizontalAlignment.Left);
+                        listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
+                        listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
+
+                        foreach (TaxonomyNode node in model.taxonomies[id].Nodes)
+                        {
+                            string[] items = { $"{node.Id}",
+                                                $"{node.Name}",
+                                                $"{node.Description}" };
+                            listViewItems.Items.Add(new ListViewItem(items));
+                        }
+
+                        listViewItems.Dock = DockStyle.Fill;
+                        listViewItems.Font = tabControlProperties.Font;
+
+                        TabPage pageNodes = new TabPage("Nodes");
+                        pageNodes.Controls.Add(listViewItems);
+                        tabControlProperties.TabPages.Add(pageNodes);
+                    }
+                    else
+                    {
+                        string id = e.Node.Parent.Tag.ToString();
+                        foreach (TaxonomyNode node in model.taxonomies[id].Nodes)
+                        {
+                            if (node.Id.Equals(e.Node.Tag.ToString()))
+                            {
+                                AddPropertiesTab(node, tabControlProperties);
+                                ListView listViewItems = new ListView();
+                                listViewItems.View = View.Details;
+                                listViewItems.Columns.Clear();
+                                listViewItems.Items.Clear();
+                                listViewItems.Columns.Add("Id", 300, HorizontalAlignment.Left);
+                                listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
+                                listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
+
+                                foreach (string classId in node.Classes)
+                                {
+                                    string[] items = { $"{classId}",
+                                                $"",
+                                                $"" };
+                                    listViewItems.Items.Add(new ListViewItem(items));
+                                }
+
+                                listViewItems.Dock = DockStyle.Fill;
+                                listViewItems.Font = tabControlProperties.Font;
+
+                                TabPage pageClasses = new TabPage("Classes");
+                                pageClasses.Controls.Add(listViewItems);
+                                tabControlProperties.TabPages.Add(pageClasses);
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         private void ViewMeasureProperties(object sender, TreeNodeMouseClickEventArgs e)
         {
             tabControlProperties.TabPages.Clear();
             if (e.Node.Tag != null)
             {
-                string id = e.Node.Tag.ToString();
                 if (e.Node.Parent != null)
                 {
+                    string id = e.Node.Tag.ToString();
                     if (e.Node.Parent.Text.ToLower().Contains("units"))
                     {
                         AddPropertiesTab(model.measureUnits[id], tabControlProperties);
@@ -154,6 +235,28 @@ namespace ClassLibraryTreeView
                     if (e.Node.Parent.Text.ToLower().Contains("classes"))
                     {
                         AddPropertiesTab(model.measureClasses[id], tabControlProperties);
+                        ListView listViewItems = new ListView();
+                        listViewItems.View = View.Details;
+                        listViewItems.Columns.Clear();
+                        listViewItems.Items.Clear();
+                        listViewItems.Columns.Add("Id", 300, HorizontalAlignment.Left);
+                        listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
+                        listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
+
+                        foreach (string unitId in model.measureClasses[id].Units)
+                        {
+                            string[] items = { $"{model.measureUnits[unitId].Id}",
+                                                $"{model.measureUnits[unitId].Name}",
+                                                $"{model.measureUnits[unitId].Description}" };
+                            listViewItems.Items.Add(new ListViewItem(items));
+                        }
+
+                        listViewItems.Dock = DockStyle.Fill;
+                        listViewItems.Font = tabControlProperties.Font;
+
+                        TabPage pageItems = new TabPage("Units");
+                        pageItems.Controls.Add(listViewItems);
+                        tabControlProperties.TabPages.Add(pageItems);
                     }
                 }
             }

@@ -62,6 +62,31 @@ namespace ClassLibraryTreeView
                 Nodes.Add(groupNode);
             }
         }
+        public void AddTaxonomies(ConceptualModel model)
+        {
+            TreeNode rootNode = new TreeNode($"Taxonomies");
+            Dictionary<string, Taxonomy> map = model.taxonomies;
+            foreach (string key in map.Keys)
+            {
+                TreeNode treeNode = new TreeNode(key);
+                treeNode.Name = map[key].Description;
+                treeNode.Text = map[key].Name;
+                treeNode.Tag = map[key].Id;
+                if (map[key].Nodes.Count > 0)
+                {
+                    foreach (TaxonomyNode node in map[key].Nodes)
+                    {
+                        TreeNode treeSubNode = new TreeNode();
+                        treeSubNode.Name = node.Description;
+                        treeSubNode.Text = node.Name;
+                        treeSubNode.Tag = node.Id;
+                        treeNode.Nodes.Add(treeSubNode);
+                    }
+                }
+                rootNode.Nodes.Add(treeNode);
+            }
+            Nodes.Add(rootNode);
+        }
         public void AddEnumerations(ConceptualModel model)
         {
             TreeNode rootNode = new TreeNode($"Enumerations");

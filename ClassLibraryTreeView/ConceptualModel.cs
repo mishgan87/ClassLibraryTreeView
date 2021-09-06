@@ -30,6 +30,7 @@ namespace ClassLibraryTreeView
         public Dictionary<string, IClass> functionals = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> physicals = new Dictionary<string, IClass>();
 
+        public Dictionary<string, Taxonomy> taxonomies = new Dictionary<string, Taxonomy>();
         public Dictionary<string, MeasureClass> measureClasses = new Dictionary<string, MeasureClass>();
         public Dictionary<string, MeasureUnit> measureUnits = new Dictionary<string, MeasureUnit>();
         public Dictionary<string, EnumerationList> enumerations = new Dictionary<string, EnumerationList>();
@@ -64,6 +65,7 @@ namespace ClassLibraryTreeView
             functionals = new Dictionary<string, IClass>();
             physicals = new Dictionary<string, IClass>();
 
+            taxonomies = new Dictionary<string, Taxonomy>();
             measureClasses = new Dictionary<string, MeasureClass>();
             measureUnits = new Dictionary<string, MeasureUnit>();
             enumerations = new Dictionary<string, EnumerationList>();
@@ -79,6 +81,7 @@ namespace ClassLibraryTreeView
             functionals.Clear();
             physicals.Clear();
 
+            taxonomies.Clear();
             enumerations.Clear();
             measureUnits.Clear();
             measureClasses.Clear();
@@ -234,6 +237,14 @@ namespace ClassLibraryTreeView
                 if (name.ToLower().Equals("uom"))
                 {
                     GetUoM(element);
+                }
+                if (name.ToLower().Equals("taxonomies"))
+                {
+                    foreach (XElement child in element.Elements())
+                    {
+                        Taxonomy taxonomy = new Taxonomy(child);
+                        taxonomies.Add(taxonomy.Id, taxonomy);
+                    }
                 }
             }
         }

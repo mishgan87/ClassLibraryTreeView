@@ -64,6 +64,8 @@
     <Compile Include="Interfaces\IIdentifiable.cs" />
     <Compile Include="Classes\PhysicalClass.cs" />
     <Compile Include="Classes\MeasureUnit.cs" />
+    <Compile Include="Classes\Taxonomy.cs" />
+    <Compile Include="Classes\TaxonomyNode.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
