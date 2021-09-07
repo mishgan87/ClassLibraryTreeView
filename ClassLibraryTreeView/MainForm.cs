@@ -458,7 +458,7 @@ namespace ClassLibraryTreeView
 
                     foreach (KeyValuePair<string, string> pair in attributes)
                     {
-                        rootNode.Nodes.Add(new TreeNode($"{pair.Key} - {pair.Value}"));
+                        rootNode.Nodes.Add(new TreeNode($"{pair.Key} {pair.Value}"));
                     }
 
                     treeView.Nodes.Add(rootNode);

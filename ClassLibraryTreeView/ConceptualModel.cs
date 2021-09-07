@@ -299,7 +299,8 @@ namespace ClassLibraryTreeView
             SetInheritance(documents);
             SetInheritance(functionals);
             SetInheritance(physicals);
-            MergeAndClean(physicals, functionals);
+            // MergeByNames(physicals, functionals);
+            MergeByAssociations();
         }
         private void SetInheritance(Dictionary<string, IClass> map)
         {
@@ -330,7 +331,68 @@ namespace ClassLibraryTreeView
             }
             return null;
         }
-        private void MergeAndClean(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
+        private void MergeByAssociations()
+        {
+            List<IClass> classes = new List<IClass>();
+            foreach (IClass cmClass in functionals.Values)
+            {
+                classes.Add(cmClass);
+
+                List<IAttribute> permissibleAttributes = PermissibleAttributes(cmClass);
+                foreach (IAttribute attribute in permissibleAttributes)
+                {
+                    if (attribute.ValidationType.ToLower().Equals("association"))
+                    {
+                        string rule = attribute.ValidationRule;
+                        string concept = attribute.ValidationRule;
+                        string ids = attribute.ValidationRule;
+                        rule = rule.Remove(rule.IndexOf("::"), rule.Length - rule.IndexOf("::"));
+                        concept = concept.Remove(0, concept.IndexOf("::") + 2);
+                        concept = concept.Remove(concept.IndexOf("::"), concept.Length - concept.IndexOf("::"));
+                        ids = ids.Remove(0, ids.LastIndexOf("::") + 2);
+                        while(ids.Length > 0)
+                        {
+                            IClass childClass = null;
+                            
+                            string id = ids;
+                            if (id.Contains("||"))
+                            {
+                                id = id.Remove(id.IndexOf("||"), id.Length - id.IndexOf("||"));
+
+                                ids = ids.Remove(0, ids.IndexOf("||") + 2);
+                            }
+                            else
+                            {
+                                ids = ids.Remove(0, ids.Length);
+                            }
+
+                            if (concept.ToLower().Equals("functional"))
+                            {
+                                childClass = functionals[id];
+                            }
+                            if (concept.ToLower().Equals("physical"))
+                            {
+                                childClass = physicals[id];
+                            }
+
+                            classes.Add(childClass);
+                            cmClass.Children.Add(childClass);
+                        }
+                    }
+                }
+            }
+
+            merged.Clear();
+            foreach (IClass cmClass in classes)
+            {
+                if (cmClass.Extends.Equals(""))
+                {
+                    merged.Add(cmClass);
+                    AddClassChildren(cmClass, merged);
+                }
+            }
+        }
+        private void MergeByNames(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
         {
             List<IClass> classes = new List<IClass>();
             foreach (IClass cmClass in recipient.Values)
