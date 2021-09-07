@@ -4,7 +4,6 @@ using System.Xml.Linq;
 
 namespace ClassLibraryTreeView.Classes
 {
-    // Интерфейс, определяющий базовые параметры всех классов
     public class IClass : IIdentifiable
     {
         public IClass()

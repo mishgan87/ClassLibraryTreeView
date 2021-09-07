@@ -118,7 +118,6 @@ namespace ClassLibraryTreeView.Classes
                 }
             }
         }
-
         public bool Equals(IIdentifiable source)
         {
             if ((!Id.Equals(source.Id))
