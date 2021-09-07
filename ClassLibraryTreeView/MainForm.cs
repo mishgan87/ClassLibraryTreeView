@@ -446,28 +446,70 @@ namespace ClassLibraryTreeView
 
                 // Add permissible attributes
 
-                ListView listViewAttributes = new ListView();
-                listViewAttributes.View = View.Details;
-                listViewAttributes.Columns.Clear();
-                listViewAttributes.Items.Clear();
-                listViewAttributes.Columns.Add("Id", 300, HorizontalAlignment.Left);
-                listViewAttributes.Columns.Add("Name", 300, HorizontalAlignment.Left);
-                listViewAttributes.Columns.Add("Presence", 300, HorizontalAlignment.Left);
+                TreeView treeView = new TreeView();
 
                 List<IAttribute> permissibleAttributes = model.PermissibleAttributes(cmClass);
 
                 foreach (IAttribute attribute in permissibleAttributes)
                 {
-                    string[] items = { $"{attribute.Id}", $"{attribute.Name}", $"{attribute.Presence}" };
-                    listViewAttributes.Items.Add(new ListViewItem(items));
+                    TreeNode rootNode = new TreeNode($"{attribute.Id}");
+
+                    KeyValuePair<string, string>[] attributes = attribute.Attributes();
+
+                    foreach (KeyValuePair<string, string> pair in attributes)
+                    {
+                        rootNode.Nodes.Add(new TreeNode($"{pair.Key} - {pair.Value}"));
+                    }
+
+                    treeView.Nodes.Add(rootNode);
                 }
 
-                listViewAttributes.Dock = DockStyle.Fill;
-                listViewAttributes.Font = tabControlProperties.Font;
+                treeView.Dock = DockStyle.Fill;
+                treeView.Font = tabControlProperties.Font;
 
                 TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
-                pagePermissibleAttributes.Controls.Add(listViewAttributes);
+                pagePermissibleAttributes.Controls.Add(treeView);
                 tabControlProperties.TabPages.Add(pagePermissibleAttributes);
+                /*
+                ListView listView = new ListView();
+                listView.View = View.Details;
+                listView.Columns.Clear();
+                listView.Items.Clear();
+                listView.Columns.Add("Id", 300, HorizontalAlignment.Left);
+                listView.Columns.Add("Name", 300, HorizontalAlignment.Left);
+                listView.Columns.Add("Presence", 300, HorizontalAlignment.Left);
+
+                listView.Columns.Add("Validation Type", 300, HorizontalAlignment.Left);
+                listView.Columns.Add("Validation Rule", 300, HorizontalAlignment.Left);
+
+                List<IAttribute> permissibleAttributes = model.PermissibleAttributes(cmClass);
+
+                foreach (IAttribute attribute in permissibleAttributes)
+                {
+                    string[] items = { $"{attribute.Id}", $"{attribute.Name}", $"{attribute.Presence}", $"{attribute.ValidationType}", $"{attribute.ValidationRule}" };
+                    listView.Items.Add(new ListViewItem(items));
+                }
+
+                listView.Dock = DockStyle.Fill;
+                listView.Font = tabControlProperties.Font;
+
+                TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
+                pagePermissibleAttributes.Controls.Add(listView);
+                tabControlProperties.TabPages.Add(pagePermissibleAttributes);
+
+                listView.MouseClick += new MouseEventHandler(ShowPermissibleAttribute);
+                */
+            }
+        }
+        private void ShowPermissibleAttribute(object sender, MouseEventArgs eventArgs)
+        {
+            ListView listView = (ListView)sender;
+            ListViewHitTestInfo info = listView.HitTest(eventArgs.X, eventArgs.Y);
+            ListViewItem item = info.Item;
+
+            if (item != null)
+            {
+                
             }
         }
         private async void ExportPermissibleGrid(object sender, EventArgs e)

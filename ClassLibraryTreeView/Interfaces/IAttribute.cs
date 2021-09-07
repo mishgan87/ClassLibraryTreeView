@@ -20,13 +20,13 @@ namespace ClassLibraryTreeView.Interfaces
         public string Group { get; set; }
         public string Presence { get; set; }
         public string ValidationType { get; set; }
-        string ValidationRule { get; set; }
-        string MinOccurs { get; set; }
-        string MaxOccurs { get; set; }
+        public string ValidationRule { get; set; }
+        public string MinOccurs { get; set; }
+        public string MaxOccurs { get; set; }
         // List<MaturityLevel> MaturityLevels { get; set; }
         public List<string> MaturityLevels { get; set; }
         public string Concept { get; set; }
-        string Discipline { get; set; }
+        public string Discipline { get; set; }
         public bool IsUoMRequired { get; set; }
         public IAttribute()
         {

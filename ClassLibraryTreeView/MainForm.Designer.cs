@@ -84,7 +84,6 @@ namespace ClassLibraryTreeView
             this.toolStripMenu.MaximumSize = new System.Drawing.Size(65535, 65535);
             this.toolStripMenu.MinimumSize = new System.Drawing.Size(64, 0);
             this.toolStripMenu.Name = "toolStripMenu";
-            this.toolStripMenu.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             this.toolStripMenu.Size = new System.Drawing.Size(73, 722);
             this.toolStripMenu.Stretch = true;
             this.toolStripMenu.TabIndex = 1;
@@ -104,7 +103,6 @@ namespace ClassLibraryTreeView
             this.toolStripTabs.MaximumSize = new System.Drawing.Size(65535, 65535);
             this.toolStripTabs.MinimumSize = new System.Drawing.Size(0, 55);
             this.toolStripTabs.Name = "toolStripTabs";
-            this.toolStripTabs.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
             this.toolStripTabs.Size = new System.Drawing.Size(354, 72);
             this.toolStripTabs.TabIndex = 3;
             this.toolStripTabs.Text = "Menu";
