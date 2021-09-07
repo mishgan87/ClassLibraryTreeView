@@ -299,7 +299,7 @@ namespace ClassLibraryTreeView
             SetInheritance(documents);
             SetInheritance(functionals);
             SetInheritance(physicals);
-            // MergeByNames(physicals, functionals);
+            // MergeByNames();
             MergeByAssociations();
         }
         private void SetInheritance(Dictionary<string, IClass> map)
@@ -385,29 +385,34 @@ namespace ClassLibraryTreeView
             merged.Clear();
             foreach (IClass cmClass in classes)
             {
-                if (cmClass.Extends.Equals(""))
+                // if (cmClass.Extends.Equals(""))
+                if (cmClass != null)
                 {
-                    merged.Add(cmClass);
-                    AddClassChildren(cmClass, merged);
+                    if (cmClass.Extends.Equals(""))
+                    {
+                        merged.Add(cmClass);
+                        AddClassChildren(cmClass, merged);
+                    }
                 }
             }
         }
-        private void MergeByNames(Dictionary<string, IClass> source, Dictionary<string, IClass> recipient)
+        private void MergeByNames()
         {
+            // physicals, functionals
             List<IClass> classes = new List<IClass>();
-            foreach (IClass cmClass in recipient.Values)
+            foreach (IClass functional in functionals.Values)
             {
-                classes.Add(cmClass);
-                foreach (IClass sourceClass in source.Values)
+                classes.Add(functional);
+                foreach (IClass physical in physicals.Values)
                 {
-                    if (sourceClass.Name.Equals(cmClass.Name))
+                    if (physical.Name.Equals(functional.Name))
                     {
-                        for (int index = 0; index < sourceClass.Children.Count; index++)
+                        for (int index = 0; index < physical.Children.Count; index++)
                         {
-                            if (!cmClass.ContainsChildName(sourceClass.Children[index]))
+                            if (!functional.ContainsChildName(physical.Children[index]))
                             {
-                                classes.Add(sourceClass.Children[index]);
-                                cmClass.Children.Add(sourceClass.Children[index]);
+                                classes.Add(physical.Children[index]);
+                                functional.Children.Add(physical.Children[index]);
                             }
                         }
                     }
