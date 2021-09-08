@@ -552,31 +552,6 @@ namespace ClassLibraryTreeView
 
             MessageBox.Show($"Export done");
         }
-        private void ButtonClasses_Click(object sender, EventArgs e)
-        {
-            ShowClasses();
-        }
-
-        private void ButtonAttributes_Click(object sender, EventArgs e)
-        {
-            ShowAttributes();
-        }
-
-        private void ButtonEnumerations_Click(object sender, EventArgs e)
-        {
-            ShowEnumerations();
-        }
-
-        private void ButtonMeasure_Click(object sender, EventArgs e)
-        {
-            ShowMeasureClasses();
-        }
-
-        private void ButtonTaxonomies_Click(object sender, EventArgs e)
-        {
-            ShowTaxonomies();
-        }
-
         private void ButtonOpenFile_Click(object sender, EventArgs e)
         {
             OpenFile();
@@ -585,6 +560,35 @@ namespace ClassLibraryTreeView
         private void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)
         {
             ExportPermissibleGrid();
+        }
+        private void ButtonViewType_Click(object sender, EventArgs e)
+        {
+            string text = buttonViewType.Text.ToLower();
+            switch (text)
+            {
+                case "classes":
+                    buttonViewType.Text = "Attributes";
+                    ShowAttributes();
+                    break;
+                case "attributes":
+                    buttonViewType.Text = "Enumerations";
+                    ShowEnumerations();
+                    break;
+                case "enumerations":
+                    buttonViewType.Text = "Taxonomies";
+                    ShowTaxonomies();
+                    break;
+                case "taxonomies":
+                    buttonViewType.Text = "Measures";
+                    ShowMeasureClasses();
+                    break;
+                case "measures":
+                    buttonViewType.Text = "Classes";
+                    ShowClasses();
+                    break;
+                default:
+                    break;
+            }
         }
     }
 }

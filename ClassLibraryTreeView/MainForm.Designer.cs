@@ -38,12 +38,6 @@ namespace ClassLibraryTreeView
             this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripTabs = new System.Windows.Forms.ToolStrip();
-            this.buttonClasses = new System.Windows.Forms.ToolStripButton();
-            this.buttonAttributes = new System.Windows.Forms.ToolStripButton();
-            this.buttonMeasure = new System.Windows.Forms.ToolStripButton();
-            this.buttonTaxonomies = new System.Windows.Forms.ToolStripButton();
-            this.buttonEnumerations = new System.Windows.Forms.ToolStripButton();
             this.splitContainerProperties = new System.Windows.Forms.SplitContainer();
             this.splitContainerMain = new System.Windows.Forms.SplitContainer();
             this.splitContainerLeft = new System.Windows.Forms.SplitContainer();
@@ -52,8 +46,8 @@ namespace ClassLibraryTreeView
             this.buttonOpenFile = new System.Windows.Forms.ToolStripButton();
             this.toolStripButtonExportPermissibleGrid = new System.Windows.Forms.ToolStripButton();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
+            this.buttonViewType = new System.Windows.Forms.Button();
             this.toolStripMenu.SuspendLayout();
-            this.toolStripTabs.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainerProperties)).BeginInit();
             this.splitContainerProperties.Panel1.SuspendLayout();
             this.splitContainerProperties.Panel2.SuspendLayout();
@@ -156,80 +150,6 @@ namespace ClassLibraryTreeView
             this.toolStripButton1.Size = new System.Drawing.Size(71, 52);
             this.toolStripButton1.ToolTipText = "Edit";
             // 
-            // toolStripTabs
-            // 
-            this.toolStripTabs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolStripTabs.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStripTabs.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.buttonClasses,
-            this.buttonAttributes,
-            this.buttonMeasure,
-            this.buttonTaxonomies,
-            this.buttonEnumerations});
-            this.toolStripTabs.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-            this.toolStripTabs.Location = new System.Drawing.Point(0, 0);
-            this.toolStripTabs.MaximumSize = new System.Drawing.Size(49151, 53247);
-            this.toolStripTabs.MinimumSize = new System.Drawing.Size(48, 0);
-            this.toolStripTabs.Name = "toolStripTabs";
-            this.toolStripTabs.Size = new System.Drawing.Size(432, 72);
-            this.toolStripTabs.TabIndex = 3;
-            this.toolStripTabs.Text = "Menu";
-            // 
-            // buttonClasses
-            // 
-            this.buttonClasses.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.buttonClasses.Image = global::ClassLibraryTreeView.Properties.Resources.classes;
-            this.buttonClasses.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.buttonClasses.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.buttonClasses.Name = "buttonClasses";
-            this.buttonClasses.Size = new System.Drawing.Size(52, 69);
-            this.buttonClasses.ToolTipText = "Classes";
-            this.buttonClasses.Click += new System.EventHandler(this.ButtonClasses_Click);
-            // 
-            // buttonAttributes
-            // 
-            this.buttonAttributes.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.buttonAttributes.Image = global::ClassLibraryTreeView.Properties.Resources.attributes;
-            this.buttonAttributes.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.buttonAttributes.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.buttonAttributes.Name = "buttonAttributes";
-            this.buttonAttributes.Size = new System.Drawing.Size(52, 69);
-            this.buttonAttributes.ToolTipText = "Attributes";
-            this.buttonAttributes.Click += new System.EventHandler(this.ButtonAttributes_Click);
-            // 
-            // buttonMeasure
-            // 
-            this.buttonMeasure.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.buttonMeasure.Image = global::ClassLibraryTreeView.Properties.Resources.measure;
-            this.buttonMeasure.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.buttonMeasure.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.buttonMeasure.Name = "buttonMeasure";
-            this.buttonMeasure.Size = new System.Drawing.Size(52, 69);
-            this.buttonMeasure.ToolTipText = "Measure";
-            this.buttonMeasure.Click += new System.EventHandler(this.ButtonMeasure_Click);
-            // 
-            // buttonTaxonomies
-            // 
-            this.buttonTaxonomies.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.buttonTaxonomies.Image = global::ClassLibraryTreeView.Properties.Resources.taxonomies;
-            this.buttonTaxonomies.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.buttonTaxonomies.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.buttonTaxonomies.Name = "buttonTaxonomies";
-            this.buttonTaxonomies.Size = new System.Drawing.Size(52, 69);
-            this.buttonTaxonomies.ToolTipText = "Taxonomies";
-            this.buttonTaxonomies.Click += new System.EventHandler(this.ButtonTaxonomies_Click);
-            // 
-            // buttonEnumerations
-            // 
-            this.buttonEnumerations.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.buttonEnumerations.Image = global::ClassLibraryTreeView.Properties.Resources.enumerations;
-            this.buttonEnumerations.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.buttonEnumerations.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.buttonEnumerations.Name = "buttonEnumerations";
-            this.buttonEnumerations.Size = new System.Drawing.Size(52, 69);
-            this.buttonEnumerations.ToolTipText = "Enumerations";
-            this.buttonEnumerations.Click += new System.EventHandler(this.ButtonEnumerations_Click);
-            // 
             // splitContainerProperties
             // 
             this.splitContainerProperties.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -287,7 +207,7 @@ namespace ClassLibraryTreeView
             // 
             this.splitContainerLeft.Panel2.Controls.Add(this.splitContainer);
             this.splitContainerLeft.Size = new System.Drawing.Size(432, 647);
-            this.splitContainerLeft.SplitterDistance = 35;
+            this.splitContainerLeft.SplitterDistance = 66;
             this.splitContainerLeft.TabIndex = 5;
             // 
             // toolStrip1
@@ -298,8 +218,9 @@ namespace ClassLibraryTreeView
             this.buttonOpenFile,
             this.toolStripButtonExportPermissibleGrid});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+            this.toolStrip1.MinimumSize = new System.Drawing.Size(0, 70);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(432, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(432, 70);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -309,7 +230,7 @@ namespace ClassLibraryTreeView
             this.labelModelName.AutoToolTip = true;
             this.labelModelName.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.labelModelName.Name = "labelModelName";
-            this.labelModelName.Size = new System.Drawing.Size(21, 22);
+            this.labelModelName.Size = new System.Drawing.Size(21, 67);
             this.labelModelName.Text = "   ";
             this.labelModelName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -317,9 +238,10 @@ namespace ClassLibraryTreeView
             // 
             this.buttonOpenFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.buttonOpenFile.Image = global::ClassLibraryTreeView.Properties.Resources.open;
+            this.buttonOpenFile.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.buttonOpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.buttonOpenFile.Name = "buttonOpenFile";
-            this.buttonOpenFile.Size = new System.Drawing.Size(23, 22);
+            this.buttonOpenFile.Size = new System.Drawing.Size(52, 67);
             this.buttonOpenFile.ToolTipText = "Open File";
             this.buttonOpenFile.Click += new System.EventHandler(this.ButtonOpenFile_Click);
             // 
@@ -327,9 +249,10 @@ namespace ClassLibraryTreeView
             // 
             this.toolStripButtonExportPermissibleGrid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
             this.toolStripButtonExportPermissibleGrid.Image = global::ClassLibraryTreeView.Properties.Resources.excel;
+            this.toolStripButtonExportPermissibleGrid.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.toolStripButtonExportPermissibleGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonExportPermissibleGrid.Name = "toolStripButtonExportPermissibleGrid";
-            this.toolStripButtonExportPermissibleGrid.Size = new System.Drawing.Size(23, 22);
+            this.toolStripButtonExportPermissibleGrid.Size = new System.Drawing.Size(52, 67);
             this.toolStripButtonExportPermissibleGrid.ToolTipText = "Export Permissible Grid";
             this.toolStripButtonExportPermissibleGrid.Click += new System.EventHandler(this.ToolStripButtonExportPermissibleGrid_Click);
             // 
@@ -345,15 +268,27 @@ namespace ClassLibraryTreeView
             // 
             // splitContainer.Panel1
             // 
-            this.splitContainer.Panel1.Controls.Add(this.toolStripTabs);
+            this.splitContainer.Panel1.Controls.Add(this.buttonViewType);
             // 
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.splitContainer.Size = new System.Drawing.Size(432, 608);
+            this.splitContainer.Size = new System.Drawing.Size(432, 577);
             this.splitContainer.SplitterDistance = 72;
             this.splitContainer.SplitterWidth = 3;
             this.splitContainer.TabIndex = 4;
+            // 
+            // buttonViewType
+            // 
+            this.buttonViewType.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.buttonViewType.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.buttonViewType.Location = new System.Drawing.Point(0, 0);
+            this.buttonViewType.Name = "buttonViewType";
+            this.buttonViewType.Size = new System.Drawing.Size(432, 72);
+            this.buttonViewType.TabIndex = 4;
+            this.buttonViewType.Text = "Classes";
+            this.buttonViewType.UseVisualStyleBackColor = true;
+            this.buttonViewType.Click += new System.EventHandler(this.ButtonViewType_Click);
             // 
             // MainForm
             // 
@@ -367,8 +302,6 @@ namespace ClassLibraryTreeView
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.toolStripMenu.ResumeLayout(false);
             this.toolStripMenu.PerformLayout();
-            this.toolStripTabs.ResumeLayout(false);
-            this.toolStripTabs.PerformLayout();
             this.splitContainerProperties.Panel1.ResumeLayout(false);
             this.splitContainerProperties.Panel1.PerformLayout();
             this.splitContainerProperties.Panel2.ResumeLayout(false);
@@ -386,7 +319,6 @@ namespace ClassLibraryTreeView
             this.toolStrip1.ResumeLayout(false);
             this.toolStrip1.PerformLayout();
             this.splitContainer.Panel1.ResumeLayout(false);
-            this.splitContainer.Panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).EndInit();
             this.splitContainer.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -397,12 +329,6 @@ namespace ClassLibraryTreeView
         private System.Windows.Forms.ToolStrip toolStripMenu;
         private System.Windows.Forms.TabControl tabControlProperties;
         private ToolStripButton toolStripButton2;
-        private ToolStrip toolStripTabs;
-        private ToolStripButton buttonClasses;
-        private ToolStripButton buttonAttributes;
-        private ToolStripButton buttonMeasure;
-        private ToolStripButton buttonTaxonomies;
-        private ToolStripButton buttonEnumerations;
         private SplitContainer splitContainerProperties;
         private SplitContainer splitContainerMain;
         private SplitContainer splitContainer;
@@ -415,6 +341,7 @@ namespace ClassLibraryTreeView
         private ToolStripButton toolStripButton5;
         private ToolStripButton buttonOpenFile;
         private ToolStripButton toolStripButtonExportPermissibleGrid;
+        private Button buttonViewType;
     }
 }
 
