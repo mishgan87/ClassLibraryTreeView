@@ -504,14 +504,36 @@ namespace ClassLibraryTreeView
             }
 
             IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
-
             KeyValuePair<string, string>[] attributes = attribute.Attributes();
+
+            Form form = new Form();
+            form.Text = "Attribute Properties";
+            form.Icon = this.Icon;
+            
+            ListView listView = new ListView();
+            listView.View = View.Details;
+            listView.Columns.Clear();
+            listView.Items.Clear();
+            listView.Columns.Add("", 300, HorizontalAlignment.Left);
+            listView.Columns.Add("", 300, HorizontalAlignment.Left);
+            listView.HeaderStyle = ColumnHeaderStyle.None;
+            listView.FullRowSelect = true;
 
             foreach (KeyValuePair<string, string> pair in attributes)
             {
-                // rootNode.Nodes.Add(new TreeNode($"{pair.Key} {pair.Value}"));
+                string[] items = { $"{pair.Key}", $"{pair.Value}" };
+                listView.Items.Add(new ListViewItem(items));
             }
 
+            listView.Dock = DockStyle.Fill;
+            listView.Font = tabControlProperties.Font;
+
+            form.Controls.Add(listView);
+            form.Width = 650;
+            form.Height = listView.Items.Count * 30;
+            form.MaximumSize = new Size(form.Width, form.Height);
+            form.MinimumSize = new Size(form.Width, form.Height);
+            form.ShowDialog();
         }
         private async void ExportPermissibleGrid()
         {
