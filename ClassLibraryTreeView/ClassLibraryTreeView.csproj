@@ -133,64 +133,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Icons\accept.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\add.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\delete.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\download.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\edit.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\excel.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\file_xml.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\filter.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\home.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\measure.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\open.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\remove.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\search.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\settings.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\upload.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\enumerations.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\taxonomies.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\attributes.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\classes.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Icons\viewer.ico" />
+    <None Include="Icons\revert.ico" />
     <Content Include="viewer.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
