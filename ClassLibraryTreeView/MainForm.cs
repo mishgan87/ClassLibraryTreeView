@@ -80,12 +80,19 @@ namespace ClassLibraryTreeView
             TreeNode rootNode = new TreeNode(text);
             foreach (IClass cmClass in model.merged)
             {
-                if (cmClass.Extends.Equals(""))
+                if (cmClass == null)
                 {
-                    TreeNode newNode = NewNode(cmClass);
-                    AddChildren(cmClass, newNode);
-                    rootNode.Nodes.Add(newNode);
+                    continue;
                 }
+
+                if (!cmClass.Extends.Equals(""))
+                {
+                    // continue;
+                }
+
+                TreeNode newNode = NewNode(cmClass);
+                AddChildren(cmClass, newNode);
+                rootNode.Nodes.Add(newNode);
             }
             treeView.Nodes.Add(rootNode);
         }
@@ -228,7 +235,7 @@ namespace ClassLibraryTreeView
 
             treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewTaxonomyProperties);
         }
-        private void OpenFile(object sender, EventArgs e)
+        private void OpenFile()
         {
             using (OpenFileDialog openFileDialog = new OpenFileDialog())
             {
@@ -243,7 +250,7 @@ namespace ClassLibraryTreeView
                     string text = fileName;
                     text = text.Remove(text.LastIndexOf("."), text.Length - text.LastIndexOf("."));
                     text = text.Substring(text.LastIndexOf("\\") + 1, text.Length - text.LastIndexOf("\\") - 1);
-                    this.Text = $"{text}";
+                    labelModelName.Text = $"{text}";
                     ShowClasses();
                 }
             }
@@ -512,7 +519,7 @@ namespace ClassLibraryTreeView
                 
             }
         }
-        private async void ExportPermissibleGrid(object sender, EventArgs e)
+        private async void ExportPermissibleGrid()
         {
             string newFileName = fileName;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
@@ -552,6 +559,16 @@ namespace ClassLibraryTreeView
         private void ButtonTaxonomies_Click(object sender, EventArgs e)
         {
             ShowTaxonomies();
+        }
+
+        private void ButtonOpenFile_Click(object sender, EventArgs e)
+        {
+            OpenFile();
+        }
+
+        private void ToolStripButtonExportPermissibleGrid_Click(object sender, EventArgs e)
+        {
+            ExportPermissibleGrid();
         }
     }
 }

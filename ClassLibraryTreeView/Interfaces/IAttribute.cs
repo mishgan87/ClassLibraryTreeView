@@ -140,7 +140,7 @@ namespace ClassLibraryTreeView.Interfaces
 
             result.Add(new KeyValuePair<string, string>("Concept", Concept));
             result.Add(new KeyValuePair<string, string>("Discipline", Discipline));
-            result.Add(new KeyValuePair<string, string>("Is UoM Required", IsUoMRequired.ToString()));
+            result.Add(new KeyValuePair<string, string>("IsUoMRequired", IsUoMRequired.ToString()));
 
             return result.ToArray();
         }

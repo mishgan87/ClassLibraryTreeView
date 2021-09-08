@@ -154,6 +154,11 @@ namespace ClassLibraryTreeView
                     rowIndex = 4;
                     foreach (IClass cmClass in merged)
                     {
+                        if (cmClass == null)
+                        {
+                            continue;
+                        }
+
                         Row row = new Row() { RowIndex = rowIndex };
                         sheetData.Append(row);
 

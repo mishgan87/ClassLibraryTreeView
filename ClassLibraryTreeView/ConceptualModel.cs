@@ -333,10 +333,15 @@ namespace ClassLibraryTreeView
         }
         private void MergeByAssociations()
         {
-            List<IClass> classes = new List<IClass>();
+            merged.Clear();
             foreach (IClass cmClass in functionals.Values)
             {
-                classes.Add(cmClass);
+                if (!cmClass.Extends.Equals(""))
+                {
+                    // continue;
+                }
+
+                merged.Add(cmClass);
 
                 List<IAttribute> permissibleAttributes = PermissibleAttributes(cmClass);
                 foreach (IAttribute attribute in permissibleAttributes)
@@ -350,10 +355,10 @@ namespace ClassLibraryTreeView
                         concept = concept.Remove(0, concept.IndexOf("::") + 2);
                         concept = concept.Remove(concept.IndexOf("::"), concept.Length - concept.IndexOf("::"));
                         ids = ids.Remove(0, ids.LastIndexOf("::") + 2);
-                        while(ids.Length > 0)
+                        while (ids.Length > 0)
                         {
                             IClass childClass = null;
-                            
+
                             string id = ids;
                             if (id.Contains("||"))
                             {
@@ -375,23 +380,8 @@ namespace ClassLibraryTreeView
                                 childClass = physicals[id];
                             }
 
-                            classes.Add(childClass);
-                            cmClass.Children.Add(childClass);
+                            merged.Add(childClass);
                         }
-                    }
-                }
-            }
-
-            merged.Clear();
-            foreach (IClass cmClass in classes)
-            {
-                // if (cmClass.Extends.Equals(""))
-                if (cmClass != null)
-                {
-                    if (cmClass.Extends.Equals(""))
-                    {
-                        merged.Add(cmClass);
-                        AddClassChildren(cmClass, merged);
                     }
                 }
             }
@@ -433,8 +423,11 @@ namespace ClassLibraryTreeView
         {
             foreach(IClass child in cmClass.Children)
             {
-                classes.Add(child);
-                AddClassChildren(child, classes);
+                if (child != null)
+                {
+                    classes.Add(child);
+                    AddClassChildren(child, classes);
+                }
             }
         }
         private void AddChildrenPresence(IClass cmClass, int maxDepth, IAttribute[] attributes, List<GridCell[]> grid)
