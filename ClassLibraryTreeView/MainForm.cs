@@ -34,8 +34,7 @@ namespace ClassLibraryTreeView
         {
             TreeNode treeNode = new TreeNode();
             treeNode.Text = cmClass.Name;
-            treeNode.Name = $"{cmClass.Xtype}";
-            treeNode.Tag = $"{cmClass.Id}";
+            treeNode.Tag = cmClass;
             if (cmClass.Xtype.ToLower().Equals("functionals"))
             {
                 treeNode.ForeColor = System.Drawing.Color.Green;
@@ -130,9 +129,8 @@ namespace ClassLibraryTreeView
                 foreach (IAttribute attribute in attributes[group].Values)
                 {
                     TreeNode treeNode = new TreeNode();
-                    treeNode.Name = attribute.Group;
                     treeNode.Text = attribute.Name;
-                    treeNode.Tag = attribute.Id;
+                    treeNode.Tag = attribute;
                     groupNode.Nodes.Add(treeNode);
                 }
                 treeView.Nodes.Add(groupNode);
@@ -155,9 +153,8 @@ namespace ClassLibraryTreeView
             foreach (string key in map.Keys)
             {
                 TreeNode treeNode = new TreeNode(key);
-                treeNode.Name = map[key].Description;
                 treeNode.Text = map[key].Name;
-                treeNode.Tag = map[key].Id;
+                treeNode.Tag = map[key];
                 rootNode.Nodes.Add(treeNode);
             }
             treeView.Nodes.Add(rootNode);
@@ -179,9 +176,8 @@ namespace ClassLibraryTreeView
             foreach (string key in map.Keys)
             {
                 TreeNode treeNode = new TreeNode(key);
-                treeNode.Name = map[key].Description;
                 treeNode.Text = map[key].Name;
-                treeNode.Tag = map[key].Id;
+                treeNode.Tag = map[key];
                 rootUnitsNode.Nodes.Add(treeNode);
             }
             treeView.Nodes.Add(rootUnitsNode);
@@ -191,9 +187,8 @@ namespace ClassLibraryTreeView
             foreach (string key in mapClasses.Keys)
             {
                 TreeNode treeNode = new TreeNode(key);
-                treeNode.Name = mapClasses[key].Description;
                 treeNode.Text = mapClasses[key].Name;
-                treeNode.Tag = mapClasses[key].Id;
+                treeNode.Tag = mapClasses[key];
                 rootClassesNode.Nodes.Add(treeNode);
             }
             treeView.Nodes.Add(rootClassesNode);
@@ -215,17 +210,15 @@ namespace ClassLibraryTreeView
             foreach (string key in map.Keys)
             {
                 TreeNode treeNode = new TreeNode(key);
-                treeNode.Name = map[key].Description;
                 treeNode.Text = map[key].Name;
-                treeNode.Tag = map[key].Id;
+                treeNode.Tag = map[key];
                 if (map[key].Nodes.Count > 0)
                 {
                     foreach (TaxonomyNode node in map[key].Nodes)
                     {
                         TreeNode treeSubNode = new TreeNode();
-                        treeSubNode.Name = node.Description;
                         treeSubNode.Text = node.Name;
-                        treeSubNode.Tag = node.Id;
+                        treeSubNode.Tag = node;
                         treeNode.Nodes.Add(treeSubNode);
                     }
                 }
@@ -257,6 +250,11 @@ namespace ClassLibraryTreeView
         }
         private void AddPropertiesTab(IIdentifiable element, TabControl tabControl)
         {
+            if (element == null)
+            {
+                return;
+            }
+
             KeyValuePair<string, string>[] attributes = element.Attributes();
 
             ListView listView = new ListView();
@@ -290,8 +288,9 @@ namespace ClassLibraryTreeView
                 {
                     if (e.Node.Parent.Text.ToLower().Contains("taxonomies"))
                     {
-                        string id = e.Node.Tag.ToString();
-                        AddPropertiesTab(model.taxonomies[id], tabControlProperties);
+                        Taxonomy taxonomy = (Taxonomy)e.Node.Tag;
+
+                        AddPropertiesTab(taxonomy, tabControlProperties);
                         ListView listViewItems = new ListView();
                         listViewItems.View = View.Details;
                         listViewItems.Columns.Clear();
@@ -300,7 +299,7 @@ namespace ClassLibraryTreeView
                         listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
                         listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
 
-                        foreach (TaxonomyNode node in model.taxonomies[id].Nodes)
+                        foreach (TaxonomyNode node in taxonomy.Nodes)
                         {
                             string[] items = { $"{node.Id}",
                                                 $"{node.Name}",
@@ -317,10 +316,12 @@ namespace ClassLibraryTreeView
                     }
                     else
                     {
-                        string id = e.Node.Parent.Tag.ToString();
-                        foreach (TaxonomyNode node in model.taxonomies[id].Nodes)
+                        TaxonomyNode taxonomyNode = (TaxonomyNode)e.Node.Tag;
+                        Taxonomy taxonomy = (Taxonomy)e.Node.Parent.Tag;
+                        foreach (TaxonomyNode node in taxonomy.Nodes)
                         {
-                            if (node.Id.Equals(e.Node.Tag.ToString()))
+                            
+                            if (node.Id.Equals(taxonomyNode.Id))
                             {
                                 AddPropertiesTab(node, tabControlProperties);
                                 ListView listViewItems = new ListView();
@@ -359,14 +360,15 @@ namespace ClassLibraryTreeView
             {
                 if (e.Node.Parent != null)
                 {
-                    string id = e.Node.Tag.ToString();
                     if (e.Node.Parent.Text.ToLower().Contains("units"))
                     {
-                        AddPropertiesTab(model.measureUnits[id], tabControlProperties);
+                        MeasureUnit measureUnit = (MeasureUnit)e.Node.Tag;
+                        AddPropertiesTab(measureUnit, tabControlProperties);
                     }
                     if (e.Node.Parent.Text.ToLower().Contains("classes"))
                     {
-                        AddPropertiesTab(model.measureClasses[id], tabControlProperties);
+                        MeasureClass measureClass = (MeasureClass)e.Node.Tag;
+                        AddPropertiesTab(measureClass, tabControlProperties);
                         ListView listViewItems = new ListView();
                         listViewItems.View = View.Details;
                         listViewItems.Columns.Clear();
@@ -375,7 +377,7 @@ namespace ClassLibraryTreeView
                         listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
                         listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
 
-                        foreach (string unitId in model.measureClasses[id].Units)
+                        foreach (string unitId in measureClass.Units)
                         {
                             string[] items = { $"{model.measureUnits[unitId].Id}",
                                                 $"{model.measureUnits[unitId].Name}",
@@ -398,9 +400,9 @@ namespace ClassLibraryTreeView
             tabControlProperties.TabPages.Clear();
             if (e.Node.Tag != null)
             {
-                string id = e.Node.Tag.ToString();
+                EnumerationList enumerationList = (EnumerationList)e.Node.Tag;
 
-                AddPropertiesTab(model.enumerations[id], tabControlProperties);
+                AddPropertiesTab(enumerationList, tabControlProperties);
 
                 ListView listViewItems = new ListView();
                 listViewItems.View = View.Details;
@@ -410,7 +412,7 @@ namespace ClassLibraryTreeView
                 listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
                 listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
 
-                foreach (EnumerationListItem item in model.enumerations[id].Items)
+                foreach (EnumerationListItem item in enumerationList.Items)
                 {
                     string[] items = { $"{item.Id}", $"{item.Name}", $"{item.Description}" };
                     listViewItems.Items.Add(new ListViewItem(items));
@@ -427,25 +429,14 @@ namespace ClassLibraryTreeView
         private void ViewAttributeProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
         {
             tabControlProperties.TabPages.Clear();
-            if (eventArgs.Node.Tag != null)
-            {
-                string group = eventArgs.Node.Name;
-                string id = eventArgs.Node.Tag.ToString();
-
-                AddPropertiesTab(model.attributes[group][id], tabControlProperties);
-            }
+            IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
+            AddPropertiesTab(attribute, tabControlProperties);
         }
         private void ViewClassProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
         {
             tabControlProperties.TabPages.Clear();
-            if (eventArgs.Node.Tag == null)
-            {
-                return;
-            }
 
-            string xtype = eventArgs.Node.Name.ToLower();
-            string id = eventArgs.Node.Tag.ToString();
-            IClass cmClass = model.GetClass(id, xtype);
+            IClass cmClass = (IClass)eventArgs.Node.Tag;
 
             if (cmClass != null)
             {
@@ -454,46 +445,36 @@ namespace ClassLibraryTreeView
                 // Add permissible attributes
 
                 TreeView treeView = new TreeView();
-
                 List<IAttribute> permissibleAttributes = model.PermissibleAttributes(cmClass);
 
                 foreach (IAttribute attribute in permissibleAttributes)
                 {
-                    TreeNode rootNode = new TreeNode($"{attribute.Id}");
-
-                    KeyValuePair<string, string>[] attributes = attribute.Attributes();
-
-                    foreach (KeyValuePair<string, string> pair in attributes)
-                    {
-                        rootNode.Nodes.Add(new TreeNode($"{pair.Key} {pair.Value}"));
-                    }
-
+                    TreeNode rootNode = new TreeNode();
+                    rootNode.Text = $"{attribute.Id}";
+                    rootNode.Tag = attribute;
                     treeView.Nodes.Add(rootNode);
                 }
 
                 treeView.Dock = DockStyle.Fill;
                 treeView.Font = tabControlProperties.Font;
+                treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ShowPermissibleAttribute);
 
                 TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
                 pagePermissibleAttributes.Controls.Add(treeView);
                 tabControlProperties.TabPages.Add(pagePermissibleAttributes);
+
                 /*
                 ListView listView = new ListView();
                 listView.View = View.Details;
                 listView.Columns.Clear();
-                listView.Items.Clear();
                 listView.Columns.Add("Id", 300, HorizontalAlignment.Left);
-                listView.Columns.Add("Name", 300, HorizontalAlignment.Left);
                 listView.Columns.Add("Presence", 300, HorizontalAlignment.Left);
-
-                listView.Columns.Add("Validation Type", 300, HorizontalAlignment.Left);
-                listView.Columns.Add("Validation Rule", 300, HorizontalAlignment.Left);
+                listView.Items.Clear();
 
                 List<IAttribute> permissibleAttributes = model.PermissibleAttributes(cmClass);
-
                 foreach (IAttribute attribute in permissibleAttributes)
                 {
-                    string[] items = { $"{attribute.Id}", $"{attribute.Name}", $"{attribute.Presence}", $"{attribute.ValidationType}", $"{attribute.ValidationRule}" };
+                    string[] items = { $"{attribute.Id}", $"{attribute.Presence}" };
                     listView.Items.Add(new ListViewItem(items));
                 }
 
@@ -508,16 +489,29 @@ namespace ClassLibraryTreeView
                 */
             }
         }
-        private void ShowPermissibleAttribute(object sender, MouseEventArgs eventArgs)
+        private void ShowPermissibleAttribute(object sender, TreeNodeMouseClickEventArgs eventArgs)
+        // private void (object sender, MouseEventArgs eventArgs)
         {
-            ListView listView = (ListView)sender;
-            ListViewHitTestInfo info = listView.HitTest(eventArgs.X, eventArgs.Y);
-            ListViewItem item = info.Item;
+            // вариант обработчика нажатия на ListView
+            // ListView listView = (ListView)sender;
+            // ListViewHitTestInfo info = listView.HitTest(eventArgs.X, eventArgs.Y);
+            // ListViewItem item = info.Item;
+            // ---
 
-            if (item != null)
+            if (eventArgs.Node.Tag == null)
             {
-                
+                return;
             }
+
+            IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
+
+            KeyValuePair<string, string>[] attributes = attribute.Attributes();
+
+            foreach (KeyValuePair<string, string> pair in attributes)
+            {
+                // rootNode.Nodes.Add(new TreeNode($"{pair.Key} {pair.Value}"));
+            }
+
         }
         private async void ExportPermissibleGrid()
         {
