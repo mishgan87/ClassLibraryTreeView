@@ -444,38 +444,69 @@ namespace ClassLibraryTreeView
 
                 // Add permissible attributes
 
-                TreeView treeView = new TreeView();
                 List<IAttribute> permissibleAttributes = model.PermissibleAttributes(cmClass);
 
-                foreach (IAttribute attribute in permissibleAttributes)
-                {
-                    TreeNode rootNode = new TreeNode();
-                    rootNode.Text = $"{attribute.Id}";
-                    rootNode.Tag = attribute;
-                    treeView.Nodes.Add(rootNode);
-                }
+                KeyValuePair<string, string>[] attributes = permissibleAttributes.First().Attributes();
 
-                treeView.Dock = DockStyle.Fill;
-                treeView.Font = tabControlProperties.Font;
-                treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ShowPermissibleAttribute);
-
-                TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
-                pagePermissibleAttributes.Controls.Add(treeView);
-                tabControlProperties.TabPages.Add(pagePermissibleAttributes);
-
-                /*
                 ListView listView = new ListView();
                 listView.View = View.Details;
                 listView.Columns.Clear();
-                listView.Columns.Add("Id", 300, HorizontalAlignment.Left);
-                listView.Columns.Add("Presence", 300, HorizontalAlignment.Left);
                 listView.Items.Clear();
+                foreach(KeyValuePair<string, string> property in attributes)
+                {
+                    listView.Columns.Add($"{property.Key}", 150, HorizontalAlignment.Left);
+                }
+                listView.HeaderStyle = ColumnHeaderStyle.Clickable;
+                listView.FullRowSelect = true;
 
-                List<IAttribute> permissibleAttributes = model.PermissibleAttributes(cmClass);
                 foreach (IAttribute attribute in permissibleAttributes)
                 {
-                    string[] items = { $"{attribute.Id}", $"{attribute.Presence}" };
-                    listView.Items.Add(new ListViewItem(items));
+                    attributes = attribute.Attributes();
+                    List<string> items = new List<string>();
+                    foreach (KeyValuePair<string, string> property in attributes)
+                    {
+                        items.Add(property.Value);
+                    }
+                    ListViewItem item = new ListViewItem(items.ToArray());
+                    item.Tag = attribute;
+                    listView.Items.Add(item);
+
+                    if (attribute.ValidationType.ToLower().Equals("association"))
+                    {
+                        string rule = attribute.ValidationRule;
+                        string concept = attribute.ValidationRule;
+                        string ids = attribute.ValidationRule;
+                        rule = rule.Remove(rule.IndexOf("::"), rule.Length - rule.IndexOf("::"));
+                        concept = concept.Remove(0, concept.IndexOf("::") + 2);
+                        concept = concept.Remove(concept.IndexOf("::"), concept.Length - concept.IndexOf("::"));
+                        ids = ids.Remove(0, ids.LastIndexOf("::") + 2);
+                        while (ids.Length > 0)
+                        {
+                            string id = ids;
+                            if (id.Contains("||"))
+                            {
+                                id = id.Remove(id.IndexOf("||"), id.Length - id.IndexOf("||"));
+
+                                ids = ids.Remove(0, ids.IndexOf("||") + 2);
+                            }
+                            else
+                            {
+                                ids = ids.Remove(0, ids.Length);
+                            }
+
+                            items.Clear();
+                            foreach (KeyValuePair<string, string> property in attributes)
+                            {
+                                string value = "";
+                                if (property.Key.ToLower().Equals("validationrule"))
+                                {
+                                    value = id;
+                                }
+                                items.Add(value);
+                            }
+                            listView.Items.Add(new ListViewItem(items.ToArray()));
+                        }
+                    }
                 }
 
                 listView.Dock = DockStyle.Fill;
@@ -485,55 +516,15 @@ namespace ClassLibraryTreeView
                 pagePermissibleAttributes.Controls.Add(listView);
                 tabControlProperties.TabPages.Add(pagePermissibleAttributes);
 
-                listView.MouseClick += new MouseEventHandler(ShowPermissibleAttribute);
-                */
+                listView.MouseClick += new MouseEventHandler(EditPermissibleAttribute);
             }
         }
-        private void ShowPermissibleAttribute(object sender, TreeNodeMouseClickEventArgs eventArgs)
-        // private void (object sender, MouseEventArgs eventArgs)
+        private void EditPermissibleAttribute(object sender, MouseEventArgs eventArgs)
         {
-            // вариант обработчика нажатия на ListView
-            // ListView listView = (ListView)sender;
-            // ListViewHitTestInfo info = listView.HitTest(eventArgs.X, eventArgs.Y);
-            // ListViewItem item = info.Item;
-            // ---
-
-            if (eventArgs.Node.Tag == null)
-            {
-                return;
-            }
-
-            IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
-            KeyValuePair<string, string>[] attributes = attribute.Attributes();
-
-            Form form = new Form();
-            form.Text = "Attribute Properties";
-            form.Icon = this.Icon;
-            
-            ListView listView = new ListView();
-            listView.View = View.Details;
-            listView.Columns.Clear();
-            listView.Items.Clear();
-            listView.Columns.Add("", 300, HorizontalAlignment.Left);
-            listView.Columns.Add("", 300, HorizontalAlignment.Left);
-            listView.HeaderStyle = ColumnHeaderStyle.None;
-            listView.FullRowSelect = true;
-
-            foreach (KeyValuePair<string, string> pair in attributes)
-            {
-                string[] items = { $"{pair.Key}", $"{pair.Value}" };
-                listView.Items.Add(new ListViewItem(items));
-            }
-
-            listView.Dock = DockStyle.Fill;
-            listView.Font = tabControlProperties.Font;
-
-            form.Controls.Add(listView);
-            form.Width = 650;
-            form.Height = listView.Items.Count * 30;
-            form.MaximumSize = new Size(form.Width, form.Height);
-            form.MinimumSize = new Size(form.Width, form.Height);
-            form.ShowDialog();
+            ListView listView = (ListView)sender;
+            ListViewHitTestInfo info = listView.HitTest(eventArgs.X, eventArgs.Y);
+            ListViewItem item = info.Item;
+            IAttribute attribute = (IAttribute)item.Tag;
         }
         private async void ExportPermissibleGrid()
         {

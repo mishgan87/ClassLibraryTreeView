@@ -117,12 +117,12 @@ namespace ClassLibraryTreeView.Interfaces
                 }
             }
 
-            result.Add(new KeyValuePair<string, string>("ClassOfMeasure", ClassOfMeasure));
-            result.Add(new KeyValuePair<string, string>("DataType", DataType));
-            result.Add(new KeyValuePair<string, string>("GroupID", Group));
             result.Add(new KeyValuePair<string, string>("Presence", Presence));
             result.Add(new KeyValuePair<string, string>("ValidationType", ValidationType));
             result.Add(new KeyValuePair<string, string>("ValidationRule", ValidationRule));
+            result.Add(new KeyValuePair<string, string>("ClassOfMeasure", ClassOfMeasure));
+            result.Add(new KeyValuePair<string, string>("DataType", DataType));
+            result.Add(new KeyValuePair<string, string>("GroupID", Group));
             result.Add(new KeyValuePair<string, string>("MaxOccurs", MaxOccurs));
             result.Add(new KeyValuePair<string, string>("MinOccurs", MinOccurs));
 

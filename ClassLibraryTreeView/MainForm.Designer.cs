@@ -69,7 +69,7 @@ namespace ClassLibraryTreeView
             // tabControlProperties
             // 
             this.tabControlProperties.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControlProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tabControlProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tabControlProperties.Location = new System.Drawing.Point(0, 0);
             this.tabControlProperties.Margin = new System.Windows.Forms.Padding(2);
             this.tabControlProperties.Name = "tabControlProperties";
@@ -207,7 +207,7 @@ namespace ClassLibraryTreeView
             // 
             this.splitContainerLeft.Panel2.Controls.Add(this.splitContainer);
             this.splitContainerLeft.Size = new System.Drawing.Size(432, 647);
-            this.splitContainerLeft.SplitterDistance = 66;
+            this.splitContainerLeft.SplitterDistance = 59;
             this.splitContainerLeft.TabIndex = 5;
             // 
             // toolStrip1
@@ -218,9 +218,9 @@ namespace ClassLibraryTreeView
             this.buttonOpenFile,
             this.toolStripButtonExportPermissibleGrid});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip1.MinimumSize = new System.Drawing.Size(0, 70);
+            this.toolStrip1.MinimumSize = new System.Drawing.Size(0, 64);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(432, 70);
+            this.toolStrip1.Size = new System.Drawing.Size(432, 64);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -230,7 +230,7 @@ namespace ClassLibraryTreeView
             this.labelModelName.AutoToolTip = true;
             this.labelModelName.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
             this.labelModelName.Name = "labelModelName";
-            this.labelModelName.Size = new System.Drawing.Size(21, 67);
+            this.labelModelName.Size = new System.Drawing.Size(21, 61);
             this.labelModelName.Text = "   ";
             this.labelModelName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -241,7 +241,7 @@ namespace ClassLibraryTreeView
             this.buttonOpenFile.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.buttonOpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.buttonOpenFile.Name = "buttonOpenFile";
-            this.buttonOpenFile.Size = new System.Drawing.Size(52, 67);
+            this.buttonOpenFile.Size = new System.Drawing.Size(52, 61);
             this.buttonOpenFile.ToolTipText = "Open File";
             this.buttonOpenFile.Click += new System.EventHandler(this.ButtonOpenFile_Click);
             // 
@@ -252,7 +252,7 @@ namespace ClassLibraryTreeView
             this.toolStripButtonExportPermissibleGrid.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.toolStripButtonExportPermissibleGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButtonExportPermissibleGrid.Name = "toolStripButtonExportPermissibleGrid";
-            this.toolStripButtonExportPermissibleGrid.Size = new System.Drawing.Size(52, 67);
+            this.toolStripButtonExportPermissibleGrid.Size = new System.Drawing.Size(52, 61);
             this.toolStripButtonExportPermissibleGrid.ToolTipText = "Export Permissible Grid";
             this.toolStripButtonExportPermissibleGrid.Click += new System.EventHandler(this.ToolStripButtonExportPermissibleGrid_Click);
             // 
@@ -273,7 +273,7 @@ namespace ClassLibraryTreeView
             // splitContainer.Panel2
             // 
             this.splitContainer.Panel2.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.splitContainer.Size = new System.Drawing.Size(432, 577);
+            this.splitContainer.Size = new System.Drawing.Size(432, 584);
             this.splitContainer.SplitterDistance = 72;
             this.splitContainer.SplitterWidth = 3;
             this.splitContainer.TabIndex = 4;
