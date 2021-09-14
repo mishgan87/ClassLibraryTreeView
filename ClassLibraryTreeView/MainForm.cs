@@ -5,6 +5,7 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -23,6 +24,7 @@ namespace ClassLibraryTreeView
     {
         private Dictionary<TabPage, System.Drawing.Color> TabColors = new Dictionary<TabPage, System.Drawing.Color>();
         private ConceptualModel model = new ConceptualModel();
+        private IIdentifiable CurrentItem { get; set; }
         string fileName;
         public MainForm()
         {
@@ -86,7 +88,7 @@ namespace ClassLibraryTreeView
 
                 if (!cmClass.Extends.Equals(""))
                 {
-                    // continue;
+                    continue;
                 }
 
                 TreeNode newNode = NewNode(cmClass);
@@ -449,6 +451,8 @@ namespace ClassLibraryTreeView
 
             IClass cmClass = (IClass)eventArgs.Node.Tag;
 
+            CurrentItem = cmClass;
+
             if (cmClass != null)
             {
                 AddPropertiesTab(cmClass, tabControlProperties);
@@ -464,7 +468,7 @@ namespace ClassLibraryTreeView
 
                 listView.Dock = DockStyle.Fill;
                 listView.Font = tabControlProperties.Font;
-                listView.MouseClick += new MouseEventHandler(EditPermissibleAttribute);
+                listView.MouseDoubleClick += new MouseEventHandler(EditPermissibleAttribute);
 
                 TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
                 pagePermissibleAttributes.Controls.Add(listView);
@@ -497,34 +501,18 @@ namespace ClassLibraryTreeView
 
                     if (attribute.ValidationType.ToLower().Equals("association"))
                     {
-                        string rule = attribute.ValidationRule;
-                        string concept = attribute.ValidationRule;
-                        string ids = attribute.ValidationRule;
-                        rule = rule.Remove(rule.IndexOf("::"), rule.Length - rule.IndexOf("::"));
-                        concept = concept.Remove(0, concept.IndexOf("::") + 2);
-                        concept = concept.Remove(concept.IndexOf("::"), concept.Length - concept.IndexOf("::"));
-                        ids = ids.Remove(0, ids.LastIndexOf("::") + 2);
-                        while (ids.Length > 0)
+                        string[] rules = ConceptualModel.SplitValidationRules(attribute.ValidationRule);
+                        string concept = rules[1];
+
+                        for (int index = 2; index < rules.Length; index++)
                         {
-                            string id = ids;
-                            if (id.Contains("||"))
-                            {
-                                id = id.Remove(id.IndexOf("||"), id.Length - id.IndexOf("||"));
-
-                                ids = ids.Remove(0, ids.IndexOf("||") + 2);
-                            }
-                            else
-                            {
-                                ids = ids.Remove(0, ids.Length);
-                            }
-
                             items.Clear();
                             foreach (KeyValuePair<string, string> property in attributes)
                             {
                                 string value = "";
                                 if (property.Key.ToLower().Equals("validationrule"))
                                 {
-                                    value = id;
+                                    value = rules[index];
                                 }
                                 items.Add(value);
                             }
@@ -534,24 +522,49 @@ namespace ClassLibraryTreeView
                 }
             }
         }
+        private void EditItem(object sender, EventArgs e)
+        {
+
+        }
+        private void AddItem(object sender, EventArgs e)
+        {
+
+        }
+        private void RemoveItem(object sender, EventArgs e)
+        {
+
+        }
         private void EditPermissibleAttribute(object sender, MouseEventArgs eventArgs)
         {
             // контектсное меню
-
+            /*
             if (eventArgs.Button == MouseButtons.Right)
             {
+                if (this.tabControlProperties.SelectedTab.Text.ToLower().Equals("permissible attributes"))
+                {
+                    ListView listView = (ListView)tabControlProperties.SelectedTab.Controls[0];
+                    ListViewItem item = listView.SelectedItems[0];
+                }
+
                 System.Windows.Forms.ContextMenuStrip menu = new System.Windows.Forms.ContextMenuStrip();
                 ToolStripItem itemEdit = menu.Items.Add("Edit");
-                //itemEdit.Image = Bitmap.FromFile("\\Icons\\add.ico");
+                itemEdit.Image = global::ClassLibraryTreeView.Properties.Resources.edit;
+                itemEdit.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+                itemEdit.Click += new EventHandler(this.EditItem);
+
                 ToolStripItem itemAdd = menu.Items.Add("Add");
-                //itemEdit.Image = Bitmap.FromFile("\\Icons\\add.ico");
+                itemAdd.Image = global::ClassLibraryTreeView.Properties.Resources.add;
+                itemAdd.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+                itemAdd.Click += new EventHandler(this.AddItem);
+
                 ToolStripItem itemRemove = menu.Items.Add("Remove");
-                //itemEdit.Image = Bitmap.FromFile("\\Icons\\add.ico");
+                itemRemove.Image = global::ClassLibraryTreeView.Properties.Resources.remove;
+                itemRemove.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+                itemRemove.Click += new EventHandler(this.RemoveItem);
 
                 menu.Show((System.Windows.Forms.Control)sender, new Point(eventArgs.X, eventArgs.Y));
             }
-
-            // окно свойств атрибута
+            */
 
             if (eventArgs.Button == MouseButtons.Left)
             {
@@ -567,25 +580,17 @@ namespace ClassLibraryTreeView
         }
         private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
+            this.menuBar.Enabled = false;
+
             string newFileName = fileName;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
-            ExcelExporter exporter = new ExcelExporter(newFileName, model);
 
-            this.buttonOpenFile.Enabled = false;
-            this.toolStripButtonExportPermissibleGrid.Enabled = false;
+            ExcelExporter exporter = new ExcelExporter();
 
-            // await Task.Run(() => exporter.ExportPermissibleGrid());
-            Parallel.Invoke(
-                () =>
-                {
-                    exporter.ExportPermissibleGrid();
-                },
-                () => { }
-                );
+            await Task.Run(() => exporter.ExportPermissibleGrid(newFileName, model));
 
-            this.buttonOpenFile.Enabled = true;
-            this.toolStripButtonExportPermissibleGrid.Enabled = true;
+            this.menuBar.Enabled = true;
 
             MessageBox.Show($"Export done");
         }

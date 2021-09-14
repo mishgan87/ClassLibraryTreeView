@@ -5,6 +5,8 @@ using System.Windows.Forms;
 using ClassLibraryTreeView.Interfaces;
 using ClassLibraryTreeView.Classes;
 using System;
+using System.Collections.Concurrent;
+using DocumentFormat.OpenXml.Spreadsheet;
 
 namespace ClassLibraryTreeView
 {
@@ -14,14 +16,17 @@ namespace ClassLibraryTreeView
         {
             Text = "";
             StyleIndex = 0;
+            Reference = "";
         }
-        public GridCell(string text, uint style)
+        public GridCell(string text, uint style, string reference)
         {
             Text = text;
             StyleIndex = style;
+            Reference = reference;
         }
         public string Text { get; set; }
         public uint StyleIndex { get; set; }
+        public string Reference { get; set; }
     }
     public class ConceptualModel
     {
@@ -38,19 +43,20 @@ namespace ClassLibraryTreeView
         public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
         public List<IClass> merged = new List<IClass>();
 
+        private List<IAttribute> attributesList = new List<IAttribute>();
+        private List<string> attributesGroupList = new List<string>();
+
         public int AttributesCount = 0;
 
-        public int MaxDepth
+        public int maxDepth = 0;
+
+        private void CalculateMaxDepth()
         {
-            get
+            maxDepth = MapMaxDepth(functionals);
+            int maxDepthAuxiliary = MapMaxDepth(physicals);
+            if (maxDepth < maxDepthAuxiliary)
             {
-                int maxDepth = MapMaxDepth(functionals);
-                int maxDepthaAuxiliary = MapMaxDepth(physicals);
-                if (maxDepth < maxDepthaAuxiliary)
-                {
-                    maxDepth = maxDepthaAuxiliary;
-                }
-                return maxDepth;
+                maxDepth = maxDepthAuxiliary;
             }
         }
 
@@ -60,6 +66,9 @@ namespace ClassLibraryTreeView
         }
         public void Init()
         {
+            attributesList = new List<IAttribute>();
+            attributesGroupList = new List<string>();
+
             attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
             documents = new Dictionary<string, IClass>();
             functionals = new Dictionary<string, IClass>();
@@ -88,6 +97,8 @@ namespace ClassLibraryTreeView
 
             merged.Clear();
 
+            attributesGroupList.Clear();
+            attributesList.Clear();
             AttributesCount = 0;
         }
         public List<IAttribute> PermissibleAttributes(IClass cmClass)
@@ -120,7 +131,10 @@ namespace ClassLibraryTreeView
                 {
                     IAttribute attribute = new IAttribute(parentAttribute);
                     attribute.Presence = "";
-                    result.Add(attribute);
+                    if (!result.Contains(attribute))
+                    {
+                        result.Add(attribute);
+                    }
                 }
                 parent = map[parent].Extends;
             }
@@ -130,6 +144,7 @@ namespace ClassLibraryTreeView
         public string Presence(IClass cmClass, IAttribute attribute)
         {
             List<IAttribute> permissibleAttributes = PermissibleAttributes(cmClass);
+            // List<IAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
             foreach (IAttribute permissibleAttribute in permissibleAttributes)
             {
                 if (permissibleAttribute.Id.Equals(attribute.Id))
@@ -142,6 +157,23 @@ namespace ClassLibraryTreeView
                 }
             }
             return "";
+        }
+        public void AddClass(IClass cmClass, int classConcept)
+        {
+            switch(classConcept)
+            {
+                case 0:
+                    functionals.Add(cmClass.Id, cmClass);
+                    break;
+                case 1:
+                    physicals.Add(cmClass.Id, cmClass);
+                    break;
+                case 2:
+                    documents.Add(cmClass.Id, cmClass);
+                    break;
+                default:
+                    break;
+            }
         }
         public int ClassDepth(IClass cmClass)
         {
@@ -288,10 +320,10 @@ namespace ClassLibraryTreeView
                         if (!attributes.ContainsKey(group))
                         {
                             attributes.Add(group, new Dictionary<string, IAttribute>());
+                            attributesGroupList.Add(group);
                         }
                         
                         attributes[group].Add(newAttribute.Id, newAttribute);
-
                         AttributesCount++;
                     }
                 }
@@ -299,8 +331,20 @@ namespace ClassLibraryTreeView
             SetInheritance(documents);
             SetInheritance(functionals);
             SetInheritance(physicals);
-            // MergeByNames();
-            MergeByAssociations();
+            MergeByNames();
+            // MergeByAssociations();
+
+            CalculateMaxDepth();
+
+            // Get attributes list sorted by group
+
+            foreach (KeyValuePair<string, Dictionary<string, IAttribute>> group in attributes)
+            {
+                foreach (IAttribute attribute in group.Value.Values)
+                {
+                    attributesList.Add(attribute);
+                }
+            }
         }
         private void SetInheritance(Dictionary<string, IClass> map)
         {
@@ -331,6 +375,41 @@ namespace ClassLibraryTreeView
             }
             return null;
         }
+        public static string[] SplitValidationRules(string validationRule)
+        {
+            List<string> rules = new List<string>();
+            
+            string rule = validationRule;
+            rule = rule.Remove(rule.IndexOf("::"), rule.Length - rule.IndexOf("::"));
+            rules.Add(rule);
+
+            string concept = validationRule;
+            concept = concept.Remove(0, concept.IndexOf("::") + 2);
+            concept = concept.Remove(concept.IndexOf("::"), concept.Length - concept.IndexOf("::"));
+            rules.Add(concept);
+
+            string ids = validationRule;
+            ids = ids.Remove(0, ids.LastIndexOf("::") + 2);
+
+            while (ids.Length > 0)
+            {
+                string id = ids;
+                if (id.Contains("||"))
+                {
+                    id = id.Remove(id.IndexOf("||"), id.Length - id.IndexOf("||"));
+
+                    ids = ids.Remove(0, ids.IndexOf("||") + 2);
+                }
+                else
+                {
+                    ids = ids.Remove(0, ids.Length);
+                }
+
+                rules.Add(id);
+            }
+
+            return rules.ToArray();
+        }
         private void MergeByAssociations()
         {
             merged.Clear();
@@ -341,46 +420,29 @@ namespace ClassLibraryTreeView
                     // continue;
                 }
 
-                merged.Add(cmClass);
+                if (!merged.Contains(cmClass))
+                {
+                    merged.Add(cmClass);
+                }
 
                 List<IAttribute> permissibleAttributes = PermissibleAttributes(cmClass);
                 foreach (IAttribute attribute in permissibleAttributes)
                 {
                     if (attribute.ValidationType.ToLower().Equals("association"))
                     {
-                        string rule = attribute.ValidationRule;
-                        string concept = attribute.ValidationRule;
-                        string ids = attribute.ValidationRule;
-                        rule = rule.Remove(rule.IndexOf("::"), rule.Length - rule.IndexOf("::"));
-                        concept = concept.Remove(0, concept.IndexOf("::") + 2);
-                        concept = concept.Remove(concept.IndexOf("::"), concept.Length - concept.IndexOf("::"));
-                        ids = ids.Remove(0, ids.LastIndexOf("::") + 2);
-                        while (ids.Length > 0)
+                        string[] rules = SplitValidationRules(attribute.ValidationRule);
+                        string concept = rules[1];
+
+                        for (int index = 2; index < rules.Length; index++)
                         {
-                            IClass childClass = null;
-
-                            string id = ids;
-                            if (id.Contains("||"))
-                            {
-                                id = id.Remove(id.IndexOf("||"), id.Length - id.IndexOf("||"));
-
-                                ids = ids.Remove(0, ids.IndexOf("||") + 2);
-                            }
-                            else
-                            {
-                                ids = ids.Remove(0, ids.Length);
-                            }
-
                             if (concept.ToLower().Equals("functional"))
                             {
-                                childClass = functionals[id];
+                                merged.Add(functionals[rules[index]]);
                             }
                             if (concept.ToLower().Equals("physical"))
                             {
-                                childClass = physicals[id];
+                                merged.Add(physicals[rules[index]]);
                             }
-
-                            merged.Add(childClass);
                         }
                     }
                 }
@@ -414,6 +476,7 @@ namespace ClassLibraryTreeView
             {
                 if (cmClass.Extends.Equals(""))
                 {
+                    cmClass.PermissibleAttributes = PermissibleAttributes(cmClass);
                     merged.Add(cmClass);
                     AddClassChildren(cmClass, merged);
                 }
@@ -430,18 +493,20 @@ namespace ClassLibraryTreeView
                 }
             }
         }
-        private void AddChildrenPresence(IClass cmClass, int maxDepth, IAttribute[] attributes, List<GridCell[]> grid)
+        private void AddChildrenPresence(IClass cmClass, List<GridCell[]> grid)
         {
             if (cmClass.Children.Count > 0)
             {
                 foreach (IClass child in cmClass.Children)
                 {
-                    AddPresence(child, maxDepth, attributes, grid);
+                    AddPresence(child, grid);
                 }
             }
         }
-        private void AddPresence(IClass cmClass, int maxDepth, IAttribute[] attributes, List<GridCell[]> grid)
+        private void AddPresence(IClass cmClass, List<GridCell[]> grid)
         {
+            IAttribute[] attributes = attributesList.ToArray();
+
             GridCell[] row = new GridCell[maxDepth + attributes.Length + 1];
             int classDepth = ClassDepth(cmClass);
 
@@ -462,7 +527,141 @@ namespace ClassLibraryTreeView
 
             grid.Add(row);
 
-            AddChildrenPresence(cmClass, maxDepth, attributes, grid);
+            AddChildrenPresence(cmClass, grid);
+        }
+        private string CellName(int row, int col)
+        {
+            int number = col + 1;
+            string name = "";
+            while (number > 0)
+            {
+                int modul = (number - 1) % 26;
+                name = Convert.ToChar('A' + modul) + name;
+                number = (number - modul) / 26;
+            }
+            return $"{name}{row + 1}";
+        }
+        public GridCell[,] GetPermissibleGrid(MergeCells mergeCells)
+        {
+            int rowCount = merged.Count + 3;
+            int colCount = maxDepth + AttributesCount + 2;
+
+            GridCell[,] grid = new GridCell[rowCount, colCount];
+
+            // "пустые" ячейки в шапке таблицы
+            for (int row = 0; row < 3; row++)
+            {
+                for (int col = 0; col < maxDepth + 2; col++)
+                {
+                    grid[row, col] = new GridCell("", 0, CellName(row, col));
+                }
+            }
+
+            
+            for (int col = maxDepth + 2; col < colCount; col++)
+            {
+                grid[0, col] = new GridCell(attributesList.ElementAt(col - maxDepth - 2).Group, 0, CellName(0, col));
+
+                string text = ""; // $"{attributesList.ElementAt(col - maxDepth).Name} : {attributesList.ElementAt(col - maxDepth).Id}";
+                grid[1, col] = new GridCell(text, 3, CellName(1, col));
+            }
+
+            // ячейки с названиями и идентификаторами атрибутов в шапке таблицы
+            for (int col = 0; col < colCount; col++)
+            {
+                uint groupStyle = 0;
+                uint attributeStyle = 0;
+                uint headerStyle = 0;
+                string groupText = "";
+                string attributeText = "";
+                string headerText = "";
+
+                if (col == 0)
+                {
+                    headerText = $"Classes ({merged.Count})";
+                    headerStyle = 9;
+                }
+
+                if (col == maxDepth)
+                {
+                    headerText = $"Discipline";
+                    headerStyle = 0;
+                }
+
+                if (col == maxDepth + 1)
+                {
+                    headerText = $"Class ID";
+                    headerStyle = 2;
+                }
+                if (col > maxDepth + 1)
+                {
+                    groupText = attributesList.ElementAt(col - maxDepth - 2).Group;
+                    attributeText = attributesList.ElementAt(col - maxDepth - 2).Id;
+                    attributeStyle = 3;
+                }
+
+                grid[0, col] = new GridCell(groupText, groupStyle, CellName(0, col));
+                grid[1, col] = new GridCell(attributeText, attributeStyle, CellName(1, col));
+                grid[2, col] = new GridCell(headerText, headerStyle, CellName(2, col));
+            }
+
+            // классы и наличие у них атрибутов
+            for (int row = 3; row < rowCount; row++)
+            {
+                for(int col = 0; col < colCount; col++)
+                {
+                    string text = "";
+                    uint styleIndex = 0;
+
+                    IClass cmClass = merged.ElementAt(row - 3);
+                    int classDepth = ClassDepth(cmClass);
+
+                    if (col == classDepth) // имя класса
+                    {
+                        text = $"{cmClass.Name}";
+                        styleIndex = 1;
+                    }
+
+                    if (col == maxDepth + 1) // дисциплина
+                    {
+                        // text = $"{cmClass}";
+                        styleIndex = 2;
+                    }
+
+                    if (col == maxDepth + 2) // идентификатор класса
+                    {
+                        text = $"{cmClass.Id}";
+                        styleIndex = 2;
+                    }
+
+                    if (col > maxDepth + 2)
+                    {
+                        string presence = Presence(cmClass, attributesList.ElementAt(col - maxDepth - 2));
+                        switch (presence)
+                        {
+                            case "X":
+                                styleIndex = 5;
+                                break;
+                            case "O":
+                                styleIndex = 6;
+                                break;
+                            case "P":
+                                styleIndex = 7;
+                                break;
+                            case "R":
+                                styleIndex = 8;
+                                break;
+                            default:
+                                break;
+                        }
+                        text = presence;
+                    }
+
+                    grid[row, col] = new GridCell(text, styleIndex, CellName(row, col));
+                }
+            }
+
+            return grid;
         }
     }
 }

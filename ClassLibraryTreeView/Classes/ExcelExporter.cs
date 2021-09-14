@@ -4,11 +4,14 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace ClassLibraryTreeView
 {
@@ -16,227 +19,79 @@ namespace ClassLibraryTreeView
     {
         // public event EventHandler<ExportProgressEventArgs> GetProgress;
         // public event EventHandler ExportDone;
-        private ConceptualModel model;
-        private string fileName;
-        public ExcelExporter(string nameOfFile, ConceptualModel modelRef)
+        static object syncRoot = new object();
+        public ExcelExporter()
         {
-            fileName = nameOfFile;
-            model = modelRef;
         }
-        public void ExportPermissibleGrid()
+        public void ExportPermissibleGrid(string filename, ConceptualModel model)
         {
-            // Create a spreadsheet document by using the file name
-            using (SpreadsheetDocument document = SpreadsheetDocument.Create(fileName, SpreadsheetDocumentType.Workbook))
+            try
             {
-                // Add a WorkbookPart and Workbook objects
-                WorkbookPart workbookpart = document.AddWorkbookPart();
-                workbookpart.Workbook = new Workbook();
-
-                // Add a WorksheetPart
-                WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
-
-                // Create Worksheet and SheetData objects
-                worksheetPart.Worksheet = new Worksheet(new SheetData());
-
-                // Add a Sheets object
-                Sheets sheets = document.WorkbookPart.Workbook.AppendChild<Sheets>(new Sheets());
-
-                // Append the new worksheet named "Permissible Grid" and associate it with the workbook
-                Sheet sheet = new Sheet()
+                // Create a spreadsheet document by using the file name
+                using (SpreadsheetDocument document = SpreadsheetDocument.Create(filename, SpreadsheetDocumentType.Workbook))
                 {
-                    Id = document.WorkbookPart.GetIdOfPart(worksheetPart),
-                    SheetId = 1,
-                    Name = "Permissible Grid"
-                };
-                sheets.Append(sheet);
+                    // Add a WorkbookPart and Workbook objects
+                    WorkbookPart workbookpart = document.AddWorkbookPart();
+                    workbookpart.Workbook = new Workbook();
 
-                // Append stylesheets
-                WorkbookStylesPart wbsp = workbookpart.AddNewPart<WorkbookStylesPart>();
-                wbsp.Stylesheet = GenerateStyleSheet();
-                wbsp.Stylesheet.Save();
+                    // Add a WorksheetPart
+                    WorksheetPart worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
 
-                // Get the sheetData cell table
-                SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+                    // Create Worksheet and SheetData objects
+                    worksheetPart.Worksheet = new Worksheet(new SheetData());
 
-                // Массив объединённых ячеек
-                MergeCells mergeCells = new MergeCells();
+                    // Add a Sheets object
+                    Sheets sheets = document.WorkbookPart.Workbook.AppendChild<Sheets>(new Sheets());
 
-                // Заполняем permissible grid
-
-                List<IClass> merged = model.merged;
-
-                if (merged.Count > 0)
-                {
-                    int maxDepth = model.MaxDepth + 2;
-
-                    // Заполняем шапку таблицы
-
-                    Cell cell = null;
-                    string mergeRange = "";
-
-                    uint rowIndex = 1;
-
-                    Row[] header = new Row[3];
-                    for(rowIndex = 1; rowIndex <= 3; rowIndex++)
+                    // Append the new worksheet named "Permissible Grid" and associate it with the workbook
+                    Sheet sheet = new Sheet()
                     {
-                        header[rowIndex - 1] = new Row() { RowIndex = rowIndex };
-                        sheetData.Append(header[rowIndex - 1]);
-                    }
+                        Id = document.WorkbookPart.GetIdOfPart(worksheetPart),
+                        SheetId = 1,
+                        Name = "Permissible Grid"
+                    };
+                    sheets.Append(sheet);
 
-                    for (int col = 0; col <= maxDepth; col++)
+                    // Append stylesheets
+                    WorkbookStylesPart wbsp = workbookpart.AddNewPart<WorkbookStylesPart>();
+                    wbsp.Stylesheet = GenerateStyleSheet();
+                    wbsp.Stylesheet.Save();
+
+                    // Get the sheetData cell table
+                    SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+
+                    // Массив объединённых ячеек
+                    MergeCells mergeCells = new MergeCells();
+
+                    // Заполняем permissible grid
+                    GridCell[,] grid = model.GetPermissibleGrid(mergeCells);
+
+                    for (int row = 0; row < grid.GetLength(0); row++)
                     {
-                        cell = AddCell(header[0], col, "", 0);
-                        if (col == 0)
+                        Row sheetDataRow = new Row() { RowIndex = (uint)(row + 1), Height = 21.25, CustomHeight = true };
+                        if (row == 1)
                         {
-                            mergeRange = cell.CellReference.Value;
+                            sheetDataRow = new Row() { RowIndex = (uint)(row + 1)};
                         }
+                        sheetData.Append(sheetDataRow);
 
-                        cell = AddCell(header[1], col, "", 0);
-                        if (col == maxDepth)
+                        for (int col = 0; col < grid.GetLength(1); col++)
                         {
-                            mergeRange += $":{cell.CellReference.Value}";
-                        }
-
-                        string text = "";
-                        uint styleIndex = 0;
-                        if (col == 0)
-                        {
-                            text = $"Classes ({merged.Count})";
-                            styleIndex = 9;
-                        }
-                        if (col == maxDepth - 1)
-                        {
-                            text = $"Discipline";
-                            styleIndex = 0;
-                        }
-                        if (col == maxDepth)
-                        {
-                            text = $"Class ID";
-                            styleIndex = 2;
-                        }
-                        cell = AddCell(header[2], col, text, styleIndex);
-                        if (col == maxDepth)
-                        {
-                            mergeCells.Append(new MergeCell() { Reference = new StringValue($"A3:{GetExcelColumnName(maxDepth - 1)}3") });
+                            GridCell gridCell = grid[row, col];
+                            AddCell(sheetDataRow, col, gridCell.Text, gridCell.StyleIndex);
                         }
                     }
 
-                    mergeCells.Append(new MergeCell() { Reference = new StringValue(mergeRange) });
+                    // worksheetPart.Worksheet.InsertAfter(mergeCells, worksheetPart.Worksheet.Elements<SheetData>().First()); // Добавляем к документу список объединённых ячеек
+                    // worksheetPart.Worksheet.Save();
 
-                    maxDepth++;
-                    int attributeIndex = 0;
-                    IAttribute[] attributes = new IAttribute[model.AttributesCount];
-                    foreach (KeyValuePair<string, Dictionary<string, IAttribute>> group in model.attributes)
-                    {
-                        cell = AddCell(header[0], maxDepth + attributeIndex, group.Key, 0);
-                        mergeRange = cell.CellReference.Value;
-                        int localAttributeIndex = 0;
-                        foreach (IAttribute attribute in group.Value.Values)
-                        {
-                            if (localAttributeIndex > 0)
-                            {
-                                cell = AddCell(header[0], maxDepth + attributeIndex, "", 0);
-                                if (localAttributeIndex == group.Value.Count - 1)
-                                {
-                                    mergeRange += $":{cell.CellReference.Value}";
-                                }
-                            }
-                            attributes[attributeIndex] = attribute;
-                            cell = AddCell(header[1], maxDepth + attributeIndex, $"{attribute.Name} : {attribute.Id}", 3);
-                            cell = AddCell(header[2], maxDepth + attributeIndex, "", 0);
-                            localAttributeIndex++;
-                            attributeIndex++;
-                        }
-                        mergeCells.Append(new MergeCell() { Reference = new StringValue(mergeRange) });
-                    }
-
-                    // Заполняем таблицу классами и присутсвием в них атрибутов
-                    rowIndex = 4;
-                    foreach (IClass cmClass in merged)
-                    {
-                        if (cmClass == null)
-                        {
-                            continue;
-                        }
-
-                        Row row = new Row() { RowIndex = rowIndex };
-                        sheetData.Append(row);
-
-                        int classDepth = model.ClassDepth(cmClass);
-
-                        for (int col = 0; col <= maxDepth - 1; col++)
-                        {
-                            string text = "";
-                            uint styleIndex = 0;
-                            if (col == classDepth)
-                            {
-                                text = $"{cmClass.Name}";
-                                styleIndex = 1;
-                            }
-                            if (col == maxDepth - 2)
-                            {
-                                // text = $"{cmClass.Id}";
-                                styleIndex = 2;
-                            }
-                            if (col == maxDepth - 1)
-                            {
-                                text = $"{cmClass.Id}";
-                                styleIndex = 2;
-                            }
-                            cell = AddCell(row, col, text, styleIndex);
-                        }
-
-                        string start = $"{GetExcelColumnName(classDepth + 1)}{rowIndex}";
-                        string finish = $"{GetExcelColumnName(maxDepth - 2)}{rowIndex}";
-                        string str = $"{start}:{finish}";
-                        mergeCells.Append(
-                                    new MergeCell()
-                                    {
-                                        Reference = new StringValue(str)
-                                    });
-
-                        for (attributeIndex = 0; attributeIndex < model.AttributesCount; attributeIndex++)
-                        {
-                            IAttribute attribute = attributes[attributeIndex];
-                            string presence = model.Presence(cmClass, attribute);
-                            uint styleIndex = 0;
-                            
-                            switch(presence)
-                            {
-                                case "X":
-                                    styleIndex = 5;
-                                    break;
-                                case "O":
-                                    styleIndex = 6;
-                                    break;
-                                case "P":
-                                    styleIndex = 7;
-                                    break;
-                                case "R":
-                                    styleIndex = 8;
-                                    break;
-                                default:
-                                    break;
-                            }
-                            
-                            cell = AddCell(row, maxDepth + attributeIndex, presence, styleIndex);
-                        }
-
-                        rowIndex++;
-                    }
-
+                    workbookpart.Workbook.Save();
+                    document.Close();
                 }
-
-                // Добавляем к документу список объединённых ячеек
-
-                // IEnumerable<Sheet> sheetsGrid = document.WorkbookPart.Workbook.Descendants<Sheet>().Where(s => s.Name == "Permissible Grid");
-                // WorksheetPart worksheetpart = (WorksheetPart)document.WorkbookPart.GetPartById(sheetsGrid.First().Id);
-                // worksheetpart.Worksheet.InsertAfter(mergeCells, worksheetpart.Worksheet.Elements<SheetData>().First());
-                
-                worksheetPart.Worksheet.InsertAfter(mergeCells, worksheetPart.Worksheet.Elements<SheetData>().First());
-                worksheetPart.Worksheet.Save();
-                workbookpart.Workbook.Save();
-                document.Close();
+            }
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
             }
         }
         private static string GetExcelColumnName(int number)
