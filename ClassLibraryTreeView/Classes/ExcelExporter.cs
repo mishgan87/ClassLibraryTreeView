@@ -23,7 +23,7 @@ namespace ClassLibraryTreeView
         public ExcelExporter()
         {
         }
-        public void ExportPermissibleGrid(string filename, ConceptualModel model)
+        public async void ExportPermissibleGrid(string filename, ConceptualModel model)
         {
             try
             {
@@ -64,26 +64,42 @@ namespace ClassLibraryTreeView
                     MergeCells mergeCells = new MergeCells();
 
                     // Заполняем permissible grid
-                    GridCell[,] grid = model.GetPermissibleGrid(mergeCells);
 
-                    for (int row = 0; row < grid.GetLength(0); row++)
+                    List<List<GridCell>> grid = model.GetPermissibleGrid(mergeCells);
+
+                    Cell cell = null;
+                    Cell cellStart = null;
+
+                    uint row = 1;
+                    foreach (List<GridCell> gridRow in grid)
                     {
-                        Row sheetDataRow = new Row() { RowIndex = (uint)(row + 1), Height = 21.25, CustomHeight = true };
-                        if (row == 1)
+                        Row sheetDataRow = new Row() { RowIndex = row, Height = 21.25, CustomHeight = true };
+                        if (row == 2)
                         {
-                            sheetDataRow = new Row() { RowIndex = (uint)(row + 1)};
+                            sheetDataRow = new Row() { RowIndex = row };
                         }
                         sheetData.Append(sheetDataRow);
+                        row++;
 
-                        for (int col = 0; col < grid.GetLength(1); col++)
+                        int col = 0;
+                        foreach (GridCell gridCell in gridRow)
                         {
-                            GridCell gridCell = grid[row, col];
-                            AddCell(sheetDataRow, col, gridCell.Text, gridCell.StyleIndex);
+                            cell = AddCell(sheetDataRow, col, gridCell.Text, gridCell.StyleIndex);
+                            col++;
+                            if(gridCell.Merge == GridCellMergeProperty.MergingStart)
+                            {
+                                cellStart = cell;
+                            }
+                            if (gridCell.Merge == GridCellMergeProperty.MergingFinish)
+                            {
+                                mergeCells.Append(new MergeCell() { Reference = new StringValue($"{cellStart.CellReference.Value}:{cell.CellReference.Value}") });
+                                cellStart = null;
+                            }
                         }
                     }
 
-                    // worksheetPart.Worksheet.InsertAfter(mergeCells, worksheetPart.Worksheet.Elements<SheetData>().First()); // Добавляем к документу список объединённых ячеек
-                    // worksheetPart.Worksheet.Save();
+                    worksheetPart.Worksheet.InsertAfter(mergeCells, worksheetPart.Worksheet.Elements<SheetData>().First()); // Добавляем к документу список объединённых ячеек
+                    worksheetPart.Worksheet.Save();
 
                     workbookpart.Workbook.Save();
                     document.Close();
@@ -268,7 +284,10 @@ namespace ClassLibraryTreeView
                 new CellFormats(
 
                     // 0 - The default cell style
-                    new CellFormat() { FontId = 0, FillId = 0, BorderId = 0 },
+                    new CellFormat(
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Center }
+                        )
+                    { FontId = 0, FillId = 0, BorderId = 0 },
 
                     // 1 - class name
                     new CellFormat(
@@ -320,7 +339,7 @@ namespace ClassLibraryTreeView
 
                     // 9 - Other
                     new CellFormat(
-                        new Alignment() { Horizontal = HorizontalAlignmentValues.Center, Vertical = VerticalAlignmentValues.Bottom }
+                        new Alignment() { Horizontal = HorizontalAlignmentValues.Left, Vertical = VerticalAlignmentValues.Center }
                     )
                     { FontId = 3, FillId = 2, BorderId = 1, ApplyAlignment = true, ApplyFill = true, ApplyFont = true }
 

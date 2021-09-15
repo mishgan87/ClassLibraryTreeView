@@ -578,7 +578,7 @@ namespace ClassLibraryTreeView
         {
             OpenFile();
         }
-        private async void ExportPermissibleGrid(object sender, EventArgs e)
+        private void ExportPermissibleGrid(object sender, EventArgs e)
         {
             this.menuBar.Enabled = false;
 
@@ -588,7 +588,7 @@ namespace ClassLibraryTreeView
 
             ExcelExporter exporter = new ExcelExporter();
 
-            await Task.Run(() => exporter.ExportPermissibleGrid(newFileName, model));
+            exporter.ExportPermissibleGrid(newFileName, model);
 
             this.menuBar.Enabled = true;
 

@@ -7,9 +7,16 @@ using ClassLibraryTreeView.Classes;
 using System;
 using System.Collections.Concurrent;
 using DocumentFormat.OpenXml.Spreadsheet;
+using System.Threading.Tasks;
 
 namespace ClassLibraryTreeView
 {
+    public enum GridCellMergeProperty
+    {
+        NoMerging = 0,
+        MergingStart = 1,
+        MergingFinish = 2
+    }
     public class GridCell
     {
         public GridCell()
@@ -17,16 +24,19 @@ namespace ClassLibraryTreeView
             Text = "";
             StyleIndex = 0;
             Reference = "";
+            Merge = 0;
         }
-        public GridCell(string text, uint style, string reference)
+        public GridCell(string text, uint style, string reference, GridCellMergeProperty merge)
         {
             Text = text;
             StyleIndex = style;
             Reference = reference;
+            Merge = merge;
         }
         public string Text { get; set; }
         public uint StyleIndex { get; set; }
         public string Reference { get; set; }
+        public GridCellMergeProperty Merge { get; set; }
     }
     public class ConceptualModel
     {
@@ -541,125 +551,158 @@ namespace ClassLibraryTreeView
             }
             return $"{name}{row + 1}";
         }
-        public GridCell[,] GetPermissibleGrid(MergeCells mergeCells)
+        public List<GridCell> ClassAttributesPermissions(IClass cmClass)
+        {
+            int colCount = maxDepth + AttributesCount + 2;
+            List<GridCell> gridCells = new List<GridCell>();
+            for (int col = 0; col < colCount; col++)
+            {
+                string text = "";
+                uint styleIndex = 0;
+                GridCellMergeProperty merge = GridCellMergeProperty.NoMerging;
+
+                int classDepth = ClassDepth(cmClass);
+
+                if (col == classDepth) // class name
+                {
+                    text = $"{cmClass.Name}";
+                    styleIndex = 1;
+                    merge = GridCellMergeProperty.MergingStart;
+                }
+                if (col == maxDepth - 1) // class
+                {
+                    if (classDepth != maxDepth - 1)
+                    {
+                        merge = GridCellMergeProperty.MergingFinish;
+                    }
+                }
+
+                if (col == maxDepth) // class discipline
+                {
+                    // text = $"{cmClass}";
+                    styleIndex = 2;
+                }
+
+                if (col == maxDepth + 1) // class id
+                {
+                    text = $"{cmClass.Id}";
+                    styleIndex = 2;
+                }
+
+                if (col > maxDepth + 2)
+                {
+                    string presence = Presence(cmClass, attributesList.ElementAt(col - maxDepth - 2));
+                    switch (presence)
+                    {
+                        case "X":
+                            styleIndex = 5;
+                            break;
+                        case "O":
+                            styleIndex = 6;
+                            break;
+                        case "P":
+                            styleIndex = 7;
+                            break;
+                        case "R":
+                            styleIndex = 8;
+                            break;
+                        default:
+                            break;
+                    }
+                    text = presence;
+                }
+
+                gridCells.Add(new GridCell(text, styleIndex, "", merge));
+            }
+
+            return gridCells;
+        }
+        public List<List<GridCell>> GetPermissibleGrid(MergeCells mergeCells)
         {
             int rowCount = merged.Count + 3;
             int colCount = maxDepth + AttributesCount + 2;
 
-            GridCell[,] grid = new GridCell[rowCount, colCount];
+            List<List<GridCell>> grid = new List<List<GridCell>>();
 
-            // "пустые" ячейки в шапке таблицы
+            IEnumerable<List<GridCell>> query = null;
+            try
+            {
+                query = merged
+                .AsParallel()
+                .AsSequential()
+                .Select(ClassAttributesPermissions);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
             for (int row = 0; row < 3; row++)
             {
-                for (int col = 0; col < maxDepth + 2; col++)
+                List<GridCell> list = new List<GridCell>();
+                for (int col = 0; col < colCount; col++)
                 {
-                    grid[row, col] = new GridCell("", 0, CellName(row, col));
-                }
-            }
-
-            
-            for (int col = maxDepth + 2; col < colCount; col++)
-            {
-                grid[0, col] = new GridCell(attributesList.ElementAt(col - maxDepth - 2).Group, 0, CellName(0, col));
-
-                string text = ""; // $"{attributesList.ElementAt(col - maxDepth).Name} : {attributesList.ElementAt(col - maxDepth).Id}";
-                grid[1, col] = new GridCell(text, 3, CellName(1, col));
-            }
-
-            // ячейки с названиями и идентификаторами атрибутов в шапке таблицы
-            for (int col = 0; col < colCount; col++)
-            {
-                uint groupStyle = 0;
-                uint attributeStyle = 0;
-                uint headerStyle = 0;
-                string groupText = "";
-                string attributeText = "";
-                string headerText = "";
-
-                if (col == 0)
-                {
-                    headerText = $"Classes ({merged.Count})";
-                    headerStyle = 9;
-                }
-
-                if (col == maxDepth)
-                {
-                    headerText = $"Discipline";
-                    headerStyle = 0;
-                }
-
-                if (col == maxDepth + 1)
-                {
-                    headerText = $"Class ID";
-                    headerStyle = 2;
-                }
-                if (col > maxDepth + 1)
-                {
-                    groupText = attributesList.ElementAt(col - maxDepth - 2).Group;
-                    attributeText = attributesList.ElementAt(col - maxDepth - 2).Id;
-                    attributeStyle = 3;
-                }
-
-                grid[0, col] = new GridCell(groupText, groupStyle, CellName(0, col));
-                grid[1, col] = new GridCell(attributeText, attributeStyle, CellName(1, col));
-                grid[2, col] = new GridCell(headerText, headerStyle, CellName(2, col));
-            }
-
-            // классы и наличие у них атрибутов
-            for (int row = 3; row < rowCount; row++)
-            {
-                for(int col = 0; col < colCount; col++)
-                {
+                    uint style = 0;
                     string text = "";
-                    uint styleIndex = 0;
+                    GridCellMergeProperty merge = GridCellMergeProperty.NoMerging;
 
-                    IClass cmClass = merged.ElementAt(row - 3);
-                    int classDepth = ClassDepth(cmClass);
-
-                    if (col == classDepth) // имя класса
+                    if (row == 0 && col == 0)
                     {
-                        text = $"{cmClass.Name}";
-                        styleIndex = 1;
+                        merge = GridCellMergeProperty.MergingStart;
                     }
 
-                    if (col == maxDepth + 1) // дисциплина
+                    if (row == 1 && col == maxDepth + 1)
                     {
-                        // text = $"{cmClass}";
-                        styleIndex = 2;
+                        merge = GridCellMergeProperty.MergingFinish;
                     }
 
-                    if (col == maxDepth + 2) // идентификатор класса
+                    if (row == 2)
                     {
-                        text = $"{cmClass.Id}";
-                        styleIndex = 2;
-                    }
-
-                    if (col > maxDepth + 2)
-                    {
-                        string presence = Presence(cmClass, attributesList.ElementAt(col - maxDepth - 2));
-                        switch (presence)
+                        if (col == 0)
                         {
-                            case "X":
-                                styleIndex = 5;
-                                break;
-                            case "O":
-                                styleIndex = 6;
-                                break;
-                            case "P":
-                                styleIndex = 7;
-                                break;
-                            case "R":
-                                styleIndex = 8;
-                                break;
-                            default:
-                                break;
+                            style = 9;
+                            text = $"Classes ({merged.Count})";
+                            merge = GridCellMergeProperty.MergingStart;
                         }
-                        text = presence;
+
+                        if (col == maxDepth - 1)
+                        {
+                            merge = GridCellMergeProperty.MergingFinish;
+                        }
+
+                        if (col == maxDepth)
+                        {
+                            style = 0;
+                            text = $"Discipline";
+                        }
+
+                        if (col == maxDepth + 1)
+                        {
+                            style = 2;
+                            text = $"Class ID";
+                        }
                     }
 
-                    grid[row, col] = new GridCell(text, styleIndex, CellName(row, col));
+                    if (col >= maxDepth + 2)
+                    {
+                        if (row == 0)
+                        {
+                            style = 0;
+                            text = attributesList.ElementAt(col - maxDepth - 2).Group;
+                        }
+                        if (row == 1)
+                        {
+                            style = 3;
+                            text = $"{attributesList.ElementAt(col - maxDepth - 2).Id} : {attributesList.ElementAt(col - maxDepth - 2).Name}";
+                        }
+                    }
+
+                    list.Add(new GridCell(text, style, CellName(row, col), merge));
                 }
+                grid.Add(list);
             }
+
+            grid.AddRange(query);
 
             return grid;
         }
