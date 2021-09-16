@@ -1,6 +1,7 @@
 ﻿using ClassLibraryTreeView;
 using ClassLibraryTreeView.Classes;
 using ClassLibraryTreeView.Interfaces;
+using ClosedXML.Excel;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
@@ -9,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -588,11 +590,29 @@ namespace ClassLibraryTreeView
 
             ExcelExporter exporter = new ExcelExporter();
 
-            exporter.ExportPermissibleGrid(newFileName, model);
+            // exporter.ExportPermissibleGrid(newFileName, model);
 
+            Stopwatch stopWatch = new Stopwatch();
+            stopWatch.Start();
+
+            model.GetPermissibleGrid(newFileName);
+
+            stopWatch.Stop();
+            TimeSpan timeSpan = stopWatch.Elapsed;
+
+            // Format and display the TimeSpan value.
+            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
+                timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
+                timeSpan.Milliseconds / 10);
+
+            /*
+            dataGridView.AutoGenerateColumns = false;
+            dataGridView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
+            dataGridView.DataSource = dataTable;
+            */
             this.menuBar.Enabled = true;
 
-            MessageBox.Show($"Export done");
+            MessageBox.Show($"Export done for {elapsedTime}");
         }
     }
 }

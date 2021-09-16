@@ -65,11 +65,54 @@ namespace ClassLibraryTreeView
 
                     // Заполняем permissible grid
 
-                    List<List<GridCell>> grid = model.GetPermissibleGrid(mergeCells);
+                    //List<List<GridCell>> grid = model.GetPermissibleGrid(mergeCells);
+                    List<List<GridCell>> grid = new List<List<GridCell>>();
+                    /*
+                    // Задаем колонки и их ширину
+                    Columns columns = worksheetPart.Worksheet.GetFirstChild<Columns>();
+                    if (columns == null)
+                    {
+                        columns = new Columns();
+                    }
 
+                    for (int col = 0; col < grid[0].Count; col++)
+                    {
+                        DoubleValue width = 4.29;
+                        
+                        if (col > 0 && col <= model.maxDepth)
+                        {
+                            
+                        }
+
+                        if (col == model.maxDepth + 1)
+                        {
+                            
+                        }
+                        if (col == model.maxDepth + 2)
+                        {
+                            width = 50;
+                        }
+
+                        if (col > model.maxDepth + 2)
+                        {
+                            
+                        }
+                        
+                        // columns.Append(new Column() { Width = 4.29, CustomWidth = true });
+                        columns.Append(new Column());
+                    }
+                    worksheetPart.Worksheet.InsertAt(columns, 0);
+                    */
                     Cell cell = null;
                     Cell cellStart = null;
 
+                    
+
+                    StringValue stringValue = $"A1:{GetExcelColumnName(model.maxDepth + 3)}2";
+
+                    mergeCells.Append(new MergeCell() { Reference = stringValue});
+
+                    List<Row> sheetDateRows = new List<Row>();
                     uint row = 1;
                     foreach (List<GridCell> gridRow in grid)
                     {
@@ -78,25 +121,32 @@ namespace ClassLibraryTreeView
                         {
                             sheetDataRow = new Row() { RowIndex = row };
                         }
-                        sheetData.Append(sheetDataRow);
+                        // sheetData.Append(sheetDataRow);
                         row++;
 
                         int col = 0;
                         foreach (GridCell gridCell in gridRow)
                         {
-                            cell = AddCell(sheetDataRow, col, gridCell.Text, gridCell.StyleIndex);
+                            // cell = AddCell(sheetDataRow, col, gridCell.Text, gridCell.StyleIndex);
                             col++;
-                            if(gridCell.Merge == GridCellMergeProperty.MergingStart)
+                            // if(gridCell.Merge == GridCellMergeProperty.MergingStart)
                             {
                                 cellStart = cell;
                             }
-                            if (gridCell.Merge == GridCellMergeProperty.MergingFinish)
+                            // if (gridCell.Merge == GridCellMergeProperty.MergingFinish)
                             {
-                                mergeCells.Append(new MergeCell() { Reference = new StringValue($"{cellStart.CellReference.Value}:{cell.CellReference.Value}") });
-                                cellStart = null;
+                                if (cellStart != null)
+                                {
+                                    mergeCells.Append(new MergeCell() { Reference = new StringValue($"{cellStart.CellReference.Value}:{cell.CellReference.Value}") });
+                                    cellStart = null;
+                                }
                             }
                         }
+
+                        sheetDateRows.Add(sheetDataRow);
                     }
+
+                    sheetData.Append(sheetDateRows.ToArray());
 
                     worksheetPart.Worksheet.InsertAfter(mergeCells, worksheetPart.Worksheet.Elements<SheetData>().First()); // Добавляем к документу список объединённых ячеек
                     worksheetPart.Worksheet.Save();

@@ -72,7 +72,7 @@ namespace ClassLibraryTreeView
             this.tabControlProperties.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.tabControlProperties.Name = "tabControlProperties";
             this.tabControlProperties.SelectedIndex = 0;
-            this.tabControlProperties.Size = new System.Drawing.Size(859, 643);
+            this.tabControlProperties.Size = new System.Drawing.Size(859, 447);
             this.tabControlProperties.TabIndex = 0;
             // 
             // menuBar
@@ -230,7 +230,7 @@ namespace ClassLibraryTreeView
             // layoutMain.Panel2
             // 
             this.layoutMain.Panel2.Controls.Add(this.layoutSplitter);
-            this.layoutMain.Size = new System.Drawing.Size(1154, 796);
+            this.layoutMain.Size = new System.Drawing.Size(1154, 600);
             this.layoutMain.SplitterDistance = 64;
             this.layoutMain.SplitterWidth = 5;
             this.layoutMain.TabIndex = 9;
@@ -249,7 +249,7 @@ namespace ClassLibraryTreeView
             // layoutSplitter.Panel2
             // 
             this.layoutSplitter.Panel2.Controls.Add(this.layoutProperties);
-            this.layoutSplitter.Size = new System.Drawing.Size(1154, 727);
+            this.layoutSplitter.Size = new System.Drawing.Size(1154, 531);
             this.layoutSplitter.SplitterDistance = 290;
             this.layoutSplitter.SplitterWidth = 5;
             this.layoutSplitter.TabIndex = 12;
@@ -262,7 +262,7 @@ namespace ClassLibraryTreeView
             this.tabControlTrees.Margin = new System.Windows.Forms.Padding(4);
             this.tabControlTrees.Name = "tabControlTrees";
             this.tabControlTrees.SelectedIndex = 0;
-            this.tabControlTrees.Size = new System.Drawing.Size(290, 727);
+            this.tabControlTrees.Size = new System.Drawing.Size(290, 531);
             this.tabControlTrees.TabIndex = 11;
             // 
             // layoutProperties
@@ -282,7 +282,7 @@ namespace ClassLibraryTreeView
             // layoutProperties.Panel2
             // 
             this.layoutProperties.Panel2.Controls.Add(this.tabControlProperties);
-            this.layoutProperties.Size = new System.Drawing.Size(859, 727);
+            this.layoutProperties.Size = new System.Drawing.Size(859, 531);
             this.layoutProperties.SplitterDistance = 79;
             this.layoutProperties.SplitterWidth = 5;
             this.layoutProperties.TabIndex = 11;
@@ -291,7 +291,7 @@ namespace ClassLibraryTreeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1154, 796);
+            this.ClientSize = new System.Drawing.Size(1154, 600);
             this.Controls.Add(this.layoutMain);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);

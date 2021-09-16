@@ -8,35 +8,39 @@ using System;
 using System.Collections.Concurrent;
 using DocumentFormat.OpenXml.Spreadsheet;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml;
+using System.Data;
+using ClosedXML.Excel;
+using System.Threading;
 
 namespace ClassLibraryTreeView
 {
+    public enum CellStyle
+    {
+        Default = 0,
+        Empty = 1,
+        
+        Class = 2,
+        ClassId = 3,
+        
+        Attribute = 4,
+        AttributesGroup = 5,
+
+        Discipline = 6,
+
+        Header = 7,
+
+        PresenceUnselect = 8,
+        PresenceNonApplicable = 9,
+        PresenceOptional = 10,
+        PresencePreffered = 11,
+        PresenceRequired = 12
+    }
     public enum GridCellMergeProperty
     {
         NoMerging = 0,
         MergingStart = 1,
         MergingFinish = 2
-    }
-    public class GridCell
-    {
-        public GridCell()
-        {
-            Text = "";
-            StyleIndex = 0;
-            Reference = "";
-            Merge = 0;
-        }
-        public GridCell(string text, uint style, string reference, GridCellMergeProperty merge)
-        {
-            Text = text;
-            StyleIndex = style;
-            Reference = reference;
-            Merge = merge;
-        }
-        public string Text { get; set; }
-        public uint StyleIndex { get; set; }
-        public string Reference { get; set; }
-        public GridCellMergeProperty Merge { get; set; }
     }
     public class ConceptualModel
     {
@@ -54,7 +58,7 @@ namespace ClassLibraryTreeView
         public List<IClass> merged = new List<IClass>();
 
         private List<IAttribute> attributesList = new List<IAttribute>();
-        private List<string> attributesGroupList = new List<string>();
+        private List<string> attributesGroupList = new List<string>(); // format - "name::indexRange"
 
         public int AttributesCount = 0;
 
@@ -62,12 +66,15 @@ namespace ClassLibraryTreeView
 
         private void CalculateMaxDepth()
         {
+
             maxDepth = MapMaxDepth(functionals);
             int maxDepthAuxiliary = MapMaxDepth(physicals);
             if (maxDepth < maxDepthAuxiliary)
             {
                 maxDepth = maxDepthAuxiliary;
             }
+
+            // maxDepth = ListMaxDepth(merged);
         }
 
         public ConceptualModel()
@@ -127,7 +134,7 @@ namespace ClassLibraryTreeView
             {
                 map = physicals;
             }
-            if(map == null)
+            if (map == null)
             {
                 return null;
             }
@@ -137,7 +144,7 @@ namespace ClassLibraryTreeView
             string parent = cmClass.Extends;
             while (!parent.Equals(""))
             {
-                foreach(IAttribute parentAttribute in map[parent].PermissibleAttributes)
+                foreach (IAttribute parentAttribute in map[parent].PermissibleAttributes)
                 {
                     IAttribute attribute = new IAttribute(parentAttribute);
                     attribute.Presence = "";
@@ -170,7 +177,7 @@ namespace ClassLibraryTreeView
         }
         public void AddClass(IClass cmClass, int classConcept)
         {
-            switch(classConcept)
+            switch (classConcept)
             {
                 case 0:
                     functionals.Add(cmClass.Id, cmClass);
@@ -208,6 +215,23 @@ namespace ClassLibraryTreeView
                 parent = map[parent].Extends;
             }
             return depth;
+        }
+        public int ListMaxDepth(List<IClass> list)
+        {
+            if (list.Count == 0)
+            {
+                return 0;
+            }
+            int maxDepth = 0;
+            foreach (IClass cmClass in list)
+            {
+                int depth = ClassDepth(cmClass);
+                if (depth > maxDepth)
+                {
+                    maxDepth = depth;
+                }
+            }
+            return maxDepth;
         }
         public int MapMaxDepth(Dictionary<string, IClass> map)
         {
@@ -332,7 +356,7 @@ namespace ClassLibraryTreeView
                             attributes.Add(group, new Dictionary<string, IAttribute>());
                             attributesGroupList.Add(group);
                         }
-                        
+
                         attributes[group].Add(newAttribute.Id, newAttribute);
                         AttributesCount++;
                     }
@@ -358,7 +382,7 @@ namespace ClassLibraryTreeView
         }
         private void SetInheritance(Dictionary<string, IClass> map)
         {
-            if(map.Count > 0)
+            if (map.Count > 0)
             {
                 foreach (IClass cmClass in map.Values)
                 {
@@ -388,7 +412,7 @@ namespace ClassLibraryTreeView
         public static string[] SplitValidationRules(string validationRule)
         {
             List<string> rules = new List<string>();
-            
+
             string rule = validationRule;
             rule = rule.Remove(rule.IndexOf("::"), rule.Length - rule.IndexOf("::"));
             rules.Add(rule);
@@ -494,7 +518,7 @@ namespace ClassLibraryTreeView
         }
         public void AddClassChildren(IClass cmClass, List<IClass> classes)
         {
-            foreach(IClass child in cmClass.Children)
+            foreach (IClass child in cmClass.Children)
             {
                 if (child != null)
                 {
@@ -519,7 +543,7 @@ namespace ClassLibraryTreeView
 
             GridCell[] row = new GridCell[maxDepth + attributes.Length + 1];
             int classDepth = ClassDepth(cmClass);
-
+            /*
             for (int depth = 0; depth < maxDepth; depth++)
             {
                 row[depth].Text = "";
@@ -534,7 +558,7 @@ namespace ClassLibraryTreeView
                 row[index + maxDepth].Text = Presence(cmClass, attributes[index - 1]);
                 row[index + maxDepth].StyleIndex = 7;
             }
-
+            */
             grid.Add(row);
 
             AddChildrenPresence(cmClass, grid);
@@ -551,42 +575,61 @@ namespace ClassLibraryTreeView
             }
             return $"{name}{row + 1}";
         }
-        public List<GridCell> ClassAttributesPermissions(IClass cmClass)
+        static Cell AddCell(Row row, int columnIndex, string text, uint styleIndex)
+        {
+            Cell refCell = null;
+            Cell newCell = new Cell()
+            {
+                // CellReference = $"{CellName((int)row.RowIndex, columnIndex)}",
+                StyleIndex = styleIndex
+            };
+            row.InsertBefore(newCell, refCell);
+
+            newCell.CellValue = new CellValue(text);
+            newCell.DataType = new EnumValue<CellValues>(CellValues.String);
+
+            return newCell;
+        }
+        private void WriteClass(IClass cmClass, IXLWorksheet worksheet, int row)
         {
             int colCount = maxDepth + AttributesCount + 2;
-            List<GridCell> gridCells = new List<GridCell>();
             for (int col = 0; col < colCount; col++)
             {
                 string text = "";
-                uint styleIndex = 0;
-                GridCellMergeProperty merge = GridCellMergeProperty.NoMerging;
+                CellStyle style = CellStyle.Default;
+                string merge = "";
 
                 int classDepth = ClassDepth(cmClass);
 
                 if (col == classDepth) // class name
                 {
                     text = $"{cmClass.Name}";
-                    styleIndex = 1;
-                    merge = GridCellMergeProperty.MergingStart;
+                    style = CellStyle.Class;
+                    merge = "[MS]";
                 }
-                if (col == maxDepth - 1) // class
+                if (col == maxDepth) // class children depth
                 {
-                    if (classDepth != maxDepth - 1)
+                    if (merge == "[MS]")
                     {
-                        merge = GridCellMergeProperty.MergingFinish;
+                        merge = "";
+                    }
+                    else
+                    {
+                        merge = "[MF]";
                     }
                 }
 
-                if (col == maxDepth) // class discipline
+                if (col == maxDepth + 1) // class discipline
                 {
                     // text = $"{cmClass}";
-                    styleIndex = 2;
+                    style = CellStyle.Discipline;
+                    // merge = GridCellMergeProperty.NoMerging;
                 }
 
-                if (col == maxDepth + 1) // class id
+                if (col == maxDepth + 2) // class id
                 {
                     text = $"{cmClass.Id}";
-                    styleIndex = 2;
+                    style = CellStyle.ClassId;
                 }
 
                 if (col > maxDepth + 2)
@@ -595,16 +638,16 @@ namespace ClassLibraryTreeView
                     switch (presence)
                     {
                         case "X":
-                            styleIndex = 5;
+                            style = CellStyle.PresenceUnselect;
                             break;
                         case "O":
-                            styleIndex = 6;
+                            style = CellStyle.PresenceOptional;
                             break;
                         case "P":
-                            styleIndex = 7;
+                            style = CellStyle.PresencePreffered;
                             break;
                         case "R":
-                            styleIndex = 8;
+                            style = CellStyle.PresenceRequired;
                             break;
                         default:
                             break;
@@ -612,99 +655,248 @@ namespace ClassLibraryTreeView
                     text = presence;
                 }
 
-                gridCells.Add(new GridCell(text, styleIndex, "", merge));
+                WriteCell(worksheet, row, col, text, style);
             }
-
-            return gridCells;
         }
-        public List<List<GridCell>> GetPermissibleGrid(MergeCells mergeCells)
+        private void SetCellStyle(IXLCell cell, CellStyle style)
         {
-            int rowCount = merged.Count + 3;
-            int colCount = maxDepth + AttributesCount + 2;
-
-            List<List<GridCell>> grid = new List<List<GridCell>>();
-
-            IEnumerable<List<GridCell>> query = null;
-            try
+            switch (style)
             {
-                query = merged
-                .AsParallel()
-                .AsSequential()
-                .Select(ClassAttributesPermissions);
+                case CellStyle.Default:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.White;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.None;
+                    cell.Style.Font.FontColor = XLColor.Black;
+                    break;
+
+                case CellStyle.Empty:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.White;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.Black;
+                    break;
+
+                case CellStyle.Class:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.White;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.Black;
+                    break;
+
+                case CellStyle.ClassId:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.Green;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.Black;
+                    break;
+
+                case CellStyle.Attribute:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Bottom;
+                    cell.Style.Alignment.TextRotation = 90;
+                    cell.Style.Fill.BackgroundColor = XLColor.BlueGray;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    // cell.Style.Border.color
+                    cell.Style.Font.FontColor = XLColor.White;
+                    break;
+
+                case CellStyle.AttributesGroup:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.BlueViolet;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    // cell.Style.Border.color
+                    cell.Style.Font.FontColor = XLColor.White;
+                    break;
+
+                case CellStyle.Discipline:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.Yellow;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.Black;
+                    break;
+
+                case CellStyle.Header:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.Blue;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.White;
+                    break;
+
+                case CellStyle.PresenceUnselect:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.White;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.Black;
+                    break;
+
+                case CellStyle.PresenceNonApplicable:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.Red;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.White;
+                    break;
+
+                case CellStyle.PresenceOptional:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.AppleGreen;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.Black;
+                    break;
+
+                case CellStyle.PresencePreffered:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.AppleGreen;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.Black;
+                    break;
+
+                case CellStyle.PresenceRequired:
+                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+                    cell.Style.Alignment.TextRotation = 0;
+                    cell.Style.Fill.BackgroundColor = XLColor.DarkGreen;
+                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Font.FontColor = XLColor.White;
+                    break;
+
+                default:
+                    break;
             }
-            catch (Exception ex)
+        }
+        private void WriteCell(IXLWorksheet worksheet, int row, int col, string text, CellStyle style)
+        {
+            string cellName = CellName(row, col);
+            IXLCell cell = worksheet.Cell(cellName);
+            SetCellStyle(cell, style);
+            cell.Value = $"{text}";
+        }
+        public void GetPermissibleGrid(string filename)
+        {
+            using (XLWorkbook workbook = new XLWorkbook())
             {
-                MessageBox.Show(ex.Message);
-            }
+                // wb.Worksheets.Add(dataTable, "Permissible Grid");
+                IXLWorksheet worksheet = workbook.Worksheets.Add($"Permissible Grid");
 
-            for (int row = 0; row < 3; row++)
-            {
-                List<GridCell> list = new List<GridCell>();
-                for (int col = 0; col < colCount; col++)
+                int rowCount = merged.Count + 3;
+                int colCount = maxDepth + AttributesCount + 2;
+                int row = 0;
+
+                // write header
+
+                for (row = 0; row < 3; row++)
                 {
-                    uint style = 0;
-                    string text = "";
-                    GridCellMergeProperty merge = GridCellMergeProperty.NoMerging;
-
-                    if (row == 0 && col == 0)
+                    int col = 0;
+                    foreach (string group in attributes.Keys)
                     {
-                        merge = GridCellMergeProperty.MergingStart;
+                        bool groupStart = true;
+                        int index = 0;
+                        foreach (IAttribute attribute in attributes[group].Values)
+                        {
+                            CellStyle style = CellStyle.Default;
+                            string text = "";
+                            string merge = "";
+
+                            if (row == 2)
+                            {
+                                if (col == 0)
+                                {
+                                    style = CellStyle.Header;
+                                    merge = "[MS]";
+                                    text = $"Classes ({merged.Count})";
+                                }
+
+                                if (col == maxDepth)
+                                {
+                                    merge = "[MF]";
+                                }
+
+                                if (col == maxDepth + 1)
+                                {
+                                    style = CellStyle.Header;
+                                    text = $"Discipline";
+                                }
+
+                                if (col == maxDepth + 2)
+                                {
+                                    style = CellStyle.Header;
+                                    text = $"Class ID";
+                                }
+                            }
+
+                            if (col > maxDepth + 2)
+                            {
+                                if (row == 0)
+                                {
+                                    style = CellStyle.Default;
+                                    if (groupStart)
+                                    {
+                                        style = CellStyle.AttributesGroup;
+                                        text = group;
+                                        groupStart = false;
+                                        merge = "[MS]";
+                                    }
+                                    if (index == attributes[group].Values.Count - 1)
+                                    {
+                                        merge = "[MF]";
+                                    }
+                                }
+                                if (row == 1)
+                                {
+                                    style = CellStyle.Attribute;
+                                    text = $"{attribute.Id} : {attribute.Name}";
+                                }
+                            }
+
+                            WriteCell(worksheet, row, col, text, style);
+
+                            index++;
+                            col++;
+                        }
                     }
-
-                    if (row == 1 && col == maxDepth + 1)
-                    {
-                        merge = GridCellMergeProperty.MergingFinish;
-                    }
-
-                    if (row == 2)
-                    {
-                        if (col == 0)
-                        {
-                            style = 9;
-                            text = $"Classes ({merged.Count})";
-                            merge = GridCellMergeProperty.MergingStart;
-                        }
-
-                        if (col == maxDepth - 1)
-                        {
-                            merge = GridCellMergeProperty.MergingFinish;
-                        }
-
-                        if (col == maxDepth)
-                        {
-                            style = 0;
-                            text = $"Discipline";
-                        }
-
-                        if (col == maxDepth + 1)
-                        {
-                            style = 2;
-                            text = $"Class ID";
-                        }
-                    }
-
-                    if (col >= maxDepth + 2)
-                    {
-                        if (row == 0)
-                        {
-                            style = 0;
-                            text = attributesList.ElementAt(col - maxDepth - 2).Group;
-                        }
-                        if (row == 1)
-                        {
-                            style = 3;
-                            text = $"{attributesList.ElementAt(col - maxDepth - 2).Id} : {attributesList.ElementAt(col - maxDepth - 2).Name}";
-                        }
-                    }
-
-                    list.Add(new GridCell(text, style, CellName(row, col), merge));
                 }
-                grid.Add(list);
+
+                row = 3;
+
+                /*
+                Parallel.ForEach(merged, cmClass =>
+                {
+                    WriteClass(cmClass, worksheet, row);
+                    Interlocked.Increment(ref row);
+                });
+                */
+                foreach(IClass cmClass in merged)
+                {
+                    WriteClass(cmClass, worksheet, row);
+                    Interlocked.Increment(ref row);
+                    row++;
+                }
+
+                workbook.SaveAs(filename);
             }
-
-            grid.AddRange(query);
-
-            return grid;
+            // var query = merged.AsParallel().AsQueryable().Select(WriteClass);
+            // IEnumerable<DataRow> query = merged.AsParallel().AsQueryable().Select(AddDataRow);
         }
     }
 }
