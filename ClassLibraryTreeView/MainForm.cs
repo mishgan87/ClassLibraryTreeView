@@ -78,27 +78,6 @@ namespace ClassLibraryTreeView
                 treeView.Nodes.Add(rootNode);
             }
         }
-        public void AddList(ConceptualModel model, string text, TreeView treeView)
-        {
-            TreeNode rootNode = new TreeNode(text);
-            foreach (IClass cmClass in model.merged)
-            {
-                if (cmClass == null)
-                {
-                    continue;
-                }
-
-                if (!cmClass.Extends.Equals(""))
-                {
-                    continue;
-                }
-
-                TreeNode newNode = NewNode(cmClass);
-                AddChildren(cmClass, newNode);
-                rootNode.Nodes.Add(newNode);
-            }
-            treeView.Nodes.Add(rootNode);
-        }
         private void ShowClasses()
         {
             TreeView treeView = new TreeView();
@@ -110,10 +89,10 @@ namespace ClassLibraryTreeView
             tabPage.Controls.Add(treeView);
             tabControlTrees.TabPages.Add(tabPage);
 
-            AddClass(model.documents, "Documents", treeView);
-            AddClass(model.functionals, "Functionals", treeView);
-            AddClass(model.physicals, "Physicals", treeView);
-            AddList(model, "Merged", treeView);
+            foreach(var classKey in model.classes.Keys)
+            {
+                AddClass(model.classes[classKey], classKey, treeView);
+            }
 
             treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
         }

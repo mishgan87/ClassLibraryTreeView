@@ -23,7 +23,7 @@ namespace ClassLibraryTreeView
         public ExcelExporter()
         {
         }
-        public async void ExportPermissibleGrid(string filename, ConceptualModel model)
+        public void ExportPermissibleGrid(string filename, ConceptualModel model)
         {
             try
             {

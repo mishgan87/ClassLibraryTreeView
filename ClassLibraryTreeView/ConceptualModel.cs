@@ -44,37 +44,40 @@ namespace ClassLibraryTreeView
     }
     public class ConceptualModel
     {
-        // public Dictionary<string, IAttribute> attributes;
+/*
         public Dictionary<string, IClass> documents = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> functionals = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> physicals = new Dictionary<string, IClass>();
+*/
+        public Dictionary<string, IClass> merged = new Dictionary<string, IClass>();
 
         public Dictionary<string, Taxonomy> taxonomies = new Dictionary<string, Taxonomy>();
         public Dictionary<string, MeasureClass> measureClasses = new Dictionary<string, MeasureClass>();
         public Dictionary<string, MeasureUnit> measureUnits = new Dictionary<string, MeasureUnit>();
         public Dictionary<string, EnumerationList> enumerations = new Dictionary<string, EnumerationList>();
 
-        public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
-        public List<IClass> merged = new List<IClass>();
+        public Dictionary<string, Dictionary<string, IClass>> classes = new Dictionary<string, Dictionary<string, IClass>>();
 
+        public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
         private List<IAttribute> attributesList = new List<IAttribute>();
-        private List<string> attributesGroupList = new List<string>(); // format - "name::indexRange"
 
         public int AttributesCount = 0;
-
         public int maxDepth = 0;
 
         private void CalculateMaxDepth()
         {
-
-            maxDepth = MapMaxDepth(functionals);
-            int maxDepthAuxiliary = MapMaxDepth(physicals);
-            if (maxDepth < maxDepthAuxiliary)
+            maxDepth = 0;
+            foreach(Dictionary<string, IClass> map in classes.Values)
             {
-                maxDepth = maxDepthAuxiliary;
+                foreach (IClass cmClass in map.Values)
+                {
+                    int depth = ClassDepth(cmClass);
+                    if (depth > maxDepth)
+                    {
+                        maxDepth = depth;
+                    }
+                }
             }
-
-            // maxDepth = ListMaxDepth(merged);
         }
 
         public ConceptualModel()
@@ -84,56 +87,45 @@ namespace ClassLibraryTreeView
         public void Init()
         {
             attributesList = new List<IAttribute>();
-            attributesGroupList = new List<string>();
-
             attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
+            /*
             documents = new Dictionary<string, IClass>();
             functionals = new Dictionary<string, IClass>();
             physicals = new Dictionary<string, IClass>();
+            */
+            classes = new Dictionary<string, Dictionary<string, IClass>>();
+            merged = new Dictionary<string, IClass>();
 
             taxonomies = new Dictionary<string, Taxonomy>();
             measureClasses = new Dictionary<string, MeasureClass>();
             measureUnits = new Dictionary<string, MeasureUnit>();
             enumerations = new Dictionary<string, EnumerationList>();
 
-            merged = new List<IClass>();
-
             AttributesCount = 0;
         }
         public void Clear()
         {
             attributes.Clear();
+            attributesList.Clear();
+            AttributesCount = 0;
+            /*
             documents.Clear();
             functionals.Clear();
             physicals.Clear();
+            */
+            classes.Clear();
+            merged.Clear();
 
             taxonomies.Clear();
             enumerations.Clear();
             measureUnits.Clear();
             measureClasses.Clear();
-
-            merged.Clear();
-
-            attributesGroupList.Clear();
-            attributesList.Clear();
-            AttributesCount = 0;
         }
         public List<IAttribute> PermissibleAttributes(IClass cmClass)
         {
             Dictionary<string, IClass> map = null;
             string xtype = cmClass.Xtype.ToLower();
-            if (xtype.Equals("documents"))
-            {
-                map = documents;
-            }
-            if (xtype.Equals("functionals"))
-            {
-                map = functionals;
-            }
-            if (xtype.Equals("physicals"))
-            {
-                map = physicals;
-            }
+            map = classes[xtype];
             if (map == null)
             {
                 return null;
@@ -175,34 +167,9 @@ namespace ClassLibraryTreeView
             }
             return "";
         }
-        public void AddClass(IClass cmClass, int classConcept)
-        {
-            switch (classConcept)
-            {
-                case 0:
-                    functionals.Add(cmClass.Id, cmClass);
-                    break;
-                case 1:
-                    physicals.Add(cmClass.Id, cmClass);
-                    break;
-                case 2:
-                    documents.Add(cmClass.Id, cmClass);
-                    break;
-                default:
-                    break;
-            }
-        }
         public int ClassDepth(IClass cmClass)
         {
-            Dictionary<string, IClass> map = null;
-            if (cmClass.Xtype.ToLower().Equals("functionals"))
-            {
-                map = functionals;
-            }
-            if (cmClass.Xtype.ToLower().Equals("physicals"))
-            {
-                map = physicals;
-            }
+            Dictionary<string, IClass> map = classes[cmClass.Xtype.ToLower()];
             if (map.Count == 0)
             {
                 return 0;
@@ -215,23 +182,6 @@ namespace ClassLibraryTreeView
                 parent = map[parent].Extends;
             }
             return depth;
-        }
-        public int ListMaxDepth(List<IClass> list)
-        {
-            if (list.Count == 0)
-            {
-                return 0;
-            }
-            int maxDepth = 0;
-            foreach (IClass cmClass in list)
-            {
-                int depth = ClassDepth(cmClass);
-                if (depth > maxDepth)
-                {
-                    maxDepth = depth;
-                }
-            }
-            return maxDepth;
         }
         public int MapMaxDepth(Dictionary<string, IClass> map)
         {
@@ -321,24 +271,20 @@ namespace ClassLibraryTreeView
 
             foreach (XElement element in doc.Elements().First().Elements())
             {
-                string name = element.Name.LocalName;
-                if (name.ToLower().Equals("referencedata"))
+                string name = element.Name.LocalName.ToLower();
+                
+                if (name.Equals("referencedata"))
                 {
                     GetReferenceData(element);
                 }
-                if (name.ToLower().Equals("functionals"))
+
+                if (name.Equals("functionals") || name.Equals("physicals") || name.Equals("documents"))
                 {
-                    MapFromXElement(element, functionals);
+                    classes.Add(name, new Dictionary<string, IClass>());
+                    MapFromXElement(element, classes[name]);
                 }
-                if (name.ToLower().Equals("physicals"))
-                {
-                    MapFromXElement(element, physicals);
-                }
-                if (name.ToLower().Equals("documents"))
-                {
-                    MapFromXElement(element, documents);
-                }
-                if (name.ToLower().Equals("attributes"))
+
+                if (name.Equals("attributes"))
                 {
                     foreach (XElement child in element.Elements())
                     {
@@ -354,7 +300,6 @@ namespace ClassLibraryTreeView
                         if (!attributes.ContainsKey(group))
                         {
                             attributes.Add(group, new Dictionary<string, IAttribute>());
-                            attributesGroupList.Add(group);
                         }
 
                         attributes[group].Add(newAttribute.Id, newAttribute);
@@ -362,13 +307,15 @@ namespace ClassLibraryTreeView
                     }
                 }
             }
-            SetInheritance(documents);
-            SetInheritance(functionals);
-            SetInheritance(physicals);
-            MergeByNames();
-            // MergeByAssociations();
+
+            SetInheritance();
+
+            MergeByNames(); // MergeByAssociations();
 
             CalculateMaxDepth();
+            // DefineClassAttributePresence(functionals);
+            // DefineClassAttributePresence(physicals);
+            // DefineClassAttributePresence(merged);
 
             // Get attributes list sorted by group
 
@@ -380,34 +327,48 @@ namespace ClassLibraryTreeView
                 }
             }
         }
-        private void SetInheritance(Dictionary<string, IClass> map)
+        private void DefineClassAttributePresence(Dictionary<string, IClass> map)
         {
-            if (map.Count > 0)
+            List<IAttribute> result = new List<IAttribute>();
+            foreach (IClass cmClass in map.Values)
             {
-                foreach (IClass cmClass in map.Values)
+                result.AddRange(cmClass.PermissibleAttributes);
+                string parent = cmClass.Extends;
+                while (!parent.Equals(""))
                 {
-                    if (!cmClass.Extends.Equals(""))
+                    foreach (IAttribute parentAttribute in map[parent].PermissibleAttributes)
                     {
-                        map[cmClass.Extends].Children.Add(cmClass);
+                        IAttribute attribute = new IAttribute(parentAttribute);
+                        attribute.Presence = "";
+                        if (!result.Contains(attribute))
+                        {
+                            result.Add(attribute);
+                        }
+                    }
+                    parent = map[parent].Extends;
+                }
+                cmClass.PermissibleAttributes = new List<IAttribute>(result);
+            }
+        }
+        private void SetInheritance()
+        {
+            foreach (Dictionary<string, IClass> map in classes.Values)
+            {
+                if (map.Count > 0)
+                {
+                    foreach (IClass cmClass in map.Values)
+                    {
+                        if (!cmClass.Extends.Equals(""))
+                        {
+                            map[cmClass.Extends].Children.Add(cmClass);
+                        }
                     }
                 }
             }
         }
         public IClass GetClass(string id, string xtype)
         {
-            if (xtype.ToLower().Equals("functionals"))
-            {
-                return functionals[id];
-            }
-            if (xtype.ToLower().Equals("physicals"))
-            {
-                return physicals[id];
-            }
-            if (xtype.ToLower().Equals("documents"))
-            {
-                return documents[id];
-            }
-            return null;
+            return classes[xtype][id];
         }
         public static string[] SplitValidationRules(string validationRule)
         {
@@ -447,16 +408,16 @@ namespace ClassLibraryTreeView
         private void MergeByAssociations()
         {
             merged.Clear();
-            foreach (IClass cmClass in functionals.Values)
+            foreach (IClass cmClass in classes["functionals"].Values)
             {
                 if (!cmClass.Extends.Equals(""))
                 {
                     // continue;
                 }
 
-                if (!merged.Contains(cmClass))
+                if (!merged.Values.Contains(cmClass))
                 {
-                    merged.Add(cmClass);
+                    merged.Add(cmClass.Id, cmClass);
                 }
 
                 List<IAttribute> permissibleAttributes = PermissibleAttributes(cmClass);
@@ -471,11 +432,11 @@ namespace ClassLibraryTreeView
                         {
                             if (concept.ToLower().Equals("functional"))
                             {
-                                merged.Add(functionals[rules[index]]);
+                                merged.Add(classes["functionals"][rules[index]].Id, classes["functionals"][rules[index]]);
                             }
                             if (concept.ToLower().Equals("physical"))
                             {
-                                merged.Add(physicals[rules[index]]);
+                                merged.Add(classes["physicals"][rules[index]].Id, classes["physicals"][rules[index]]);
                             }
                         }
                     }
@@ -484,21 +445,26 @@ namespace ClassLibraryTreeView
         }
         private void MergeByNames()
         {
-            // physicals, functionals
-            List<IClass> classes = new List<IClass>();
-            foreach (IClass functional in functionals.Values)
+            if (!classes.ContainsKey("physical"))
             {
-                classes.Add(functional);
-                foreach (IClass physical in physicals.Values)
+                merged = classes["functionals"];
+                return;
+            }
+
+            List<IClass> result = new List<IClass>();
+            foreach (IClass functional in classes["functionals"].Values)
+            {
+                result.Add(functional);
+                foreach (IClass physical in classes["physicals"].Values)
                 {
                     if (physical.Name.Equals(functional.Name))
                     {
-                        for (int index = 0; index < physical.Children.Count; index++)
+                        for (int childIndex = 0; childIndex < physical.Children.Count; childIndex++)
                         {
-                            if (!functional.ContainsChildName(physical.Children[index]))
+                            if (!functional.ContainsChildName(physical.Children[childIndex]))
                             {
-                                classes.Add(physical.Children[index]);
-                                functional.Children.Add(physical.Children[index]);
+                                result.Add(physical.Children[childIndex]);
+                                functional.Children.Add(physical.Children[childIndex]);
                             }
                         }
                     }
@@ -506,62 +472,27 @@ namespace ClassLibraryTreeView
             }
 
             merged.Clear();
-            foreach (IClass cmClass in classes)
+            foreach (IClass cmClass in result)
             {
                 if (cmClass.Extends.Equals(""))
                 {
                     cmClass.PermissibleAttributes = PermissibleAttributes(cmClass);
-                    merged.Add(cmClass);
+                    merged.Add(cmClass.Id, cmClass);
                     AddClassChildren(cmClass, merged);
                 }
             }
         }
-        public void AddClassChildren(IClass cmClass, List<IClass> classes)
+        public void AddClassChildren(IClass cmClass, Dictionary<string, IClass> map)
         {
             foreach (IClass child in cmClass.Children)
             {
                 if (child != null)
                 {
-                    classes.Add(child);
-                    AddClassChildren(child, classes);
+                    child.PermissibleAttributes = PermissibleAttributes(cmClass);
+                    map.Add(child.Id, child);
+                    AddClassChildren(child, map);
                 }
             }
-        }
-        private void AddChildrenPresence(IClass cmClass, List<GridCell[]> grid)
-        {
-            if (cmClass.Children.Count > 0)
-            {
-                foreach (IClass child in cmClass.Children)
-                {
-                    AddPresence(child, grid);
-                }
-            }
-        }
-        private void AddPresence(IClass cmClass, List<GridCell[]> grid)
-        {
-            IAttribute[] attributes = attributesList.ToArray();
-
-            GridCell[] row = new GridCell[maxDepth + attributes.Length + 1];
-            int classDepth = ClassDepth(cmClass);
-            /*
-            for (int depth = 0; depth < maxDepth; depth++)
-            {
-                row[depth].Text = "";
-                row[depth].StyleIndex = 6;
-            }
-
-            row[classDepth].Text = $"{cmClass.Name}";
-            row[maxDepth].Text = $"{cmClass.Id}";
-
-            for (int index = 1; index <= attributes.Length; index++)
-            {
-                row[index + maxDepth].Text = Presence(cmClass, attributes[index - 1]);
-                row[index + maxDepth].StyleIndex = 7;
-            }
-            */
-            grid.Add(row);
-
-            AddChildrenPresence(cmClass, grid);
         }
         private string CellName(int row, int col)
         {
@@ -590,14 +521,18 @@ namespace ClassLibraryTreeView
 
             return newCell;
         }
-        private void WriteClass(IClass cmClass, IXLWorksheet worksheet, int row)
+        private void WriteClass(KeyValuePair<KeyValuePair<int, IXLRange>, IClass> range)
+        // private void WriteClass(IClass cmClass, IXLWorksheet worksheet, int row)
         {
-            int colCount = maxDepth + AttributesCount + 2;
-            for (int col = 0; col < colCount; col++)
+            int count = maxDepth + AttributesCount + 2;
+            string mergeRange = "";
+            int row = range.Key.Key;
+            IClass cmClass = range.Value;
+            for (int col = 0; col < count; col++)
             {
                 string text = "";
+                string cellName = CellName(row, col);
                 CellStyle style = CellStyle.Default;
-                string merge = "";
 
                 int classDepth = ClassDepth(cmClass);
 
@@ -605,17 +540,17 @@ namespace ClassLibraryTreeView
                 {
                     text = $"{cmClass.Name}";
                     style = CellStyle.Class;
-                    merge = "[MS]";
+                    mergeRange = $"{cellName}";
                 }
                 if (col == maxDepth) // class children depth
                 {
-                    if (merge == "[MS]")
+                    if (!mergeRange.Equals(""))
                     {
-                        merge = "";
+                        mergeRange = $"";
                     }
                     else
                     {
-                        merge = "[MF]";
+                        mergeRange = $"{mergeRange}:{cellName}";
                     }
                 }
 
@@ -623,7 +558,6 @@ namespace ClassLibraryTreeView
                 {
                     // text = $"{cmClass}";
                     style = CellStyle.Discipline;
-                    // merge = GridCellMergeProperty.NoMerging;
                 }
 
                 if (col == maxDepth + 2) // class id
@@ -655,129 +589,92 @@ namespace ClassLibraryTreeView
                     text = presence;
                 }
 
-                WriteCell(worksheet, row, col, text, style);
+                WriteCell(range.Key.Value, row, col, text, style);
+
+                if (mergeRange.Contains(":"))
+                {
+                    range.Key.Value.Range(mergeRange).Merge();
+                    mergeRange = "";
+                }
             }
         }
-        private void SetCellStyle(IXLCell cell, CellStyle style)
+        private void SetCell(IXLCell cell, CellStyle style, string value)
         {
+            cell.Value = value;
+            cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
+            cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
+            cell.Style.Border.OutsideBorder = XLBorderStyleValues.None;
+            cell.Style.Fill.BackgroundColor = XLColor.White;
+            cell.Style.Font.FontColor = XLColor.Black;
+
             switch (style)
             {
-                case CellStyle.Default:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
-                    cell.Style.Fill.BackgroundColor = XLColor.White;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.None;
-                    cell.Style.Font.FontColor = XLColor.Black;
-                    break;
-
-                case CellStyle.Empty:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
-                    cell.Style.Fill.BackgroundColor = XLColor.White;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                    cell.Style.Font.FontColor = XLColor.Black;
-                    break;
-
                 case CellStyle.Class:
                     cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
-                    cell.Style.Fill.BackgroundColor = XLColor.White;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                    cell.Style.Font.FontColor = XLColor.Black;
                     break;
 
                 case CellStyle.ClassId:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
                     cell.Style.Fill.BackgroundColor = XLColor.Green;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     cell.Style.Font.FontColor = XLColor.Black;
                     break;
 
                 case CellStyle.Attribute:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
                     cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Bottom;
                     cell.Style.Alignment.TextRotation = 90;
-                    cell.Style.Fill.BackgroundColor = XLColor.BlueGray;
+                    cell.Style.Fill.BackgroundColor = XLColor.Blue;
                     cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                    // cell.Style.Border.color
+                    cell.Style.Border.BottomBorderColor = XLColor.White;
+                    cell.Style.Border.TopBorderColor = XLColor.White;
+                    cell.Style.Border.LeftBorderColor = XLColor.White;
+                    cell.Style.Border.RightBorderColor = XLColor.White;
                     cell.Style.Font.FontColor = XLColor.White;
                     break;
 
                 case CellStyle.AttributesGroup:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
-                    cell.Style.Fill.BackgroundColor = XLColor.BlueViolet;
+                    cell.Style.Fill.BackgroundColor = XLColor.DarkBlue;
                     cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                    // cell.Style.Border.color
+                    cell.Style.Border.BottomBorderColor = XLColor.White;
+                    cell.Style.Border.TopBorderColor = XLColor.White;
+                    cell.Style.Border.LeftBorderColor = XLColor.White;
+                    cell.Style.Border.RightBorderColor = XLColor.White;
                     cell.Style.Font.FontColor = XLColor.White;
                     break;
 
                 case CellStyle.Discipline:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
                     cell.Style.Fill.BackgroundColor = XLColor.Yellow;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     cell.Style.Font.FontColor = XLColor.Black;
                     break;
 
                 case CellStyle.Header:
                     cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Left;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
                     cell.Style.Fill.BackgroundColor = XLColor.Blue;
                     cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
+                    cell.Style.Border.BottomBorderColor = XLColor.White;
+                    cell.Style.Border.TopBorderColor = XLColor.White;
+                    cell.Style.Border.LeftBorderColor = XLColor.White;
+                    cell.Style.Border.RightBorderColor = XLColor.White;
                     cell.Style.Font.FontColor = XLColor.White;
                     break;
 
                 case CellStyle.PresenceUnselect:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
-                    cell.Style.Fill.BackgroundColor = XLColor.White;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                    cell.Style.Font.FontColor = XLColor.Black;
+                    cell.Style.Fill.BackgroundColor = XLColor.SkyMagenta;
                     break;
 
                 case CellStyle.PresenceNonApplicable:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
                     cell.Style.Fill.BackgroundColor = XLColor.Red;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     cell.Style.Font.FontColor = XLColor.White;
                     break;
 
                 case CellStyle.PresenceOptional:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
                     cell.Style.Fill.BackgroundColor = XLColor.AppleGreen;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                    cell.Style.Font.FontColor = XLColor.Black;
                     break;
 
                 case CellStyle.PresencePreffered:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
-                    cell.Style.Fill.BackgroundColor = XLColor.AppleGreen;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
-                    cell.Style.Font.FontColor = XLColor.Black;
+                    cell.Style.Fill.BackgroundColor = XLColor.BrightGreen;
                     break;
 
                 case CellStyle.PresenceRequired:
-                    cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
-                    cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-                    cell.Style.Alignment.TextRotation = 0;
                     cell.Style.Fill.BackgroundColor = XLColor.DarkGreen;
-                    cell.Style.Border.OutsideBorder = XLBorderStyleValues.Thin;
                     cell.Style.Font.FontColor = XLColor.White;
                     break;
 
@@ -785,118 +682,111 @@ namespace ClassLibraryTreeView
                     break;
             }
         }
-        private void WriteCell(IXLWorksheet worksheet, int row, int col, string text, CellStyle style)
+        // private void WriteCell(IXLWorksheet worksheet, int row, int col, string text, CellStyle style)
+        private void WriteCell(IXLRange range, int row, int col, string text, CellStyle style)
         {
             string cellName = CellName(row, col);
-            IXLCell cell = worksheet.Cell(cellName);
-            SetCellStyle(cell, style);
-            cell.Value = $"{text}";
+            IXLCell cell = range.Cell(cellName);
+            SetCell(cell, style, text);
         }
         public void GetPermissibleGrid(string filename)
         {
             using (XLWorkbook workbook = new XLWorkbook())
             {
-                // wb.Worksheets.Add(dataTable, "Permissible Grid");
                 IXLWorksheet worksheet = workbook.Worksheets.Add($"Permissible Grid");
 
-                int rowCount = merged.Count + 3;
-                int colCount = maxDepth + AttributesCount + 2;
-                int row = 0;
+                int count = maxDepth + AttributesCount + 2;
 
                 // write header
 
-                for (row = 0; row < 3; row++)
+                Queue<string> rangesForMerging = new Queue<string>();
+                rangesForMerging.Enqueue($"{CellName(0, 0)}:{CellName(1, maxDepth + 2)}");
+
+                string mergedCell = "";
+                int col = maxDepth + 3;
+                foreach (string group in attributes.Keys)
                 {
-                    int col = 0;
-                    foreach (string group in attributes.Keys)
+                    mergedCell = $"{CellName(0, col)}";
+                    IXLCell cell = worksheet.Cell($"{CellName(0, col)}");
+                    SetCell(cell, CellStyle.AttributesGroup, group);
+                    foreach (IAttribute attribute in attributes[group].Values)
                     {
-                        bool groupStart = true;
-                        int index = 0;
-                        foreach (IAttribute attribute in attributes[group].Values)
-                        {
-                            CellStyle style = CellStyle.Default;
-                            string text = "";
-                            string merge = "";
-
-                            if (row == 2)
-                            {
-                                if (col == 0)
-                                {
-                                    style = CellStyle.Header;
-                                    merge = "[MS]";
-                                    text = $"Classes ({merged.Count})";
-                                }
-
-                                if (col == maxDepth)
-                                {
-                                    merge = "[MF]";
-                                }
-
-                                if (col == maxDepth + 1)
-                                {
-                                    style = CellStyle.Header;
-                                    text = $"Discipline";
-                                }
-
-                                if (col == maxDepth + 2)
-                                {
-                                    style = CellStyle.Header;
-                                    text = $"Class ID";
-                                }
-                            }
-
-                            if (col > maxDepth + 2)
-                            {
-                                if (row == 0)
-                                {
-                                    style = CellStyle.Default;
-                                    if (groupStart)
-                                    {
-                                        style = CellStyle.AttributesGroup;
-                                        text = group;
-                                        groupStart = false;
-                                        merge = "[MS]";
-                                    }
-                                    if (index == attributes[group].Values.Count - 1)
-                                    {
-                                        merge = "[MF]";
-                                    }
-                                }
-                                if (row == 1)
-                                {
-                                    style = CellStyle.Attribute;
-                                    text = $"{attribute.Id} : {attribute.Name}";
-                                }
-                            }
-
-                            WriteCell(worksheet, row, col, text, style);
-
-                            index++;
-                            col++;
-                        }
+                        cell = worksheet.Cell($"{CellName(1, col)}");
+                        SetCell(cell, CellStyle.Attribute, $"{attribute.Id} : {attribute.Name}");
+                        col++;
+                        worksheet.Column(col).AdjustToContents();
                     }
+                    rangesForMerging.Enqueue($"{mergedCell}:{CellName(0, col - 1)}");
                 }
 
-                row = 3;
+                for(col = 0; col < maxDepth + 3; col++)
+                {
+                    string value = "";
+                    string name = CellName(2, col);
+                    mergedCell = $"{name}";
+                    
+                    if (col == 0)
+                    {
+                        value = $"Classes ({merged.Count})";
+                    }
 
-                /*
-                Parallel.ForEach(merged, cmClass =>
+                    if (col == maxDepth)
+                    {
+                        rangesForMerging.Enqueue($"{mergedCell}:{name}");
+                    }
+
+                    if (col == maxDepth + 1)
+                    {
+                        value = $"Discipline";
+                    }
+
+                    if (col == maxDepth + 2)
+                    {
+                        value = $"Class ID";
+                    }
+
+                    SetCell(worksheet.Cell($"{name}"), CellStyle.Header, value);
+                }
+
+                
+                foreach (string range in rangesForMerging)
                 {
-                    WriteClass(cmClass, worksheet, row);
-                    Interlocked.Increment(ref row);
-                });
-                */
-                foreach(IClass cmClass in merged)
+                    worksheet.Range(range).Merge();
+                }
+                
+                // write permissible grid
+
+                ConcurrentDictionary<KeyValuePair<int, IXLRange>, IClass> ranges = new ConcurrentDictionary<KeyValuePair<int, IXLRange>, IClass>();
+                int row = 3;
+                foreach(IClass cmClass in merged.Values)
                 {
-                    WriteClass(cmClass, worksheet, row);
-                    Interlocked.Increment(ref row);
+                    ranges.TryAdd(new KeyValuePair<int, IXLRange>(row, worksheet.Range($"{CellName(row, 0)}:{CellName(row, count)}")), cmClass);
                     row++;
                 }
 
+                var parallelOptions = new ParallelOptions()
+                {
+                    MaxDegreeOfParallelism = 2
+                };
+                Parallel.ForEach(ranges, parallelOptions, singleRange =>
+                {
+                    WriteClass(singleRange);
+                });
+
+                /*
+                foreach(var singleRange in ranges)
+                {
+                    WriteClass(singleRange);
+                }
+                */
+                
+                for(col = 1; col <= worksheet.ColumnCount(); col++)
+                {
+                    worksheet.Column(col).AdjustToContents();
+                }
+                
                 workbook.SaveAs(filename);
             }
-            // var query = merged.AsParallel().AsQueryable().Select(WriteClass);
-            // IEnumerable<DataRow> query = merged.AsParallel().AsQueryable().Select(AddDataRow);
         }
     }
 }
