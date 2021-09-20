@@ -53,7 +53,7 @@ namespace ClassLibraryTreeView
         {
             if (cmClass.Children.Count > 0)
             {
-                foreach (IClass child in cmClass.Children)
+                foreach (IClass child in cmClass.Children.Values)
                 {
                     TreeNode childNode = NewNode(child);
                     AddChildren(child, childNode);
@@ -440,7 +440,7 @@ namespace ClassLibraryTreeView
 
                 // Add permissible attributes
 
-                List<IAttribute> permissibleAttributes = model.PermissibleAttributes(cmClass);
+                Dictionary<string, IAttribute> permissibleAttributes = cmClass.PermissibleAttributesMap;
 
                 ListView listView = new ListView();
                 listView.View = View.Details;
@@ -460,7 +460,7 @@ namespace ClassLibraryTreeView
                     return;
                 }
 
-                KeyValuePair<string, string>[] attributes = permissibleAttributes.First().Attributes();
+                KeyValuePair<string, string>[] attributes = cmClass.PermissibleAttributesMap.First().Value.Attributes();
                 foreach (KeyValuePair<string, string> property in attributes)
                 {
                     listView.Columns.Add($"{property.Key}", 150, HorizontalAlignment.Left);
@@ -468,7 +468,7 @@ namespace ClassLibraryTreeView
                 listView.HeaderStyle = ColumnHeaderStyle.Clickable;
                 listView.FullRowSelect = true;
 
-                foreach (IAttribute attribute in permissibleAttributes)
+                foreach (IAttribute attribute in permissibleAttributes.Values)
                 {
                     attributes = attribute.Attributes();
                     List<string> items = new List<string>();
@@ -476,6 +476,7 @@ namespace ClassLibraryTreeView
                     {
                         items.Add(property.Value);
                     }
+
                     ListViewItem item = new ListViewItem(items.ToArray());
                     item.Tag = attribute;
                     listView.Items.Add(item);
@@ -559,7 +560,7 @@ namespace ClassLibraryTreeView
         {
             OpenFile();
         }
-        private void ExportPermissibleGrid(object sender, EventArgs e)
+        private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
             this.menuBar.Enabled = false;
 
@@ -567,14 +568,11 @@ namespace ClassLibraryTreeView
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
 
-            ExcelExporter exporter = new ExcelExporter();
-
-            // exporter.ExportPermissibleGrid(newFileName, model);
-
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
 
-            model.GetPermissibleGrid(newFileName);
+
+            await Task.Run(() => model.ExportPermissibleGrid(newFileName));
 
             stopWatch.Stop();
             TimeSpan timeSpan = stopWatch.Elapsed;

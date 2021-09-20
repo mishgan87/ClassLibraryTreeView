@@ -107,8 +107,9 @@ namespace ClassLibraryTreeView.Classes
             LifeCycleType = "";
             NamingTemplates = new List<string>();
             PermissibleAttributes = new List<IAttribute>();
+            PermissibleAttributesMap = new Dictionary<string, IAttribute>();
             Xtype = "";
-            Children = new List<IClass>();
+            Children = new Dictionary<string, IClass>();
         }
         public KeyValuePair<string, string>[] Attributes()
         {
@@ -174,6 +175,7 @@ namespace ClassLibraryTreeView.Classes
                  || (!LifeCycleType.Equals(someClass.LifeCycleType))
                  || (!NamingTemplates.Equals(someClass.NamingTemplates))
                  || (!PermissibleAttributes.Equals(someClass.PermissibleAttributes))
+                 || (!PermissibleAttributesMap.Equals(someClass.PermissibleAttributesMap))
                  || (!Xtype.Equals(someClass.Xtype))
                  || (!Children.Equals(someClass.Children)) )
             {
@@ -199,31 +201,22 @@ namespace ClassLibraryTreeView.Classes
             LifeCycleType = someClass.LifeCycleType;
             NamingTemplates = new List<string>(someClass.NamingTemplates);
             PermissibleAttributes = new List<IAttribute>(someClass.PermissibleAttributes);
+            PermissibleAttributesMap = new Dictionary<string, IAttribute>(someClass.PermissibleAttributesMap);
             Xtype = someClass.Xtype;
-            Children = new List<IClass>(someClass.Children);
+            Children = new Dictionary<string, IClass>(someClass.Children);
         }
-        public bool ContainsChildName(IClass cmClass)
+        public IClass ContainsChildByName(IClass cmClass)
         {
-            foreach (IClass child in Children)
+            foreach (IClass child in Children.Values)
             {
                 if(child.Name.Equals(cmClass.Name))
                 {
-                    return true;
+                    return child;
                 }
             }
-            return false;
+            return null;
         }
-        public bool ContainsChild(IClass cmClass)
-        {
-            foreach(IClass child in Children)
-            {
-                if (child.Equals(cmClass))
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+        public bool ContainsChild(IClass cmClass) => Children.ContainsValue(cmClass);
 
         // Interface members
         public string Id { get; set; }
@@ -240,7 +233,8 @@ namespace ClassLibraryTreeView.Classes
         public string LifeCycleType { get; set; }
         public List<string> NamingTemplates { get; set; }
         public List<IAttribute> PermissibleAttributes { get; set; }
+        public Dictionary<string, IAttribute> PermissibleAttributesMap { get; set; }
         public string Xtype { get; set; }
-        public List<IClass> Children { get; set; }
+        public Dictionary<string, IClass> Children { get; set; }
     }
 }

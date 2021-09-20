@@ -49,17 +49,13 @@ namespace ClassLibraryTreeView
         public Dictionary<string, IClass> functionals = new Dictionary<string, IClass>();
         public Dictionary<string, IClass> physicals = new Dictionary<string, IClass>();
 */
-        public Dictionary<string, IClass> merged = new Dictionary<string, IClass>();
-
         public Dictionary<string, Taxonomy> taxonomies = new Dictionary<string, Taxonomy>();
         public Dictionary<string, MeasureClass> measureClasses = new Dictionary<string, MeasureClass>();
         public Dictionary<string, MeasureUnit> measureUnits = new Dictionary<string, MeasureUnit>();
         public Dictionary<string, EnumerationList> enumerations = new Dictionary<string, EnumerationList>();
 
         public Dictionary<string, Dictionary<string, IClass>> classes = new Dictionary<string, Dictionary<string, IClass>>();
-
         public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
-        private List<IAttribute> attributesList = new List<IAttribute>();
 
         public int AttributesCount = 0;
         public int maxDepth = 0;
@@ -86,16 +82,8 @@ namespace ClassLibraryTreeView
         }
         public void Init()
         {
-            attributesList = new List<IAttribute>();
             attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
-            /*
-            documents = new Dictionary<string, IClass>();
-            functionals = new Dictionary<string, IClass>();
-            physicals = new Dictionary<string, IClass>();
-            */
             classes = new Dictionary<string, Dictionary<string, IClass>>();
-            merged = new Dictionary<string, IClass>();
-
             taxonomies = new Dictionary<string, Taxonomy>();
             measureClasses = new Dictionary<string, MeasureClass>();
             measureUnits = new Dictionary<string, MeasureUnit>();
@@ -106,20 +94,83 @@ namespace ClassLibraryTreeView
         public void Clear()
         {
             attributes.Clear();
-            attributesList.Clear();
             AttributesCount = 0;
-            /*
-            documents.Clear();
-            functionals.Clear();
-            physicals.Clear();
-            */
             classes.Clear();
-            merged.Clear();
-
             taxonomies.Clear();
             enumerations.Clear();
             measureUnits.Clear();
             measureClasses.Clear();
+        }
+        public void DefinePermissibleAttributes(IClass cmClass)
+        {
+            string xtype = cmClass.Xtype.ToLower();
+            Dictionary<string, IClass> map = classes[xtype];
+            if (map == null)
+            {
+                return;
+            }
+            Dictionary<string, IAttribute> result = new Dictionary<string, IAttribute>();
+            foreach (IAttribute attribute in cmClass.PermissibleAttributes)
+            {
+                if (!result.ContainsKey(attribute.Id))
+                {
+                    IAttribute newAttribute = new IAttribute(attribute);
+                    result.Add(attribute.Id, new IAttribute(newAttribute));
+                }
+            }
+
+            string parent = cmClass.Extends;
+            while (!parent.Equals(""))
+            {
+                foreach (IAttribute attribute in map[parent].PermissibleAttributes)
+                {
+                    if (!result.ContainsKey(attribute.Id))
+                    {
+                        IAttribute newAttribute = new IAttribute(attribute);
+                        newAttribute.Presence = "";
+                        result.Add(attribute.Id, new IAttribute(newAttribute));
+                    }
+                }
+                parent = map[parent].Extends;
+            }
+
+            cmClass.PermissibleAttributesMap = new Dictionary<string, IAttribute>(result);
+        }
+        public Dictionary<string, IAttribute> GetPermissibleAttributes(IClass cmClass)
+        {
+            string xtype = cmClass.Xtype.ToLower();
+            Dictionary<string, IClass> map = classes[xtype];
+            if (map == null)
+            {
+                return null;
+            }
+            Dictionary<string, IAttribute> result = new Dictionary<string, IAttribute>();
+            foreach(IAttribute attribute in cmClass.PermissibleAttributes)
+            {
+                if (!result.ContainsKey(attribute.Id))
+                {
+                    IAttribute newAttribute = new IAttribute(attribute);
+                    newAttribute.Presence = "";
+                    result.Add(attribute.Id, new IAttribute(newAttribute));
+                }
+            }
+
+            string parent = cmClass.Extends;
+            while (!parent.Equals(""))
+            {
+                foreach (IAttribute attribute in map[parent].PermissibleAttributes)
+                {
+                    if (!result.ContainsKey(attribute.Id))
+                    {
+                        IAttribute newAttribute = new IAttribute(attribute);
+                        newAttribute.Presence = "";
+                        result.Add(attribute.Id, new IAttribute(newAttribute));
+                    }
+                }
+                parent = map[parent].Extends;
+            }
+
+            return result;
         }
         public List<IAttribute> PermissibleAttributes(IClass cmClass)
         {
@@ -150,21 +201,17 @@ namespace ClassLibraryTreeView
 
             return result;
         }
-        public string Presence(IClass cmClass, IAttribute attribute)
+        public string AttributePresence(IClass cmClass, string id)
         {
-            List<IAttribute> permissibleAttributes = PermissibleAttributes(cmClass);
-            // List<IAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
-            foreach (IAttribute permissibleAttribute in permissibleAttributes)
+            if (cmClass.PermissibleAttributesMap.ContainsKey(id))
             {
-                if (permissibleAttribute.Id.Equals(attribute.Id))
+                if (!cmClass.PermissibleAttributesMap[id].Presence.Equals(""))
                 {
-                    if (!permissibleAttribute.Presence.Equals(""))
-                    {
-                        return permissibleAttribute.Presence.Substring(0, 1);
-                    }
-                    return "X";
+                    return cmClass.PermissibleAttributesMap[id].Presence.Substring(0, 1);
                 }
+                return "X";
             }
+
             return "";
         }
         public int ClassDepth(IClass cmClass)
@@ -308,51 +355,7 @@ namespace ClassLibraryTreeView
                 }
             }
 
-            SetInheritance();
-
-            MergeByNames(); // MergeByAssociations();
-
-            CalculateMaxDepth();
-            // DefineClassAttributePresence(functionals);
-            // DefineClassAttributePresence(physicals);
-            // DefineClassAttributePresence(merged);
-
-            // Get attributes list sorted by group
-
-            foreach (KeyValuePair<string, Dictionary<string, IAttribute>> group in attributes)
-            {
-                foreach (IAttribute attribute in group.Value.Values)
-                {
-                    attributesList.Add(attribute);
-                }
-            }
-        }
-        private void DefineClassAttributePresence(Dictionary<string, IClass> map)
-        {
-            List<IAttribute> result = new List<IAttribute>();
-            foreach (IClass cmClass in map.Values)
-            {
-                result.AddRange(cmClass.PermissibleAttributes);
-                string parent = cmClass.Extends;
-                while (!parent.Equals(""))
-                {
-                    foreach (IAttribute parentAttribute in map[parent].PermissibleAttributes)
-                    {
-                        IAttribute attribute = new IAttribute(parentAttribute);
-                        attribute.Presence = "";
-                        if (!result.Contains(attribute))
-                        {
-                            result.Add(attribute);
-                        }
-                    }
-                    parent = map[parent].Extends;
-                }
-                cmClass.PermissibleAttributes = new List<IAttribute>(result);
-            }
-        }
-        private void SetInheritance()
-        {
-            foreach (Dictionary<string, IClass> map in classes.Values)
+            foreach (Dictionary<string, IClass> map in classes.Values) // set classes inheritance
             {
                 if (map.Count > 0)
                 {
@@ -360,11 +363,58 @@ namespace ClassLibraryTreeView
                     {
                         if (!cmClass.Extends.Equals(""))
                         {
-                            map[cmClass.Extends].Children.Add(cmClass);
+                            map[cmClass.Extends].Children.Add(cmClass.Id, cmClass);
                         }
                     }
                 }
             }
+
+            MergeByName(); // MergeByAssociations();
+
+            CalculateMaxDepth();
+        }
+        public IAttribute GetAttribute(string id)
+        {
+            foreach (string group in attributes.Keys)
+            {
+                if (attributes[group].ContainsKey(id))
+                {
+                    return attributes[group][id];
+                }
+            }
+            return null;
+        }
+        public string GetAttributeId(int number)
+        {
+            int col = 0;
+            foreach (string group in attributes.Keys)
+            {
+                foreach (string id in attributes[group].Keys)
+                {
+                    if (col == number)
+                    {
+                        return id;
+                    }
+                    col++;
+                }
+            }
+            return null;
+        }
+        public IAttribute GetAttribute(int number)
+        {
+            int col = 0;
+            foreach(string group in attributes.Keys)
+            {
+                foreach(string id in attributes[group].Keys)
+                {
+                    if (col == number)
+                    {
+                        return attributes[group][id];
+                    }
+                    col++;
+                }
+            }
+            return null;
         }
         public IClass GetClass(string id, string xtype)
         {
@@ -407,7 +457,12 @@ namespace ClassLibraryTreeView
         }
         private void MergeByAssociations()
         {
-            merged.Clear();
+            if (classes.ContainsKey("merged"))
+            {
+                classes.Remove("merged");
+            }
+            classes.Add("merged", new Dictionary<string, IClass>());
+            Dictionary<string, IClass> merged = classes["merged"];
             foreach (IClass cmClass in classes["functionals"].Values)
             {
                 if (!cmClass.Extends.Equals(""))
@@ -443,52 +498,70 @@ namespace ClassLibraryTreeView
                 }
             }
         }
-        private void MergeByNames()
+        private void AddChildren(IClass cmClass, Dictionary<string, IClass> map)
         {
-            if (!classes.ContainsKey("physical"))
+            if (cmClass.Children.Count > 0)
             {
-                merged = classes["functionals"];
+                foreach (IClass child in cmClass.Children.Values)
+                {
+                    map.Add(child.Id, child);
+                    AddChildren(child, map);
+                    DefinePermissibleAttributes(child);
+                }
+            }
+        }
+        private void MergeByName()
+        {
+            if (!classes.ContainsKey("merged"))
+            {
+                classes.Add("merged", new Dictionary<string, IClass>());
+            }
+
+            Dictionary<string, IClass> merged = classes["merged"];
+
+            foreach (IClass cmClass in classes["functionals"].Values)
+            {
+                if (cmClass.Extends.Equals(""))
+                {
+                    merged.Add(cmClass.Id, cmClass);
+                    AddChildren(cmClass, merged);
+                    DefinePermissibleAttributes(cmClass);
+                }
+            }
+
+            if (!classes.ContainsKey("physicals"))
+            {
                 return;
             }
 
-            List<IClass> result = new List<IClass>();
-            foreach (IClass functional in classes["functionals"].Values)
+            foreach (IClass fClass in merged.Values)
             {
-                result.Add(functional);
-                foreach (IClass physical in classes["physicals"].Values)
+                foreach (IClass pClass in classes["physicals"].Values)
                 {
-                    if (physical.Name.Equals(functional.Name))
+                    if (pClass.Name.Equals(fClass.Name))
                     {
-                        for (int childIndex = 0; childIndex < physical.Children.Count; childIndex++)
+                        foreach (IClass child in pClass.Children.Values)
                         {
-                            if (!functional.ContainsChildName(physical.Children[childIndex]))
+                            IClass cmClass = fClass.ContainsChildByName(child);
+
+                            if (cmClass == null)
                             {
-                                result.Add(physical.Children[childIndex]);
-                                functional.Children.Add(physical.Children[childIndex]);
+                                fClass.Children.Add(child.Id, child);
                             }
                         }
                     }
                 }
-            }
-
-            merged.Clear();
-            foreach (IClass cmClass in result)
-            {
-                if (cmClass.Extends.Equals(""))
-                {
-                    cmClass.PermissibleAttributes = PermissibleAttributes(cmClass);
-                    merged.Add(cmClass.Id, cmClass);
-                    AddClassChildren(cmClass, merged);
-                }
+                DefinePermissibleAttributes(fClass);
             }
         }
         public void AddClassChildren(IClass cmClass, Dictionary<string, IClass> map)
         {
-            foreach (IClass child in cmClass.Children)
+            foreach (IClass child in cmClass.Children.Values)
             {
-                if (child != null)
+                if (child != null && !map.ContainsValue(child))
                 {
-                    child.PermissibleAttributes = PermissibleAttributes(cmClass);
+                    // child.PermissibleAttributes = PermissibleAttributes(cmClass);
+                    DefinePermissibleAttributes(child);
                     map.Add(child.Id, child);
                     AddClassChildren(child, map);
                 }
@@ -521,91 +594,53 @@ namespace ClassLibraryTreeView
 
             return newCell;
         }
-        private void WriteClass(KeyValuePair<KeyValuePair<int, IXLRange>, IClass> range)
-        // private void WriteClass(IClass cmClass, IXLWorksheet worksheet, int row)
+        private void WriteClass(IXLWorksheet worksheet, KeyValuePair<int, IClass> classRow, Queue<string> mergedRanges)
         {
+            int row = classRow.Key;
+            IClass cmClass = classRow.Value;
+            int classDepth = ClassDepth(cmClass);
             int count = maxDepth + AttributesCount + 2;
-            string mergeRange = "";
-            int row = range.Key.Key;
-            IClass cmClass = range.Value;
-            for (int col = 0; col < count; col++)
+
+            SetCell(worksheet.Cell(CellName(row, maxDepth + 2)), CellStyle.ClassId, cmClass.Id); // set class id cell
+            SetCell(worksheet.Cell(CellName(row, classDepth)), CellStyle.Class, cmClass.Name); // set class name cell
+            SetCell(worksheet.Cell(CellName(row, maxDepth + 1)), CellStyle.Discipline, ""); // set class discipline cell
+
+            if (maxDepth != classDepth) // merge subclass cells
             {
-                string text = "";
-                string cellName = CellName(row, col);
-                CellStyle style = CellStyle.Default;
+                mergedRanges.Enqueue($"{CellName(row, classDepth)}:{CellName(row, maxDepth)}");
+            }
 
-                int classDepth = ClassDepth(cmClass);
-
-                if (col == classDepth) // class name
+            for (int col = maxDepth + 3; col < count; col++) // set class attributes presence cells
+            {
+                string presence = AttributePresence(cmClass, GetAttributeId(col - maxDepth - 2));
+                switch (presence)
                 {
-                    text = $"{cmClass.Name}";
-                    style = CellStyle.Class;
-                    mergeRange = $"{cellName}";
-                }
-                if (col == maxDepth) // class children depth
-                {
-                    if (!mergeRange.Equals(""))
-                    {
-                        mergeRange = $"";
-                    }
-                    else
-                    {
-                        mergeRange = $"{mergeRange}:{cellName}";
-                    }
-                }
-
-                if (col == maxDepth + 1) // class discipline
-                {
-                    // text = $"{cmClass}";
-                    style = CellStyle.Discipline;
-                }
-
-                if (col == maxDepth + 2) // class id
-                {
-                    text = $"{cmClass.Id}";
-                    style = CellStyle.ClassId;
-                }
-
-                if (col > maxDepth + 2)
-                {
-                    string presence = Presence(cmClass, attributesList.ElementAt(col - maxDepth - 2));
-                    switch (presence)
-                    {
-                        case "X":
-                            style = CellStyle.PresenceUnselect;
-                            break;
-                        case "O":
-                            style = CellStyle.PresenceOptional;
-                            break;
-                        case "P":
-                            style = CellStyle.PresencePreffered;
-                            break;
-                        case "R":
-                            style = CellStyle.PresenceRequired;
-                            break;
-                        default:
-                            break;
-                    }
-                    text = presence;
-                }
-
-                WriteCell(range.Key.Value, row, col, text, style);
-
-                if (mergeRange.Contains(":"))
-                {
-                    range.Key.Value.Range(mergeRange).Merge();
-                    mergeRange = "";
+                    case "":
+                        SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceNonApplicable, presence);
+                        break;
+                    case "X":
+                        SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceUnselect, presence);
+                        break;
+                    case "O":
+                        SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceOptional, presence);
+                        break;
+                    case "P":
+                        SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresencePreffered, presence);
+                        break;
+                    case "R":
+                        SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceRequired, presence);
+                        break;
+                    default:
+                        SetCell(worksheet.Cell(CellName(row, col)), CellStyle.Default, presence);
+                        break;
                 }
             }
         }
         private void SetCell(IXLCell cell, CellStyle style, string value)
         {
-            cell.Value = value;
             cell.Style.Alignment.Horizontal = XLAlignmentHorizontalValues.Center;
             cell.Style.Alignment.Vertical = XLAlignmentVerticalValues.Center;
-            cell.Style.Border.OutsideBorder = XLBorderStyleValues.None;
-            cell.Style.Fill.BackgroundColor = XLColor.White;
-            cell.Style.Font.FontColor = XLColor.Black;
+            cell.Value = value;
 
             switch (style)
             {
@@ -615,7 +650,6 @@ namespace ClassLibraryTreeView
 
                 case CellStyle.ClassId:
                     cell.Style.Fill.BackgroundColor = XLColor.Green;
-                    cell.Style.Font.FontColor = XLColor.Black;
                     break;
 
                 case CellStyle.Attribute:
@@ -642,7 +676,6 @@ namespace ClassLibraryTreeView
 
                 case CellStyle.Discipline:
                     cell.Style.Fill.BackgroundColor = XLColor.Yellow;
-                    cell.Style.Font.FontColor = XLColor.Black;
                     break;
 
                 case CellStyle.Header:
@@ -657,12 +690,10 @@ namespace ClassLibraryTreeView
                     break;
 
                 case CellStyle.PresenceUnselect:
-                    cell.Style.Fill.BackgroundColor = XLColor.SkyMagenta;
+                    cell.Style.Fill.BackgroundColor = XLColor.AntiFlashWhite;
                     break;
 
                 case CellStyle.PresenceNonApplicable:
-                    cell.Style.Fill.BackgroundColor = XLColor.Red;
-                    cell.Style.Font.FontColor = XLColor.White;
                     break;
 
                 case CellStyle.PresenceOptional:
@@ -682,14 +713,7 @@ namespace ClassLibraryTreeView
                     break;
             }
         }
-        // private void WriteCell(IXLWorksheet worksheet, int row, int col, string text, CellStyle style)
-        private void WriteCell(IXLRange range, int row, int col, string text, CellStyle style)
-        {
-            string cellName = CellName(row, col);
-            IXLCell cell = range.Cell(cellName);
-            SetCell(cell, style, text);
-        }
-        public void GetPermissibleGrid(string filename)
+        public void ExportPermissibleGrid(string filename)
         {
             using (XLWorkbook workbook = new XLWorkbook())
             {
@@ -697,10 +721,27 @@ namespace ClassLibraryTreeView
 
                 int count = maxDepth + AttributesCount + 2;
 
+                // define classes attributes rows
+
+                int row = 3;
+                ConcurrentDictionary<int, IClass> classRows = new ConcurrentDictionary<int, IClass>(); // dictionary of pairs "row number - conceptual model class"
+                foreach (IClass cmClass in classes["merged"].Values) // fill dictionary of pairs "row number - conceptual model class"
+                {
+                    if (classRows.TryAdd(row, cmClass))
+                    {
+                        row++;
+                    }
+                }
+
                 // write header
 
-                Queue<string> rangesForMerging = new Queue<string>();
-                rangesForMerging.Enqueue($"{CellName(0, 0)}:{CellName(1, maxDepth + 2)}");
+                SetCell(worksheet.Cell(CellName(2, 0)), CellStyle.Header, $"Classes ({classes["merged"].Count})"); // set classes count header cell
+                SetCell(worksheet.Cell(CellName(2, maxDepth + 1)), CellStyle.Header, $"Discipline"); // set class discipline header cell
+                SetCell(worksheet.Cell(CellName(2, maxDepth + 2)), CellStyle.Header, $"Class ID"); // set class id header cell
+
+                Queue<string> mergedRanges = new Queue<string>();
+                mergedRanges.Enqueue($"{CellName(0, 0)}:{CellName(1, maxDepth + 2)}");
+                mergedRanges.Enqueue($"{CellName(2, 0)}:{CellName(2, maxDepth)}");
 
                 string mergedCell = "";
                 int col = maxDepth + 3;
@@ -714,73 +755,32 @@ namespace ClassLibraryTreeView
                         cell = worksheet.Cell($"{CellName(1, col)}");
                         SetCell(cell, CellStyle.Attribute, $"{attribute.Id} : {attribute.Name}");
                         col++;
-                        worksheet.Column(col).AdjustToContents();
                     }
-                    rangesForMerging.Enqueue($"{mergedCell}:{CellName(0, col - 1)}");
+                    mergedRanges.Enqueue($"{mergedCell}:{CellName(0, col - 1)}");
                 }
 
-                for(col = 0; col < maxDepth + 3; col++)
-                {
-                    string value = "";
-                    string name = CellName(2, col);
-                    mergedCell = $"{name}";
-                    
-                    if (col == 0)
+                Parallel.ForEach // write permissible grid
+                (
+                    classRows,
+                    new ParallelOptions()
                     {
-                        value = $"Classes ({merged.Count})";
-                    }
-
-                    if (col == maxDepth)
+                        MaxDegreeOfParallelism = 2
+                    },
+                    classRow =>
                     {
-                        rangesForMerging.Enqueue($"{mergedCell}:{name}");
+                        WriteClass(worksheet, classRow, mergedRanges);
                     }
+                );
 
-                    if (col == maxDepth + 1)
+                foreach (string range in mergedRanges) // merging selected cells
+                {
+                    if (range != null)
                     {
-                        value = $"Discipline";
+                        worksheet.Range(range).Merge();
                     }
-
-                    if (col == maxDepth + 2)
-                    {
-                        value = $"Class ID";
-                    }
-
-                    SetCell(worksheet.Cell($"{name}"), CellStyle.Header, value);
                 }
 
-                
-                foreach (string range in rangesForMerging)
-                {
-                    worksheet.Range(range).Merge();
-                }
-                
-                // write permissible grid
-
-                ConcurrentDictionary<KeyValuePair<int, IXLRange>, IClass> ranges = new ConcurrentDictionary<KeyValuePair<int, IXLRange>, IClass>();
-                int row = 3;
-                foreach(IClass cmClass in merged.Values)
-                {
-                    ranges.TryAdd(new KeyValuePair<int, IXLRange>(row, worksheet.Range($"{CellName(row, 0)}:{CellName(row, count)}")), cmClass);
-                    row++;
-                }
-
-                var parallelOptions = new ParallelOptions()
-                {
-                    MaxDegreeOfParallelism = 2
-                };
-                Parallel.ForEach(ranges, parallelOptions, singleRange =>
-                {
-                    WriteClass(singleRange);
-                });
-
-                /*
-                foreach(var singleRange in ranges)
-                {
-                    WriteClass(singleRange);
-                }
-                */
-                
-                for(col = 1; col <= worksheet.ColumnCount(); col++)
+                for (col = 1; col <= worksheet.ColumnCount(); col++) // adjust columns width
                 {
                     worksheet.Column(col).AdjustToContents();
                 }
