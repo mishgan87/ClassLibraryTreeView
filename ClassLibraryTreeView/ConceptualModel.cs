@@ -19,58 +19,42 @@ namespace ClassLibraryTreeView
     {
         Default = 0,
         Empty = 1,
-        
         Class = 2,
         ClassId = 3,
-        
         Attribute = 4,
         AttributesGroup = 5,
-
         Discipline = 6,
-
         Header = 7,
-
         PresenceUnselect = 8,
         PresenceNonApplicable = 9,
         PresenceOptional = 10,
         PresencePreffered = 11,
         PresenceRequired = 12
     }
-    public enum GridCellMergeProperty
-    {
-        NoMerging = 0,
-        MergingStart = 1,
-        MergingFinish = 2
-    }
     public class ConceptualModel
     {
-/*
-        public Dictionary<string, IClass> documents = new Dictionary<string, IClass>();
-        public Dictionary<string, IClass> functionals = new Dictionary<string, IClass>();
-        public Dictionary<string, IClass> physicals = new Dictionary<string, IClass>();
-*/
+        public Dictionary<string, Dictionary<string, IClass>> classes = new Dictionary<string, Dictionary<string, IClass>>();
+        public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
+
         public Dictionary<string, Taxonomy> taxonomies = new Dictionary<string, Taxonomy>();
         public Dictionary<string, MeasureClass> measureClasses = new Dictionary<string, MeasureClass>();
         public Dictionary<string, MeasureUnit> measureUnits = new Dictionary<string, MeasureUnit>();
         public Dictionary<string, EnumerationList> enumerations = new Dictionary<string, EnumerationList>();
 
-        public Dictionary<string, Dictionary<string, IClass>> classes = new Dictionary<string, Dictionary<string, IClass>>();
-        public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
-
-        public int AttributesCount = 0;
-        public int maxDepth = 0;
+        public int AttributesCount { get; set; }
+        public int MaxDepth { get; set; }
 
         private void CalculateMaxDepth()
         {
-            maxDepth = 0;
+            MaxDepth = 0;
             foreach(Dictionary<string, IClass> map in classes.Values)
             {
                 foreach (IClass cmClass in map.Values)
                 {
                     int depth = ClassDepth(cmClass);
-                    if (depth > maxDepth)
+                    if (depth > MaxDepth)
                     {
-                        maxDepth = depth;
+                        MaxDepth = depth;
                     }
                 }
             }
@@ -236,16 +220,16 @@ namespace ClassLibraryTreeView
             {
                 return 0;
             }
-            int maxDepth = 0;
+            int MaxDepth = 0;
             foreach (IClass cmClass in map.Values)
             {
                 int depth = ClassDepth(cmClass);
-                if (depth > maxDepth)
+                if (depth > MaxDepth)
                 {
-                    maxDepth = depth;
+                    MaxDepth = depth;
                 }
             }
-            return maxDepth;
+            return MaxDepth;
         }
         private void MapFromXElement(XElement element, Dictionary<string, IClass> map)
         {
@@ -599,20 +583,20 @@ namespace ClassLibraryTreeView
             int row = classRow.Key;
             IClass cmClass = classRow.Value;
             int classDepth = ClassDepth(cmClass);
-            int count = maxDepth + AttributesCount + 2;
+            int count = MaxDepth + AttributesCount + 2;
 
-            SetCell(worksheet.Cell(CellName(row, maxDepth + 2)), CellStyle.ClassId, cmClass.Id); // set class id cell
+            SetCell(worksheet.Cell(CellName(row, MaxDepth + 2)), CellStyle.ClassId, cmClass.Id); // set class id cell
             SetCell(worksheet.Cell(CellName(row, classDepth)), CellStyle.Class, cmClass.Name); // set class name cell
-            SetCell(worksheet.Cell(CellName(row, maxDepth + 1)), CellStyle.Discipline, ""); // set class discipline cell
+            SetCell(worksheet.Cell(CellName(row, MaxDepth + 1)), CellStyle.Discipline, ""); // set class discipline cell
 
-            if (maxDepth != classDepth) // merge subclass cells
+            if (MaxDepth != classDepth) // merge subclass cells
             {
-                mergedRanges.Enqueue($"{CellName(row, classDepth)}:{CellName(row, maxDepth)}");
+                mergedRanges.Enqueue($"{CellName(row, classDepth)}:{CellName(row, MaxDepth)}");
             }
 
-            for (int col = maxDepth + 3; col < count; col++) // set class attributes presence cells
+            for (int col = MaxDepth + 3; col < count; col++) // set class attributes presence cells
             {
-                string presence = AttributePresence(cmClass, GetAttributeId(col - maxDepth - 2));
+                string presence = AttributePresence(cmClass, GetAttributeId(col - MaxDepth - 2));
                 switch (presence)
                 {
                     case "":
@@ -719,7 +703,7 @@ namespace ClassLibraryTreeView
             {
                 IXLWorksheet worksheet = workbook.Worksheets.Add($"Permissible Grid");
 
-                int count = maxDepth + AttributesCount + 2;
+                int count = MaxDepth + AttributesCount + 2;
 
                 // define classes attributes rows
 
@@ -736,15 +720,15 @@ namespace ClassLibraryTreeView
                 // write header
 
                 SetCell(worksheet.Cell(CellName(2, 0)), CellStyle.Header, $"Classes ({classes["merged"].Count})"); // set classes count header cell
-                SetCell(worksheet.Cell(CellName(2, maxDepth + 1)), CellStyle.Header, $"Discipline"); // set class discipline header cell
-                SetCell(worksheet.Cell(CellName(2, maxDepth + 2)), CellStyle.Header, $"Class ID"); // set class id header cell
+                SetCell(worksheet.Cell(CellName(2, MaxDepth + 1)), CellStyle.Header, $"Discipline"); // set class discipline header cell
+                SetCell(worksheet.Cell(CellName(2, MaxDepth + 2)), CellStyle.Header, $"Class ID"); // set class id header cell
 
                 Queue<string> mergedRanges = new Queue<string>();
-                mergedRanges.Enqueue($"{CellName(0, 0)}:{CellName(1, maxDepth + 2)}");
-                mergedRanges.Enqueue($"{CellName(2, 0)}:{CellName(2, maxDepth)}");
+                mergedRanges.Enqueue($"{CellName(0, 0)}:{CellName(1, MaxDepth + 2)}");
+                mergedRanges.Enqueue($"{CellName(2, 0)}:{CellName(2, MaxDepth)}");
 
                 string mergedCell = "";
-                int col = maxDepth + 3;
+                int col = MaxDepth + 3;
                 foreach (string group in attributes.Keys)
                 {
                     mergedCell = $"{CellName(0, col)}";

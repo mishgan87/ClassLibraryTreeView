@@ -42,8 +42,6 @@ namespace ClassLibraryTreeView
             this.labelInfo = new System.Windows.Forms.ToolStripLabel();
             this.toolStripButton7 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton6 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.layoutMain = new System.Windows.Forms.SplitContainer();
             this.layoutSplitter = new System.Windows.Forms.SplitContainer();
             this.tabControlTrees = new System.Windows.Forms.TabControl();
@@ -152,9 +150,7 @@ namespace ClassLibraryTreeView
             this.toolStripInfo.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.labelInfo,
             this.toolStripButton7,
-            this.toolStripButton6,
-            this.toolStripButton4,
-            this.toolStripButton2});
+            this.toolStripButton6});
             this.toolStripInfo.Location = new System.Drawing.Point(0, 0);
             this.toolStripInfo.Name = "toolStripInfo";
             this.toolStripInfo.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
@@ -190,28 +186,6 @@ namespace ClassLibraryTreeView
             this.toolStripButton6.Name = "toolStripButton6";
             this.toolStripButton6.Size = new System.Drawing.Size(52, 76);
             this.toolStripButton6.Text = "toolStripButton6";
-            // 
-            // toolStripButton4
-            // 
-            this.toolStripButton4.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton4.Image = global::ClassLibraryTreeView.Properties.Resources.add;
-            this.toolStripButton4.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(52, 76);
-            this.toolStripButton4.Text = "toolStripButton4";
-            // 
-            // toolStripButton2
-            // 
-            this.toolStripButton2.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripButton2.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton2.Image = global::ClassLibraryTreeView.Properties.Resources.edit;
-            this.toolStripButton2.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton2.Name = "toolStripButton2";
-            this.toolStripButton2.Size = new System.Drawing.Size(52, 76);
-            this.toolStripButton2.Text = "toolStripButton2";
             // 
             // layoutMain
             // 
@@ -336,8 +310,10 @@ namespace ClassLibraryTreeView
         private SplitContainer layoutSplitter;
         private SplitContainer layoutProperties;
         private TabControl tabControlTrees;
-        private ToolStripButton toolStripButton4;
-        private ToolStripButton toolStripButton2;
+
+        private ConceptualModel model;
+
+        string conceptualModelFileName;
     }
 }
 

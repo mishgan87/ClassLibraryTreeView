@@ -108,7 +108,7 @@ namespace ClassLibraryTreeView
 
                     
 
-                    StringValue stringValue = $"A1:{GetExcelColumnName(model.maxDepth + 3)}2";
+                    StringValue stringValue = $"A1:{GetExcelColumnName(model.MaxDepth + 3)}2";
 
                     mergeCells.Append(new MergeCell() { Reference = stringValue});
 

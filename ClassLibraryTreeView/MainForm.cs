@@ -24,197 +24,54 @@ namespace ClassLibraryTreeView
 {
     public partial class MainForm : Form
     {
-        private Dictionary<TabPage, System.Drawing.Color> TabColors = new Dictionary<TabPage, System.Drawing.Color>();
-        private ConceptualModel model = new ConceptualModel();
-        private IIdentifiable CurrentItem { get; set; }
-        string fileName;
         public MainForm()
         {
             InitializeComponent();
-            model = new ConceptualModel();
-            fileName = "";
-        }
-        private TreeNode NewNode(IClass cmClass)
-        {
-            TreeNode treeNode = new TreeNode();
-            treeNode.Text = cmClass.Name;
-            treeNode.Tag = cmClass;
-            if (cmClass.Xtype.ToLower().Equals("functionals"))
-            {
-                treeNode.ForeColor = System.Drawing.Color.Green;
-            }
-            if (cmClass.Xtype.ToLower().Equals("physicals"))
-            {
-                treeNode.ForeColor = System.Drawing.Color.DarkBlue;
-            }
-            return treeNode;
-        }
-        private void AddChildren(IClass cmClass, TreeNode treeNode)
-        {
-            if (cmClass.Children.Count > 0)
-            {
-                foreach (IClass child in cmClass.Children.Values)
-                {
-                    TreeNode childNode = NewNode(child);
-                    AddChildren(child, childNode);
-                    treeNode.Nodes.Add(childNode);
-                }
-            }
-        }
-        public void AddClass(Dictionary<string, IClass> map, string xtype, TreeView treeView)
-        {
-            if (map.Count > 0)
-            {
-                TreeNode rootNode = new TreeNode(xtype);
-                foreach (IClass cmClass in map.Values)
-                {
-                    if (cmClass.Extends.Equals(""))
-                    {
-                        TreeNode newNode = NewNode(cmClass);
-                        AddChildren(cmClass, newNode);
-                        rootNode.Nodes.Add(newNode);
-                    }
-                }
-                treeView.Nodes.Add(rootNode);
-            }
         }
         private void ShowClasses()
         {
-            TreeView treeView = new TreeView();
-            treeView.Dock = DockStyle.Fill;
-            treeView.Nodes.Clear();
-            treeView.Font = tabControlTrees.Font;
+            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 0);
+            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
 
             TabPage tabPage = new TabPage("Classes");
             tabPage.Controls.Add(treeView);
             tabControlTrees.TabPages.Add(tabPage);
-
-            foreach(var classKey in model.classes.Keys)
-            {
-                AddClass(model.classes[classKey], classKey, treeView);
-            }
-
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
         }
         private void ShowAttributes()
         {
-            TreeView treeView = new TreeView();
-            treeView.Dock = DockStyle.Fill;
-            treeView.Nodes.Clear();
-            treeView.Font = tabControlTrees.Font;
+            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 1);
+            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewAttributeProperties);
 
             TabPage tabPage = new TabPage("Attributes");
             tabPage.Controls.Add(treeView);
             tabControlTrees.TabPages.Add(tabPage);
-
-            Dictionary<string, Dictionary<string, IAttribute>> attributes = model.attributes;
-            foreach (string group in attributes.Keys)
-            {
-                TreeNode groupNode = new TreeNode(group);
-                foreach (IAttribute attribute in attributes[group].Values)
-                {
-                    TreeNode treeNode = new TreeNode();
-                    treeNode.Text = attribute.Name;
-                    treeNode.Tag = attribute;
-                    groupNode.Nodes.Add(treeNode);
-                }
-                treeView.Nodes.Add(groupNode);
-            }
-
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewAttributeProperties);
         }
         private void ShowEnumerations()
         {
-            TreeView treeView = new TreeView();
-            treeView.Dock = DockStyle.Fill;
-            treeView.Nodes.Clear();
-            treeView.Font = tabControlTrees.Font;
+            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 2);
+            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewEnumerationProperties);
 
             TabPage tabPage = new TabPage("Enumerations");
             tabPage.Controls.Add(treeView);
             tabControlTrees.TabPages.Add(tabPage);
-
-            TreeNode rootNode = new TreeNode($"Enumerations");
-            Dictionary<string, EnumerationList> map = model.enumerations;
-            foreach (string key in map.Keys)
-            {
-                TreeNode treeNode = new TreeNode(key);
-                treeNode.Text = map[key].Name;
-                treeNode.Tag = map[key];
-                rootNode.Nodes.Add(treeNode);
-            }
-            treeView.Nodes.Add(rootNode);
-
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewEnumerationProperties);
         }
         private void ShowMeasureClasses()
         {
-            TreeView treeView = new TreeView();
-            treeView.Dock = DockStyle.Fill;
-            treeView.Nodes.Clear();
-            treeView.Font = tabControlTrees.Font;
+            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 3);
+            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewMeasureProperties);
 
             TabPage tabPage = new TabPage("Measures");
             tabPage.Controls.Add(treeView);
             tabControlTrees.TabPages.Add(tabPage);
-
-            TreeNode rootUnitsNode = new TreeNode($"Measure Units");
-            Dictionary<string, MeasureUnit> map = model.measureUnits;
-            foreach (string key in map.Keys)
-            {
-                TreeNode treeNode = new TreeNode(key);
-                treeNode.Text = map[key].Name;
-                treeNode.Tag = map[key];
-                rootUnitsNode.Nodes.Add(treeNode);
-            }
-            treeView.Nodes.Add(rootUnitsNode);
-
-            TreeNode rootClassesNode = new TreeNode($"Measure Classes");
-            Dictionary<string, MeasureClass> mapClasses = model.measureClasses;
-            foreach (string key in mapClasses.Keys)
-            {
-                TreeNode treeNode = new TreeNode(key);
-                treeNode.Text = mapClasses[key].Name;
-                treeNode.Tag = mapClasses[key];
-                rootClassesNode.Nodes.Add(treeNode);
-            }
-            treeView.Nodes.Add(rootClassesNode);
-
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewMeasureProperties);
         }
         private void ShowTaxonomies()
         {
-            TreeView treeView = new TreeView();
-            treeView.Dock = DockStyle.Fill;
-            treeView.Nodes.Clear();
-            treeView.Font = tabControlTrees.Font;
+            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 4);
+            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewTaxonomyProperties);
 
             TabPage tabPage = new TabPage("Taxonomies");
             tabPage.Controls.Add(treeView);
             tabControlTrees.TabPages.Add(tabPage);
-
-            TreeNode rootNode = new TreeNode($"Taxonomies");
-            Dictionary<string, Taxonomy> map = model.taxonomies;
-            foreach (string key in map.Keys)
-            {
-                TreeNode treeNode = new TreeNode(key);
-                treeNode.Text = map[key].Name;
-                treeNode.Tag = map[key];
-                if (map[key].Nodes.Count > 0)
-                {
-                    foreach (TaxonomyNode node in map[key].Nodes)
-                    {
-                        TreeNode treeSubNode = new TreeNode();
-                        treeSubNode.Text = node.Name;
-                        treeSubNode.Tag = node;
-                        treeNode.Nodes.Add(treeSubNode);
-                    }
-                }
-                rootNode.Nodes.Add(treeNode);
-            }
-            treeView.Nodes.Add(rootNode);
-
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewTaxonomyProperties);
         }
         private void OpenFile()
         {
@@ -226,12 +83,12 @@ namespace ClassLibraryTreeView
                 openFileDialog.RestoreDirectory = true;
                 if (openFileDialog.ShowDialog() == DialogResult.OK)
                 {
-                    fileName = openFileDialog.FileName;
-                    model.ImportXml(openFileDialog.FileName);
-                    string text = fileName;
-                    text = text.Remove(text.LastIndexOf("."), text.Length - text.LastIndexOf("."));
-                    text = text.Substring(text.LastIndexOf("\\") + 1, text.Length - text.LastIndexOf("\\") - 1);
-                    labelModelName.Text = $"{text}";
+                    string filename = openFileDialog.FileName;
+                    conceptualModelFileName = filename;
+                    model.ImportXml(filename);
+                    filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
+                    filename = filename.Substring(filename.LastIndexOf("\\") + 1, filename.Length - filename.LastIndexOf("\\") - 1);
+                    labelModelName.Text = $"{filename}";
 
                     tabControlTrees.TabPages.Clear();
                     ShowClasses();
@@ -244,33 +101,8 @@ namespace ClassLibraryTreeView
         }
         private void AddPropertiesTab(IIdentifiable element, TabControl tabControl)
         {
-            if (element == null)
-            {
-                return;
-            }
-
-            KeyValuePair<string, string>[] attributes = element.Attributes();
-
-            ListView listView = new ListView();
-            listView.View = View.Details;
-            listView.Columns.Clear();
-            listView.Items.Clear();
-            listView.Columns.Add("Property", 300, HorizontalAlignment.Left);
-            listView.Columns.Add("Value", 300, HorizontalAlignment.Left);
-            listView.HeaderStyle = ColumnHeaderStyle.None;
-            listView.FullRowSelect = true;
-
-            foreach (KeyValuePair<string, string> pair in attributes)
-            {
-                string[] items = { $"{pair.Key}", $"{pair.Value}" };
-                listView.Items.Add(new ListViewItem(items));
-            }
-
-            listView.Dock = DockStyle.Fill;
-            listView.Font = tabControlProperties.Font;
-
             TabPage tabPage = new TabPage("Properties");
-            tabPage.Controls.Add(listView);
+            tabPage.Controls.Add(new IIdentifiablePropertiesListView(element));
             tabControl.TabPages.Add(tabPage);
         }
         private void ViewTaxonomyProperties(object sender, TreeNodeMouseClickEventArgs e)
@@ -432,8 +264,6 @@ namespace ClassLibraryTreeView
 
             IClass cmClass = (IClass)eventArgs.Node.Tag;
 
-            CurrentItem = cmClass;
-
             if (cmClass != null)
             {
                 AddPropertiesTab(cmClass, tabControlProperties);
@@ -504,18 +334,6 @@ namespace ClassLibraryTreeView
                 }
             }
         }
-        private void EditItem(object sender, EventArgs e)
-        {
-
-        }
-        private void AddItem(object sender, EventArgs e)
-        {
-
-        }
-        private void RemoveItem(object sender, EventArgs e)
-        {
-
-        }
         private void EditPermissibleAttribute(object sender, MouseEventArgs eventArgs)
         {
             // контектсное меню
@@ -564,13 +382,12 @@ namespace ClassLibraryTreeView
         {
             this.menuBar.Enabled = false;
 
-            string newFileName = fileName;
+            string newFileName = conceptualModelFileName;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
 
             Stopwatch stopWatch = new Stopwatch();
             stopWatch.Start();
-
 
             await Task.Run(() => model.ExportPermissibleGrid(newFileName));
 
