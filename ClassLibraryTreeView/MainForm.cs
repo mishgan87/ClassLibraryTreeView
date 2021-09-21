@@ -33,7 +33,7 @@ namespace ClassLibraryTreeView
         private void ShowClasses()
         {
             ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 0);
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
+            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewClassProperties);
 
             TabPage tabPage = new TabPage("Classes");
             tabPage.Controls.Add(treeView);
@@ -42,7 +42,7 @@ namespace ClassLibraryTreeView
         private void ShowAttributes()
         {
             ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 1);
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewAttributeProperties);
+            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewAttributeProperties);
 
             TabPage tabPage = new TabPage("Attributes");
             tabPage.Controls.Add(treeView);
@@ -51,7 +51,7 @@ namespace ClassLibraryTreeView
         private void ShowEnumerations()
         {
             ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 2);
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewEnumerationProperties);
+            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewEnumerationProperties);
 
             TabPage tabPage = new TabPage("Enumerations");
             tabPage.Controls.Add(treeView);
@@ -60,7 +60,7 @@ namespace ClassLibraryTreeView
         private void ShowMeasureClasses()
         {
             ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 3);
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewMeasureProperties);
+            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewMeasureProperties);
 
             TabPage tabPage = new TabPage("Measures");
             tabPage.Controls.Add(treeView);
@@ -69,7 +69,7 @@ namespace ClassLibraryTreeView
         private void ShowTaxonomies()
         {
             ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 4);
-            treeView.NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ViewTaxonomyProperties);
+            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewTaxonomyProperties);
 
             TabPage tabPage = new TabPage("Taxonomies");
             tabPage.Controls.Add(treeView);
@@ -258,6 +258,11 @@ namespace ClassLibraryTreeView
         }
         private void ViewAttributeProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
         {
+            if (eventArgs.Node.Tag == null)
+            {
+                return;
+            }
+
             tabControlProperties.TabPages.Clear();
             IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
             labelInfo.Text = $"Attribute : {attribute.Name}";
@@ -265,6 +270,11 @@ namespace ClassLibraryTreeView
         }
         private void ViewClassProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
         {
+            if (eventArgs.Button == MouseButtons.Right)
+            {
+                return;
+            }
+
             tabControlProperties.TabPages.Clear();
 
             IClass cmClass = (IClass)eventArgs.Node.Tag;

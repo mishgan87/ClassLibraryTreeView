@@ -13,6 +13,7 @@ namespace ClassLibraryTreeView.Classes
     {
         private ConceptualModel model = null;
         private int mode = -1;
+        public event TreeNodeMouseClickEventHandler NodeClicked;
         public ConceptualModelTreeView() : base()
         {
         }
@@ -59,6 +60,11 @@ namespace ClassLibraryTreeView.Classes
         }
         private void ShowContextMenu(object sender, TreeNodeMouseClickEventArgs eventArgs)
         {
+            if (eventArgs.Button == MouseButtons.Left)
+            {
+                this.NodeClicked?.Invoke(this, eventArgs);
+            }
+            
             if (eventArgs.Button == MouseButtons.Right)
             {
                 this.SelectedNode = eventArgs.Node;
@@ -92,8 +98,10 @@ namespace ClassLibraryTreeView.Classes
         private void AddItem(object sender, EventArgs e)
         {
             TreeNode node = new TreeNode(" ");
+            node.ForeColor = this.SelectedNode.ForeColor;
             this.SelectedNode.Nodes.Add(node);
             this.SelectedNode = node;
+            
             if (!node.IsEditing)
             {
                 node.BeginEdit();

@@ -78,15 +78,17 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\CustomTreeView.cs">
+    <Compile Include="Classes\ConceptualModelTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Classes\CustomTreeViewBase.cs" />
     <Compile Include="Classes\GridCell.cs" />
     <Compile Include="Classes\IIdentifiablePropertiesListView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Classes\MeasureClass.cs" />
+    <Compile Include="Classes\PermissibleAttributesListView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ConceptualModel.cs" />
     <Compile Include="Classes\ExcelExporter.cs" />
     <Compile Include="Classes\DocumentClass.cs" />
@@ -148,6 +150,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Icons\revert.ico" />
+    <None Include="Icons\xml.ico" />
+    <None Include="Icons\save.ico" />
     <Content Include="viewer.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
