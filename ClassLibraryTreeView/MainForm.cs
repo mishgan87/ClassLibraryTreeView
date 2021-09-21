@@ -24,6 +24,8 @@ namespace ClassLibraryTreeView
 {
     public partial class MainForm : Form
     {
+        private ConceptualModel model = new ConceptualModel();
+        string conceptualModelFileName = "";
         public MainForm()
         {
             InitializeComponent();
@@ -115,7 +117,7 @@ namespace ClassLibraryTreeView
                     if (e.Node.Parent.Text.ToLower().Contains("taxonomies"))
                     {
                         Taxonomy taxonomy = (Taxonomy)e.Node.Tag;
-
+                        labelInfo.Text = $"Taxonomy : {taxonomy.Name}";
                         AddPropertiesTab(taxonomy, tabControlProperties);
                         ListView listViewItems = new ListView();
                         listViewItems.View = View.Details;
@@ -189,11 +191,13 @@ namespace ClassLibraryTreeView
                     if (e.Node.Parent.Text.ToLower().Contains("units"))
                     {
                         MeasureUnit measureUnit = (MeasureUnit)e.Node.Tag;
+                        labelInfo.Text = $"Measure Unit : {measureUnit.Name}";
                         AddPropertiesTab(measureUnit, tabControlProperties);
                     }
                     if (e.Node.Parent.Text.ToLower().Contains("classes"))
                     {
                         MeasureClass measureClass = (MeasureClass)e.Node.Tag;
+                        labelInfo.Text = $"Measure Class : {measureClass.Name}";
                         AddPropertiesTab(measureClass, tabControlProperties);
                         ListView listViewItems = new ListView();
                         listViewItems.View = View.Details;
@@ -227,7 +231,7 @@ namespace ClassLibraryTreeView
             if (e.Node.Tag != null)
             {
                 EnumerationList enumerationList = (EnumerationList)e.Node.Tag;
-
+                labelInfo.Text = $"Enumeration List : {enumerationList.Name}";
                 AddPropertiesTab(enumerationList, tabControlProperties);
 
                 ListView listViewItems = new ListView();
@@ -256,6 +260,7 @@ namespace ClassLibraryTreeView
         {
             tabControlProperties.TabPages.Clear();
             IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
+            labelInfo.Text = $"Attribute : {attribute.Name}";
             AddPropertiesTab(attribute, tabControlProperties);
         }
         private void ViewClassProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
@@ -266,7 +271,11 @@ namespace ClassLibraryTreeView
 
             if (cmClass != null)
             {
+                labelInfo.Text = $"Class : {cmClass.Name}";
                 AddPropertiesTab(cmClass, tabControlProperties);
+
+                tabControlProperties.TabPages.Add(new TabPage("Permissible Attributes"));
+                tabControlProperties.TabPages.Add(new TabPage("Permissible Grid"));
 
                 // Add permissible attributes
 
@@ -274,16 +283,13 @@ namespace ClassLibraryTreeView
 
                 ListView listView = new ListView();
                 listView.View = View.Details;
-                listView.Columns.Clear();
-                listView.Items.Clear();
-
                 listView.Dock = DockStyle.Fill;
+                listView.LabelEdit = true;
+                listView.GridLines = true;
                 listView.Font = tabControlProperties.Font;
                 listView.MouseDoubleClick += new MouseEventHandler(EditPermissibleAttribute);
 
-                TabPage pagePermissibleAttributes = new TabPage("Permissible Attributes");
-                pagePermissibleAttributes.Controls.Add(listView);
-                tabControlProperties.TabPages.Add(pagePermissibleAttributes);
+                tabControlProperties.TabPages[1].Controls.Add(listView);
 
                 if (permissibleAttributes.Count == 0)
                 {
@@ -332,6 +338,11 @@ namespace ClassLibraryTreeView
                         }
                     }
                 }
+
+                // add permissible grid
+
+                // tabControlProperties.TabPages[1].Controls.Add(listView);
+
             }
         }
         private void EditPermissibleAttribute(object sender, MouseEventArgs eventArgs)
