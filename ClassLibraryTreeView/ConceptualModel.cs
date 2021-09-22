@@ -722,7 +722,7 @@ namespace ClassLibraryTreeView
                     break;
             }
         }
-        public void ExportPermissibleGrid(string filename)
+        public void ExportPermissibleGrid()
         {
             using (XLWorkbook workbook = new XLWorkbook())
             {
@@ -793,7 +793,11 @@ namespace ClassLibraryTreeView
                 {
                     worksheet.Column(col).AdjustToContents();
                 }
-                
+
+                string filename = FullPathXml;
+                filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
+                filename += ".xlsx";
+
                 workbook.SaveAs(filename);
             }
         }

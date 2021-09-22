@@ -15,6 +15,7 @@ namespace ClassLibraryTreeView.Classes
         private ListViewItem editedItem = new ListViewItem();
         private int editedSubItemIndex = -1;
         private ComboBox comboBoxProperty = new ComboBox();
+        private Rectangle ClickedItem = new Rectangle();
         private Dictionary<string, IAttribute> attributes = null;
         public PropertiesListView(IIdentifiable element) : base()
         {
@@ -152,7 +153,7 @@ namespace ClassLibraryTreeView.Classes
 
                 ListViewItem.ListViewSubItem editedSubItem = editedItem.SubItems[editedSubItemIndex];
 
-                Rectangle ClickedItem = new Rectangle(editedSubItem.Bounds.X, editedSubItem.Bounds.Y, editedSubItem.Bounds.Width, editedSubItem.Bounds.Height);
+                ClickedItem = new Rectangle(editedSubItem.Bounds.X, editedSubItem.Bounds.Y, editedSubItem.Bounds.Width, editedSubItem.Bounds.Height);
 
                 if (editedSubItem.Text.ToLower().Equals("true"))
                 {
@@ -166,46 +167,44 @@ namespace ClassLibraryTreeView.Classes
                     return;
                 }
 
-                if (editedItem.Text.ToLower().Equals("xtype"))
+                if (editedItem.Text.ToLower().Equals("xtype") || editedItem.Text.ToLower().Equals("concept"))
                 {
-                    comboBoxProperty.Items.Clear();
-                    comboBoxProperty.Items.Add("Unselect");
-                    comboBoxProperty.Items.Add("Functional");
-                    comboBoxProperty.Items.Add("Physical");
-                    comboBoxProperty.Items.Add("General");
-                    comboBoxProperty.Items.Add("Document");
-
-                    comboBoxProperty.Bounds = ClickedItem;
-                    comboBoxProperty.Text = editedSubItem.Text;
-                    comboBoxProperty.Visible = true;
-                    comboBoxProperty.BringToFront();
-                    comboBoxProperty.Focus();
+                    ShowComboBox(new object[] { "Unselect", "Functional", "Physical", "General", "Document" });
                     return;
                 }
 
                 if (this.Columns[editedSubItemIndex].Text.ToLower().Equals("validationtype"))
                 {
-                    comboBoxProperty.Items.Clear();
-                    comboBoxProperty.Items.Add("Unselect");
-                    comboBoxProperty.Items.Add("Enumeration");
-                    comboBoxProperty.Items.Add("ValueRangeInclusive");
-                    comboBoxProperty.Items.Add("RegularExpression");
-                    comboBoxProperty.Items.Add("Association");
-
-                    comboBoxProperty.Bounds = ClickedItem;
-                    comboBoxProperty.Text = editedSubItem.Text;
-                    comboBoxProperty.Visible = true;
-                    comboBoxProperty.BringToFront();
-                    comboBoxProperty.Focus();
+                    ShowComboBox(new object[] { "Unselect", "Unselect", "Enumeration", "ValueRangeInclusive", "RegularExpression", "Association" });
                     return;
                 }
 
-                textBoxProperty.Bounds = ClickedItem;
-                textBoxProperty.Text = editedSubItem.Text;
-                textBoxProperty.Visible = true;
-                textBoxProperty.BringToFront();
-                textBoxProperty.Focus();
+                if (this.Columns[editedSubItemIndex].Text.ToLower().Equals("presence"))
+                {
+                    ShowComboBox(new object[] { "Unselect", "NotApplicable", "Optional", "Preferred", "Required" });
+                    return;
+                }
+
+                ShowTextBox();
             }
+        }
+        private void ShowTextBox()
+        {
+            textBoxProperty.Bounds = ClickedItem;
+            textBoxProperty.Text = editedItem.SubItems[editedSubItemIndex].Text;
+            textBoxProperty.Visible = true;
+            textBoxProperty.BringToFront();
+            textBoxProperty.Focus();
+        }
+        private void ShowComboBox(object[] items)
+        {
+            comboBoxProperty.Items.Clear();
+            comboBoxProperty.Items.AddRange(items);
+            comboBoxProperty.Bounds = ClickedItem;
+            comboBoxProperty.Text = editedItem.SubItems[editedSubItemIndex].Text;
+            comboBoxProperty.Visible = true;
+            comboBoxProperty.BringToFront();
+            comboBoxProperty.Focus();
         }
     }
 }
