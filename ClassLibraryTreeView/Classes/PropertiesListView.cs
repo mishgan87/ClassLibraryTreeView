@@ -25,6 +25,9 @@ namespace ClassLibraryTreeView.Classes
                 return;
             }
 
+            this.Columns.Add("Property", 300, HorizontalAlignment.Left);
+            this.Columns.Add("Value", 300, HorizontalAlignment.Left);
+
             KeyValuePair<string, string>[] properties = element.Attributes();
             foreach (KeyValuePair<string, string> property in properties)
             {
@@ -105,8 +108,6 @@ namespace ClassLibraryTreeView.Classes
             this.Dock = DockStyle.Fill;
             this.View = View.Details;
             this.FullRowSelect = true;
-            this.Columns.Add("Property", 300, HorizontalAlignment.Left);
-            this.Columns.Add("Value", 300, HorizontalAlignment.Left);
             this.MouseDoubleClick += new MouseEventHandler(this.OnMouseDoubleClick);
         }
         private void PropertyChanged(object sender, EventArgs e)
