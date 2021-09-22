@@ -45,17 +45,17 @@ namespace ClassLibraryTreeView.Classes
 
             if (mode == 2)
             {
-                AddEnumerations(model);
+                AddTaxomies(model);
             }
 
             if (mode == 3)
             {
-                AddMeasures(model);
+                AddEnumerations(model);
             }
             
             if (mode == 4)
             {
-                AddTaxomies(model);
+                AddMeasures(model);
             }
         }
         private void ShowContextMenu(object sender, TreeNodeMouseClickEventArgs eventArgs)

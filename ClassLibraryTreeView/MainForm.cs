@@ -1,78 +1,38 @@
-﻿using ClassLibraryTreeView;
-using ClassLibraryTreeView.Classes;
+﻿using ClassLibraryTreeView.Classes;
 using ClassLibraryTreeView.Interfaces;
-using ClosedXML.Excel;
-using DocumentFormat.OpenXml;
-using DocumentFormat.OpenXml.Packaging;
-using DocumentFormat.OpenXml.Spreadsheet;
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using Color = DocumentFormat.OpenXml.Spreadsheet.Color;
-using Font = DocumentFormat.OpenXml.Spreadsheet.Font;
+
 
 namespace ClassLibraryTreeView
 {
     public partial class MainForm : Form
     {
-        private ConceptualModel model = new ConceptualModel();
+        private ConceptualModel model = null;
+        private TreeNode SelectedTreeNode = null;
         public MainForm()
         {
             InitializeComponent();
+            model = new ConceptualModel();
+            model.ExportProgress += new EventHandler<int>(this.SetExportProgress);
         }
-        private void ShowClasses()
+        private void SetExportProgress(object sender, int progressValue)
         {
-            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 0);
-            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewProperties);
-
-            TabPage tabPage = new TabPage("Classes");
-            tabPage.Controls.Add(treeView);
-            tabControlTrees.TabPages.Add(tabPage);
+            if (progressBar.InvokeRequired)
+            {
+                Action safeWrite = delegate { SetProgress(progressValue); };
+                progressBar.Invoke(safeWrite);
+            }
+            else
+            {
+                progressBar.Value = progressValue;
+            }
         }
-        private void ShowAttributes()
+        private void SetProgress(int progress)
         {
-            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 1);
-            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewProperties);
-
-            TabPage tabPage = new TabPage("Attributes");
-            tabPage.Controls.Add(treeView);
-            tabControlTrees.TabPages.Add(tabPage);
-        }
-        private void ShowEnumerations()
-        {
-            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 2);
-            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewProperties);
-
-            TabPage tabPage = new TabPage("Enumerations");
-            tabPage.Controls.Add(treeView);
-            tabControlTrees.TabPages.Add(tabPage);
-        }
-        private void ShowMeasureClasses()
-        {
-            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 3);
-            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewProperties);
-
-            TabPage tabPage = new TabPage("Measures");
-            tabPage.Controls.Add(treeView);
-            tabControlTrees.TabPages.Add(tabPage);
-        }
-        private void ShowTaxonomies()
-        {
-            ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, 4);
-            treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewProperties);
-
-            TabPage tabPage = new TabPage("Taxonomies");
-            tabPage.Controls.Add(treeView);
-            tabControlTrees.TabPages.Add(tabPage);
+            progressBar.Value = progress;
         }
         private void ViewTaxonomyProperties(object sender, TreeNodeMouseClickEventArgs e)
         {
@@ -230,9 +190,11 @@ namespace ClassLibraryTreeView
                 return;
             }
 
+            SelectedTreeNode = eventArgs.Node;
+
             propertiesTabs.TabPages.Clear();
 
-            if (this.tabControlTrees.SelectedTab.Text.ToLower().Equals("attributes"))
+            if (this.treeTabs.SelectedTab.Text.ToLower().Equals("attributes"))
             {
                 IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
                 info.Text = $"Attribute : {attribute.Name}";
@@ -240,7 +202,7 @@ namespace ClassLibraryTreeView
                 propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(attribute));
             }
 
-            if (this.tabControlTrees.SelectedTab.Text.ToLower().Equals("classes"))
+            if (this.treeTabs.SelectedTab.Text.ToLower().Equals("classes"))
             {
                 IClass cmClass = (IClass)eventArgs.Node.Tag;
                 info.Text = $"Class : {cmClass.Name}";
@@ -254,7 +216,7 @@ namespace ClassLibraryTreeView
                 // propertiesTabs.TabPages[2].Controls.Add(listView); // add permissible grid
             }
 
-            if (this.tabControlTrees.SelectedTab.Text.ToLower().Equals("enumerations"))
+            if (this.treeTabs.SelectedTab.Text.ToLower().Equals("enumerations"))
             {
                 ViewEnumerationProperties(eventArgs.Node.Tag);
             }
@@ -274,29 +236,71 @@ namespace ClassLibraryTreeView
             
             MessageBox.Show($"Export done for {elapsedTime}");
             layoutMain.Panel1.Enabled = true;
+            progressBar.Value = 0;
         }
 
         private void BtnOpenFile_Click(object sender, EventArgs e)
         {
             if (model.OpenFile())
             {
+                info.Text = "";
+                treeTabs.TabPages.Clear();
+                propertiesTabs.TabPages.Clear();
                 modelName.Text = $"{model.ModelName}";
 
-                tabControlTrees.TabPages.Clear();
-                propertiesTabs.TabPages.Clear();
-                info.Text = "";
+                treeTabs.TabPages.Add(new TabPage("Classes"));
+                treeTabs.TabPages.Add(new TabPage("Attributes"));
+                treeTabs.TabPages.Add(new TabPage("Taxonomies"));
+                treeTabs.TabPages.Add(new TabPage("Enumerations"));
+                treeTabs.TabPages.Add(new TabPage("Measures"));
 
-                ShowClasses();
-                ShowAttributes();
-                ShowTaxonomies();
-                ShowEnumerations();
-                ShowMeasureClasses();
+                for(int index = 0; index < treeTabs.TabPages.Count; index++)
+                {
+                    ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, index);
+                    treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewProperties);
+                    treeTabs.TabPages[index].Controls.Add(treeView);
+                }
             }
         }
 
         private void BtnExportPermissibleGrid_Click(object sender, EventArgs e)
         {
             ExportPermissibleGrid(sender, e);
+        }
+
+        private void BtnDelete_Click(object sender, EventArgs e)
+        {
+            if (SelectedTreeNode == null)
+            {
+                return;
+            }
+            TreeView treeView = SelectedTreeNode.TreeView;
+            treeView.SelectedNode = SelectedTreeNode;
+            treeView.Nodes.Remove(treeView.SelectedNode);
+            SelectedTreeNode = null;
+        }
+
+        private void BtnAdd_Click(object sender, EventArgs e)
+        {
+            if (SelectedTreeNode == null)
+            {
+                return;
+            }
+            TreeNode node = new TreeNode(" ");
+            node.ForeColor = SelectedTreeNode.ForeColor;
+
+            TreeView treeView = SelectedTreeNode.TreeView;
+            treeView.SelectedNode = SelectedTreeNode;
+
+            treeView.SelectedNode.Nodes.Add(node);
+            treeView.SelectedNode = node;
+            
+            SelectedTreeNode = node;
+
+            if (!node.IsEditing)
+            {
+                node.BeginEdit();
+            }
         }
     }
 }

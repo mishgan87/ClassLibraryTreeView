@@ -33,6 +33,8 @@ namespace ClassLibraryTreeView
     }
     public class ConceptualModel
     {
+        public event EventHandler<int> ExportProgress;
+
         public Dictionary<string, Dictionary<string, IClass>> classes = new Dictionary<string, Dictionary<string, IClass>>();
         public Dictionary<string, Dictionary<string, IAttribute>> attributes = new Dictionary<string, Dictionary<string, IAttribute>>();
 
@@ -603,7 +605,7 @@ namespace ClassLibraryTreeView
 
             return newCell;
         }
-        private void WriteClass(IXLWorksheet worksheet, KeyValuePair<int, IClass> classRow, Queue<string> mergedRanges)
+        private void WriteClass(IXLWorksheet worksheet, KeyValuePair<int, IClass> classRow, Queue<string> mergedRanges, int classesCount)
         {
             int row = classRow.Key;
             IClass cmClass = classRow.Value;
@@ -644,6 +646,9 @@ namespace ClassLibraryTreeView
                         break;
                 }
             }
+
+            int progress = (row * 100) / classesCount;
+            this.ExportProgress?.Invoke(this, progress);
         }
         private void SetCell(IXLCell cell, CellStyle style, string value)
         {
@@ -777,7 +782,7 @@ namespace ClassLibraryTreeView
                     },
                     classRow =>
                     {
-                        WriteClass(worksheet, classRow, mergedRanges);
+                        WriteClass(worksheet, classRow, mergedRanges, classRows.Count);
                     }
                 );
 
