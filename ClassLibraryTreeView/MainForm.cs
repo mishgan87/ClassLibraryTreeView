@@ -17,6 +17,7 @@ namespace ClassLibraryTreeView
             InitializeComponent();
             model = new ConceptualModel();
             model.ExportProgress += new EventHandler<int>(this.SetExportProgress);
+            progressBar.Visible = false;
         }
         private void SetExportProgress(object sender, int progressValue)
         {
@@ -224,19 +225,19 @@ namespace ClassLibraryTreeView
         private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
             layoutMain.Panel1.Enabled = false;
-
-            Stopwatch stopWatch = new Stopwatch();
-            stopWatch.Start();
-
-            await Task.Run(() => model.ExportPermissibleGrid());
-
-            stopWatch.Stop();
-            TimeSpan timeSpan = stopWatch.Elapsed;
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10);
-            
-            MessageBox.Show($"Export done for {elapsedTime}");
-            layoutMain.Panel1.Enabled = true;
             progressBar.Value = 0;
+            progressBar.Visible = true;
+
+            // Stopwatch stopWatch = new Stopwatch();
+            // stopWatch.Start();
+            await Task.Run(() => model.ExportPermissibleGrid());
+            // stopWatch.Stop();
+            // TimeSpan timeSpan = stopWatch.Elapsed;
+            // string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10);
+            // MessageBox.Show($"Export done for {elapsedTime}");
+
+            layoutMain.Panel1.Enabled = true;
+            progressBar.Visible = false;
         }
 
         private void BtnOpenFile_Click(object sender, EventArgs e)

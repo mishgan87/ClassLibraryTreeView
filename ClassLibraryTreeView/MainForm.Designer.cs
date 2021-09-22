@@ -267,10 +267,10 @@ namespace ClassLibraryTreeView
             // 
             // progressBar
             // 
-            this.progressBar.Dock = System.Windows.Forms.DockStyle.Left;
+            this.progressBar.Dock = System.Windows.Forms.DockStyle.Fill;
             this.progressBar.Location = new System.Drawing.Point(600, 0);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(100, 64);
+            this.progressBar.Size = new System.Drawing.Size(572, 64);
             this.progressBar.TabIndex = 7;
             // 
             // MainForm
