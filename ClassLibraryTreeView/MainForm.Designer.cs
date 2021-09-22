@@ -31,26 +31,21 @@ namespace ClassLibraryTreeView
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this.tabControlProperties = new System.Windows.Forms.TabControl();
-            this.menuBar = new System.Windows.Forms.ToolStrip();
+            this.propertiesTabs = new System.Windows.Forms.TabControl();
             this.labelModelName = new System.Windows.Forms.ToolStripLabel();
-            this.buttonOpenFile = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButtonExportPermissibleGrid = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
-            this.buttonExportXml = new System.Windows.Forms.ToolStripButton();
-            this.buttonSave = new System.Windows.Forms.ToolStripButton();
-            this.toolStripInfo = new System.Windows.Forms.ToolStrip();
             this.labelInfo = new System.Windows.Forms.ToolStripLabel();
-            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton5 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripButton6 = new System.Windows.Forms.ToolStripButton();
             this.layoutMain = new System.Windows.Forms.SplitContainer();
+            this.modelName = new System.Windows.Forms.Label();
+            this.btnUndo = new System.Windows.Forms.Button();
+            this.btnDelete = new System.Windows.Forms.Button();
+            this.btnAdd = new System.Windows.Forms.Button();
+            this.btnSave = new System.Windows.Forms.Button();
+            this.btnExportPermissibleGrid = new System.Windows.Forms.Button();
+            this.btnOpenFile = new System.Windows.Forms.Button();
             this.layoutSplitter = new System.Windows.Forms.SplitContainer();
             this.tabControlTrees = new System.Windows.Forms.TabControl();
             this.layoutProperties = new System.Windows.Forms.SplitContainer();
-            this.menuBar.SuspendLayout();
-            this.toolStripInfo.SuspendLayout();
+            this.info = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.layoutMain)).BeginInit();
             this.layoutMain.Panel1.SuspendLayout();
             this.layoutMain.Panel2.SuspendLayout();
@@ -65,36 +60,16 @@ namespace ClassLibraryTreeView
             this.layoutProperties.SuspendLayout();
             this.SuspendLayout();
             // 
-            // tabControlProperties
+            // propertiesTabs
             // 
-            this.tabControlProperties.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControlProperties.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.tabControlProperties.Location = new System.Drawing.Point(0, 0);
-            this.tabControlProperties.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
-            this.tabControlProperties.Name = "tabControlProperties";
-            this.tabControlProperties.SelectedIndex = 0;
-            this.tabControlProperties.Size = new System.Drawing.Size(646, 337);
-            this.tabControlProperties.TabIndex = 0;
-            // 
-            // menuBar
-            // 
-            this.menuBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.menuBar.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.menuBar.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.labelModelName,
-            this.buttonOpenFile,
-            this.buttonSave,
-            this.buttonExportXml,
-            this.toolStripButtonExportPermissibleGrid,
-            this.toolStripButton1,
-            this.toolStripButton3});
-            this.menuBar.Location = new System.Drawing.Point(0, 0);
-            this.menuBar.MinimumSize = new System.Drawing.Size(0, 64);
-            this.menuBar.Name = "menuBar";
-            this.menuBar.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.menuBar.Size = new System.Drawing.Size(866, 64);
-            this.menuBar.TabIndex = 0;
-            this.menuBar.Text = "toolStrip1";
+            this.propertiesTabs.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.propertiesTabs.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.propertiesTabs.Location = new System.Drawing.Point(0, 0);
+            this.propertiesTabs.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.propertiesTabs.Name = "propertiesTabs";
+            this.propertiesTabs.SelectedIndex = 0;
+            this.propertiesTabs.Size = new System.Drawing.Size(876, 344);
+            this.propertiesTabs.TabIndex = 0;
             // 
             // labelModelName
             // 
@@ -106,84 +81,6 @@ namespace ClassLibraryTreeView
             this.labelModelName.Text = "   ";
             this.labelModelName.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // buttonOpenFile
-            // 
-            this.buttonOpenFile.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.buttonOpenFile.Image = global::ClassLibraryTreeView.Properties.Resources.open;
-            this.buttonOpenFile.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.buttonOpenFile.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.buttonOpenFile.Name = "buttonOpenFile";
-            this.buttonOpenFile.Size = new System.Drawing.Size(52, 61);
-            this.buttonOpenFile.ToolTipText = "Open File";
-            this.buttonOpenFile.Click += new System.EventHandler(this.ButtonOpenFile_Click);
-            // 
-            // toolStripButtonExportPermissibleGrid
-            // 
-            this.toolStripButtonExportPermissibleGrid.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButtonExportPermissibleGrid.Image = global::ClassLibraryTreeView.Properties.Resources.excel;
-            this.toolStripButtonExportPermissibleGrid.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButtonExportPermissibleGrid.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButtonExportPermissibleGrid.Name = "toolStripButtonExportPermissibleGrid";
-            this.toolStripButtonExportPermissibleGrid.Size = new System.Drawing.Size(52, 61);
-            this.toolStripButtonExportPermissibleGrid.ToolTipText = "Export Permissible Grid";
-            this.toolStripButtonExportPermissibleGrid.Click += new System.EventHandler(this.ExportPermissibleGrid);
-            // 
-            // toolStripButton1
-            // 
-            this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton1.Image = global::ClassLibraryTreeView.Properties.Resources.search;
-            this.toolStripButton1.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton1.Name = "toolStripButton1";
-            this.toolStripButton1.Size = new System.Drawing.Size(52, 61);
-            this.toolStripButton1.ToolTipText = "Search";
-            // 
-            // toolStripButton3
-            // 
-            this.toolStripButton3.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton3.Image = global::ClassLibraryTreeView.Properties.Resources.filter;
-            this.toolStripButton3.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton3.Name = "toolStripButton3";
-            this.toolStripButton3.Size = new System.Drawing.Size(52, 61);
-            this.toolStripButton3.ToolTipText = "Filter";
-            // 
-            // buttonExportXml
-            // 
-            this.buttonExportXml.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.buttonExportXml.Image = global::ClassLibraryTreeView.Properties.Resources.xml;
-            this.buttonExportXml.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.buttonExportXml.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.buttonExportXml.Name = "buttonExportXml";
-            this.buttonExportXml.Size = new System.Drawing.Size(52, 61);
-            this.buttonExportXml.ToolTipText = "Export To XML";
-            // 
-            // buttonSave
-            // 
-            this.buttonSave.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.buttonSave.Image = global::ClassLibraryTreeView.Properties.Resources.save;
-            this.buttonSave.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.buttonSave.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.buttonSave.Name = "buttonSave";
-            this.buttonSave.Size = new System.Drawing.Size(52, 61);
-            this.buttonSave.ToolTipText = "Save Model";
-            // 
-            // toolStripInfo
-            // 
-            this.toolStripInfo.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolStripInfo.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStripInfo.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.labelInfo,
-            this.toolStripButton4,
-            this.toolStripButton5,
-            this.toolStripButton6});
-            this.toolStripInfo.Location = new System.Drawing.Point(0, 0);
-            this.toolStripInfo.Name = "toolStripInfo";
-            this.toolStripInfo.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.toolStripInfo.Size = new System.Drawing.Size(646, 79);
-            this.toolStripInfo.TabIndex = 0;
-            this.toolStripInfo.Text = "toolStrip2";
-            // 
             // labelInfo
             // 
             this.labelInfo.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Bold);
@@ -191,64 +88,120 @@ namespace ClassLibraryTreeView
             this.labelInfo.Size = new System.Drawing.Size(41, 76);
             this.labelInfo.Text = "Info";
             // 
-            // toolStripButton4
-            // 
-            this.toolStripButton4.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripButton4.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton4.Image = global::ClassLibraryTreeView.Properties.Resources.revert;
-            this.toolStripButton4.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(52, 76);
-            this.toolStripButton4.ToolTipText = "Revert";
-            // 
-            // toolStripButton5
-            // 
-            this.toolStripButton5.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripButton5.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton5.Image = global::ClassLibraryTreeView.Properties.Resources.delete;
-            this.toolStripButton5.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton5.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton5.Name = "toolStripButton5";
-            this.toolStripButton5.Size = new System.Drawing.Size(52, 76);
-            this.toolStripButton5.ToolTipText = "Remove";
-            // 
-            // toolStripButton6
-            // 
-            this.toolStripButton6.Alignment = System.Windows.Forms.ToolStripItemAlignment.Right;
-            this.toolStripButton6.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.toolStripButton6.Image = global::ClassLibraryTreeView.Properties.Resources.add;
-            this.toolStripButton6.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-            this.toolStripButton6.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton6.Name = "toolStripButton6";
-            this.toolStripButton6.Size = new System.Drawing.Size(52, 76);
-            this.toolStripButton6.ToolTipText = "Add";
-            // 
             // layoutMain
             // 
             this.layoutMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.layoutMain.IsSplitterFixed = true;
             this.layoutMain.Location = new System.Drawing.Point(0, 0);
+            this.layoutMain.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.layoutMain.Name = "layoutMain";
             this.layoutMain.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
             // layoutMain.Panel1
             // 
-            this.layoutMain.Panel1.Controls.Add(this.menuBar);
+            this.layoutMain.Panel1.Controls.Add(this.modelName);
+            this.layoutMain.Panel1.Controls.Add(this.btnUndo);
+            this.layoutMain.Panel1.Controls.Add(this.btnDelete);
+            this.layoutMain.Panel1.Controls.Add(this.btnAdd);
+            this.layoutMain.Panel1.Controls.Add(this.btnSave);
+            this.layoutMain.Panel1.Controls.Add(this.btnExportPermissibleGrid);
+            this.layoutMain.Panel1.Controls.Add(this.btnOpenFile);
+            this.layoutMain.Panel1.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             // 
             // layoutMain.Panel2
             // 
             this.layoutMain.Panel2.Controls.Add(this.layoutSplitter);
-            this.layoutMain.Size = new System.Drawing.Size(866, 488);
+            this.layoutMain.Size = new System.Drawing.Size(1172, 497);
             this.layoutMain.SplitterDistance = 64;
+            this.layoutMain.SplitterWidth = 5;
             this.layoutMain.TabIndex = 9;
+            // 
+            // modelName
+            // 
+            this.modelName.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.modelName.Location = new System.Drawing.Point(600, 0);
+            this.modelName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.modelName.Name = "modelName";
+            this.modelName.Size = new System.Drawing.Size(572, 64);
+            this.modelName.TabIndex = 6;
+            this.modelName.Text = "Conceptual model";
+            this.modelName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // btnUndo
+            // 
+            this.btnUndo.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
+            this.btnUndo.Location = new System.Drawing.Point(500, 0);
+            this.btnUndo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnUndo.Name = "btnUndo";
+            this.btnUndo.Size = new System.Drawing.Size(100, 64);
+            this.btnUndo.TabIndex = 5;
+            this.btnUndo.UseVisualStyleBackColor = true;
+            // 
+            // btnDelete
+            // 
+            this.btnDelete.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnDelete.Image = ((System.Drawing.Image)(resources.GetObject("btnDelete.Image")));
+            this.btnDelete.Location = new System.Drawing.Point(400, 0);
+            this.btnDelete.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(100, 64);
+            this.btnDelete.TabIndex = 1;
+            this.btnDelete.UseVisualStyleBackColor = true;
+            // 
+            // btnAdd
+            // 
+            this.btnAdd.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnAdd.Image = ((System.Drawing.Image)(resources.GetObject("btnAdd.Image")));
+            this.btnAdd.Location = new System.Drawing.Point(300, 0);
+            this.btnAdd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnAdd.Name = "btnAdd";
+            this.btnAdd.Size = new System.Drawing.Size(100, 64);
+            this.btnAdd.TabIndex = 5;
+            this.btnAdd.UseVisualStyleBackColor = true;
+            // 
+            // btnSave
+            // 
+            this.btnSave.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnSave.Image = ((System.Drawing.Image)(resources.GetObject("btnSave.Image")));
+            this.btnSave.Location = new System.Drawing.Point(200, 0);
+            this.btnSave.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnSave.Name = "btnSave";
+            this.btnSave.Size = new System.Drawing.Size(100, 64);
+            this.btnSave.TabIndex = 4;
+            this.btnSave.UseVisualStyleBackColor = true;
+            // 
+            // btnExportPermissibleGrid
+            // 
+            this.btnExportPermissibleGrid.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnExportPermissibleGrid.Image = ((System.Drawing.Image)(resources.GetObject("btnExportPermissibleGrid.Image")));
+            this.btnExportPermissibleGrid.Location = new System.Drawing.Point(100, 0);
+            this.btnExportPermissibleGrid.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnExportPermissibleGrid.Name = "btnExportPermissibleGrid";
+            this.btnExportPermissibleGrid.Size = new System.Drawing.Size(100, 64);
+            this.btnExportPermissibleGrid.TabIndex = 3;
+            this.btnExportPermissibleGrid.UseVisualStyleBackColor = true;
+            this.btnExportPermissibleGrid.Click += new System.EventHandler(this.BtnExportPermissibleGrid_Click);
+            // 
+            // btnOpenFile
+            // 
+            this.btnOpenFile.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnOpenFile.Image = ((System.Drawing.Image)(resources.GetObject("btnOpenFile.Image")));
+            this.btnOpenFile.Location = new System.Drawing.Point(0, 0);
+            this.btnOpenFile.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnOpenFile.Name = "btnOpenFile";
+            this.btnOpenFile.Size = new System.Drawing.Size(100, 64);
+            this.btnOpenFile.TabIndex = 0;
+            this.btnOpenFile.UseVisualStyleBackColor = true;
+            this.btnOpenFile.Click += new System.EventHandler(this.BtnOpenFile_Click);
             // 
             // layoutSplitter
             // 
             this.layoutSplitter.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutSplitter.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.layoutSplitter.Location = new System.Drawing.Point(0, 0);
+            this.layoutSplitter.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.layoutSplitter.Name = "layoutSplitter";
             // 
             // layoutSplitter.Panel1
@@ -258,18 +211,20 @@ namespace ClassLibraryTreeView
             // layoutSplitter.Panel2
             // 
             this.layoutSplitter.Panel2.Controls.Add(this.layoutProperties);
-            this.layoutSplitter.Size = new System.Drawing.Size(866, 420);
-            this.layoutSplitter.SplitterDistance = 216;
+            this.layoutSplitter.Size = new System.Drawing.Size(1172, 428);
+            this.layoutSplitter.SplitterDistance = 291;
+            this.layoutSplitter.SplitterWidth = 5;
             this.layoutSplitter.TabIndex = 12;
             // 
             // tabControlTrees
             // 
             this.tabControlTrees.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tabControlTrees.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tabControlTrees.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tabControlTrees.Location = new System.Drawing.Point(0, 0);
+            this.tabControlTrees.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabControlTrees.Name = "tabControlTrees";
             this.tabControlTrees.SelectedIndex = 0;
-            this.tabControlTrees.Size = new System.Drawing.Size(216, 420);
+            this.tabControlTrees.Size = new System.Drawing.Size(291, 428);
             this.tabControlTrees.TabIndex = 11;
             // 
             // layoutProperties
@@ -278,36 +233,46 @@ namespace ClassLibraryTreeView
             this.layoutProperties.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.layoutProperties.IsSplitterFixed = true;
             this.layoutProperties.Location = new System.Drawing.Point(0, 0);
+            this.layoutProperties.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.layoutProperties.Name = "layoutProperties";
             this.layoutProperties.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
             // layoutProperties.Panel1
             // 
-            this.layoutProperties.Panel1.Controls.Add(this.toolStripInfo);
+            this.layoutProperties.Panel1.Controls.Add(this.info);
+            this.layoutProperties.Panel1.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             // 
             // layoutProperties.Panel2
             // 
-            this.layoutProperties.Panel2.Controls.Add(this.tabControlProperties);
-            this.layoutProperties.Size = new System.Drawing.Size(646, 420);
+            this.layoutProperties.Panel2.Controls.Add(this.propertiesTabs);
+            this.layoutProperties.Size = new System.Drawing.Size(876, 428);
             this.layoutProperties.SplitterDistance = 79;
+            this.layoutProperties.SplitterWidth = 5;
             this.layoutProperties.TabIndex = 11;
+            // 
+            // info
+            // 
+            this.info.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.info.Location = new System.Drawing.Point(0, 0);
+            this.info.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.info.Name = "info";
+            this.info.Size = new System.Drawing.Size(876, 79);
+            this.info.TabIndex = 6;
+            this.info.Text = "Info";
+            this.info.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(866, 488);
+            this.ClientSize = new System.Drawing.Size(1172, 497);
             this.Controls.Add(this.layoutMain);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "MainForm";
             this.Text = "CMViewer";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
-            this.menuBar.ResumeLayout(false);
-            this.menuBar.PerformLayout();
-            this.toolStripInfo.ResumeLayout(false);
-            this.toolStripInfo.PerformLayout();
             this.layoutMain.Panel1.ResumeLayout(false);
-            this.layoutMain.Panel1.PerformLayout();
             this.layoutMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.layoutMain)).EndInit();
             this.layoutMain.ResumeLayout(false);
@@ -316,7 +281,6 @@ namespace ClassLibraryTreeView
             ((System.ComponentModel.ISupportInitialize)(this.layoutSplitter)).EndInit();
             this.layoutSplitter.ResumeLayout(false);
             this.layoutProperties.Panel1.ResumeLayout(false);
-            this.layoutProperties.Panel1.PerformLayout();
             this.layoutProperties.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.layoutProperties)).EndInit();
             this.layoutProperties.ResumeLayout(false);
@@ -325,24 +289,21 @@ namespace ClassLibraryTreeView
         }
 
         #endregion
-        private System.Windows.Forms.TabControl tabControlProperties;
-        private ToolStrip menuBar;
+        private System.Windows.Forms.TabControl propertiesTabs;
         private ToolStripLabel labelModelName;
-        private ToolStripButton buttonOpenFile;
-        private ToolStripButton toolStripButtonExportPermissibleGrid;
-        private ToolStrip toolStripInfo;
         private ToolStripLabel labelInfo;
-        private ToolStripButton toolStripButton1;
-        private ToolStripButton toolStripButton3;
         private SplitContainer layoutMain;
         private SplitContainer layoutSplitter;
         private SplitContainer layoutProperties;
         private TabControl tabControlTrees;
-        private ToolStripButton toolStripButton4;
-        private ToolStripButton toolStripButton5;
-        private ToolStripButton toolStripButton6;
-        private ToolStripButton buttonExportXml;
-        private ToolStripButton buttonSave;
+        private Button btnSave;
+        private Button btnExportPermissibleGrid;
+        private Button btnOpenFile;
+        private Button btnAdd;
+        private Button btnDelete;
+        private Button btnUndo;
+        private Label info;
+        private Label modelName;
     }
 }
 

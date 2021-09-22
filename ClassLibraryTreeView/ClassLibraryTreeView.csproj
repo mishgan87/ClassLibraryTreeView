@@ -115,18 +115,17 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DependentUpon>Resources.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-    </Compile>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DependentUpon>Settings.settings</DependentUpon>
@@ -152,6 +151,25 @@
     <None Include="Icons\revert.ico" />
     <None Include="Icons\xml.ico" />
     <None Include="Icons\save.ico" />
+    <None Include="Icons\undo.ico" />
+    <None Include="Icons\accept.ico" />
+    <None Include="Icons\add.ico" />
+    <None Include="Icons\attributes.ico" />
+    <None Include="Icons\classes.ico" />
+    <None Include="Icons\delete.ico" />
+    <None Include="Icons\download.ico" />
+    <None Include="Icons\edit.ico" />
+    <None Include="Icons\enumerations.ico" />
+    <None Include="Icons\excel.ico" />
+    <None Include="Icons\filter.ico" />
+    <None Include="Icons\home.ico" />
+    <None Include="Icons\measure.ico" />
+    <None Include="Icons\open.ico" />
+    <None Include="Icons\search.ico" />
+    <None Include="Icons\settings.ico" />
+    <None Include="Icons\taxonomies.ico" />
+    <None Include="Icons\upload.ico" />
+    <None Include="Icons\viewer.ico" />
     <Content Include="viewer.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -81,7 +81,7 @@ namespace ClassLibraryTreeView.Classes
                 itemAdd.Click += new EventHandler(this.AddItem);
 
                 ToolStripItem itemRemove = menu.Items.Add("Remove");
-                itemRemove.Image = global::ClassLibraryTreeView.Properties.Resources.remove;
+                itemRemove.Image = global::ClassLibraryTreeView.Properties.Resources.delete;
                 itemRemove.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
                 itemRemove.Click += new EventHandler(this.RemoveItem);
 

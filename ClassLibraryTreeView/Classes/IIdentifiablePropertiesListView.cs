@@ -22,6 +22,7 @@ namespace ClassLibraryTreeView.Classes
 
             textBoxProperty.Visible = false;
             textBoxProperty.KeyPress += new KeyPressEventHandler(this.PropertyTextBoxKeyPressed);
+            textBoxProperty.LostFocus += new EventHandler(this.OnTextBoxLostFocus);
 
             this.Controls.Add(comboBoxProperty);
             this.Controls.Add(textBoxProperty);
@@ -49,6 +50,12 @@ namespace ClassLibraryTreeView.Classes
             }
 
             this.MouseDoubleClick += new MouseEventHandler(this.OnMouseDoubleClick);
+        }
+        private void OnTextBoxLostFocus(object sender, EventArgs e)
+        {
+            TextBox textBox = (TextBox)sender;
+            editedItem.SubItems[1].Text = textBox.Text;
+            textBox.Hide();
         }
         private void OnMouseDoubleClick(object sender, MouseEventArgs e)
         {

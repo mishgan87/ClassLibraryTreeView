@@ -90,9 +90,12 @@ namespace ClassLibraryTreeView
                     model.ImportXml(filename);
                     filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
                     filename = filename.Substring(filename.LastIndexOf("\\") + 1, filename.Length - filename.LastIndexOf("\\") - 1);
-                    labelModelName.Text = $"{filename}";
+                    modelName.Text = $"{filename}";
 
                     tabControlTrees.TabPages.Clear();
+                    propertiesTabs.TabPages.Clear();
+                    info.Text = "";
+
                     ShowClasses();
                     ShowAttributes();
                     ShowTaxonomies();
@@ -109,7 +112,7 @@ namespace ClassLibraryTreeView
         }
         private void ViewTaxonomyProperties(object sender, TreeNodeMouseClickEventArgs e)
         {
-            tabControlProperties.TabPages.Clear();
+            propertiesTabs.TabPages.Clear();
             if (e.Node.Tag != null)
             {
                 if (e.Node.Parent != null)
@@ -117,8 +120,8 @@ namespace ClassLibraryTreeView
                     if (e.Node.Parent.Text.ToLower().Contains("taxonomies"))
                     {
                         Taxonomy taxonomy = (Taxonomy)e.Node.Tag;
-                        labelInfo.Text = $"Taxonomy : {taxonomy.Name}";
-                        AddPropertiesTab(taxonomy, tabControlProperties);
+                        info.Text = $"Taxonomy : {taxonomy.Name}";
+                        AddPropertiesTab(taxonomy, propertiesTabs);
                         ListView listViewItems = new ListView();
                         listViewItems.View = View.Details;
                         listViewItems.Columns.Clear();
@@ -136,11 +139,11 @@ namespace ClassLibraryTreeView
                         }
 
                         listViewItems.Dock = DockStyle.Fill;
-                        listViewItems.Font = tabControlProperties.Font;
+                        listViewItems.Font = propertiesTabs.Font;
 
                         TabPage pageNodes = new TabPage("Nodes");
                         pageNodes.Controls.Add(listViewItems);
-                        tabControlProperties.TabPages.Add(pageNodes);
+                        propertiesTabs.TabPages.Add(pageNodes);
                     }
                     else
                     {
@@ -151,7 +154,7 @@ namespace ClassLibraryTreeView
                             
                             if (node.Id.Equals(taxonomyNode.Id))
                             {
-                                AddPropertiesTab(node, tabControlProperties);
+                                AddPropertiesTab(node, propertiesTabs);
                                 ListView listViewItems = new ListView();
                                 listViewItems.View = View.Details;
                                 listViewItems.Columns.Clear();
@@ -169,11 +172,11 @@ namespace ClassLibraryTreeView
                                 }
 
                                 listViewItems.Dock = DockStyle.Fill;
-                                listViewItems.Font = tabControlProperties.Font;
+                                listViewItems.Font = propertiesTabs.Font;
 
                                 TabPage pageClasses = new TabPage("Classes");
                                 pageClasses.Controls.Add(listViewItems);
-                                tabControlProperties.TabPages.Add(pageClasses);
+                                propertiesTabs.TabPages.Add(pageClasses);
                                 break;
                             }
                         }
@@ -183,7 +186,7 @@ namespace ClassLibraryTreeView
         }
         private void ViewMeasureProperties(object sender, TreeNodeMouseClickEventArgs e)
         {
-            tabControlProperties.TabPages.Clear();
+            propertiesTabs.TabPages.Clear();
             if (e.Node.Tag != null)
             {
                 if (e.Node.Parent != null)
@@ -191,14 +194,14 @@ namespace ClassLibraryTreeView
                     if (e.Node.Parent.Text.ToLower().Contains("units"))
                     {
                         MeasureUnit measureUnit = (MeasureUnit)e.Node.Tag;
-                        labelInfo.Text = $"Measure Unit : {measureUnit.Name}";
-                        AddPropertiesTab(measureUnit, tabControlProperties);
+                        info.Text = $"Measure Unit : {measureUnit.Name}";
+                        AddPropertiesTab(measureUnit, propertiesTabs);
                     }
                     if (e.Node.Parent.Text.ToLower().Contains("classes"))
                     {
                         MeasureClass measureClass = (MeasureClass)e.Node.Tag;
-                        labelInfo.Text = $"Measure Class : {measureClass.Name}";
-                        AddPropertiesTab(measureClass, tabControlProperties);
+                        info.Text = $"Measure Class : {measureClass.Name}";
+                        AddPropertiesTab(measureClass, propertiesTabs);
                         ListView listViewItems = new ListView();
                         listViewItems.View = View.Details;
                         listViewItems.Columns.Clear();
@@ -216,23 +219,23 @@ namespace ClassLibraryTreeView
                         }
 
                         listViewItems.Dock = DockStyle.Fill;
-                        listViewItems.Font = tabControlProperties.Font;
+                        listViewItems.Font = propertiesTabs.Font;
 
                         TabPage pageItems = new TabPage("Units");
                         pageItems.Controls.Add(listViewItems);
-                        tabControlProperties.TabPages.Add(pageItems);
+                        propertiesTabs.TabPages.Add(pageItems);
                     }
                 }
             }
         }
         private void ViewEnumerationProperties(object sender, TreeNodeMouseClickEventArgs e)
         {
-            tabControlProperties.TabPages.Clear();
+            propertiesTabs.TabPages.Clear();
             if (e.Node.Tag != null)
             {
                 EnumerationList enumerationList = (EnumerationList)e.Node.Tag;
-                labelInfo.Text = $"Enumeration List : {enumerationList.Name}";
-                AddPropertiesTab(enumerationList, tabControlProperties);
+                info.Text = $"Enumeration List : {enumerationList.Name}";
+                AddPropertiesTab(enumerationList, propertiesTabs);
 
                 ListView listViewItems = new ListView();
                 listViewItems.View = View.Details;
@@ -249,11 +252,11 @@ namespace ClassLibraryTreeView
                 }
 
                 listViewItems.Dock = DockStyle.Fill;
-                listViewItems.Font = tabControlProperties.Font;
+                listViewItems.Font = propertiesTabs.Font;
 
                 TabPage pageItems = new TabPage("Items");
                 pageItems.Controls.Add(listViewItems);
-                tabControlProperties.TabPages.Add(pageItems);
+                propertiesTabs.TabPages.Add(pageItems);
             }
         }
         private void ViewAttributeProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
@@ -263,10 +266,10 @@ namespace ClassLibraryTreeView
                 return;
             }
 
-            tabControlProperties.TabPages.Clear();
+            propertiesTabs.TabPages.Clear();
             IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
-            labelInfo.Text = $"Attribute : {attribute.Name}";
-            AddPropertiesTab(attribute, tabControlProperties);
+            info.Text = $"Attribute : {attribute.Name}";
+            AddPropertiesTab(attribute, propertiesTabs);
         }
         private void ViewClassProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
         {
@@ -275,79 +278,21 @@ namespace ClassLibraryTreeView
                 return;
             }
 
-            tabControlProperties.TabPages.Clear();
+            propertiesTabs.TabPages.Clear();
 
             IClass cmClass = (IClass)eventArgs.Node.Tag;
 
             if (cmClass != null)
             {
-                labelInfo.Text = $"Class : {cmClass.Name}";
-                AddPropertiesTab(cmClass, tabControlProperties);
+                info.Text = $"Class : {cmClass.Name}";
+                AddPropertiesTab(cmClass, propertiesTabs);
 
-                tabControlProperties.TabPages.Add(new TabPage("Permissible Attributes"));
-                tabControlProperties.TabPages.Add(new TabPage("Permissible Grid"));
+                propertiesTabs.TabPages.Add(new TabPage("Permissible Attributes"));
+                propertiesTabs.TabPages.Add(new TabPage("Permissible Grid"));
 
                 // Add permissible attributes
 
-                Dictionary<string, IAttribute> permissibleAttributes = cmClass.PermissibleAttributesMap;
-
-                ListView listView = new ListView();
-                listView.View = View.Details;
-                listView.Dock = DockStyle.Fill;
-                listView.LabelEdit = true;
-                listView.GridLines = true;
-                listView.Font = tabControlProperties.Font;
-                listView.MouseDoubleClick += new MouseEventHandler(EditPermissibleAttribute);
-
-                tabControlProperties.TabPages[1].Controls.Add(listView);
-
-                if (permissibleAttributes.Count == 0)
-                {
-                    return;
-                }
-
-                KeyValuePair<string, string>[] attributes = cmClass.PermissibleAttributesMap.First().Value.Attributes();
-                foreach (KeyValuePair<string, string> property in attributes)
-                {
-                    listView.Columns.Add($"{property.Key}", 150, HorizontalAlignment.Left);
-                }
-                listView.HeaderStyle = ColumnHeaderStyle.Clickable;
-                listView.FullRowSelect = true;
-
-                foreach (IAttribute attribute in permissibleAttributes.Values)
-                {
-                    attributes = attribute.Attributes();
-                    List<string> items = new List<string>();
-                    foreach (KeyValuePair<string, string> property in attributes)
-                    {
-                        items.Add(property.Value);
-                    }
-
-                    ListViewItem item = new ListViewItem(items.ToArray());
-                    item.Tag = attribute;
-                    listView.Items.Add(item);
-
-                    if (attribute.ValidationType.ToLower().Equals("association"))
-                    {
-                        string[] rules = ConceptualModel.SplitValidationRules(attribute.ValidationRule);
-                        string concept = rules[1];
-
-                        for (int index = 2; index < rules.Length; index++)
-                        {
-                            items.Clear();
-                            foreach (KeyValuePair<string, string> property in attributes)
-                            {
-                                string value = "";
-                                if (property.Key.ToLower().Equals("validationrule"))
-                                {
-                                    value = rules[index];
-                                }
-                                items.Add(value);
-                            }
-                            listView.Items.Add(new ListViewItem(items.ToArray()));
-                        }
-                    }
-                }
+                propertiesTabs.TabPages[1].Controls.Add(new PermissibleAttributesListView(cmClass.PermissibleAttributesMap));
 
                 // add permissible grid
 
@@ -401,8 +346,6 @@ namespace ClassLibraryTreeView
         }
         private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
-            this.menuBar.Enabled = false;
-
             string newFileName = conceptualModelFileName;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
@@ -425,9 +368,18 @@ namespace ClassLibraryTreeView
             dataGridView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
             dataGridView.DataSource = dataTable;
             */
-            this.menuBar.Enabled = true;
 
             MessageBox.Show($"Export done for {elapsedTime}");
+        }
+
+        private void BtnOpenFile_Click(object sender, EventArgs e)
+        {
+            OpenFile();
+        }
+
+        private void BtnExportPermissibleGrid_Click(object sender, EventArgs e)
+        {
+            ExportPermissibleGrid(sender, e);
         }
     }
 }

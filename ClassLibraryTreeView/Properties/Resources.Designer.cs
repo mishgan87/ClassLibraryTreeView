@@ -153,16 +153,6 @@ namespace ClassLibraryTreeView.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap file_xml {
-            get {
-                object obj = ResourceManager.GetObject("file_xml", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap filter {
             get {
                 object obj = ResourceManager.GetObject("filter", resourceCulture);
@@ -203,26 +193,6 @@ namespace ClassLibraryTreeView.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap remove {
-            get {
-                object obj = ResourceManager.GetObject("remove", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap revert {
-            get {
-                object obj = ResourceManager.GetObject("revert", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap save {
             get {
                 object obj = ResourceManager.GetObject("save", resourceCulture);
@@ -256,6 +226,16 @@ namespace ClassLibraryTreeView.Properties {
         internal static System.Drawing.Bitmap taxonomies {
             get {
                 object obj = ResourceManager.GetObject("taxonomies", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap undo {
+            get {
+                object obj = ResourceManager.GetObject("undo", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
