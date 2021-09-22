@@ -82,11 +82,8 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="Classes\GridCell.cs" />
-    <Compile Include="Classes\IIdentifiablePropertiesListView.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="Classes\MeasureClass.cs" />
-    <Compile Include="Classes\PermissibleAttributesListView.cs">
+    <Compile Include="Classes\PropertiesListView.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ConceptualModel.cs" />

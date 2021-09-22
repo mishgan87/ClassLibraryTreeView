@@ -20,7 +20,7 @@ namespace ClassLibraryTreeView.Interfaces
         Functional = 1,
         Physical = 2,
         General = 4,
-        Document = 4
+        Document = 5
     }
     public enum IIdentifiableDataValidationType : ushort
     {

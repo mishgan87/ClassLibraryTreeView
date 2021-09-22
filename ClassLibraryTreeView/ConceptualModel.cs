@@ -43,6 +43,8 @@ namespace ClassLibraryTreeView
 
         public int AttributesCount { get; set; }
         public int MaxDepth { get; set; }
+        public string FullPathXml { get; set; }
+        public string ModelName { get; set; }
 
         private void CalculateMaxDepth()
         {
@@ -295,9 +297,32 @@ namespace ClassLibraryTreeView
                 }
             }
         }
+        public bool OpenFile()
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = ".";
+                openFileDialog.Filter = "XML files (*.xml)|*.xml";
+                openFileDialog.FilterIndex = 2;
+                openFileDialog.RestoreDirectory = true;
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string filename = openFileDialog.FileName;
+                    FullPathXml = filename;
+                    ImportXml(filename);
+                    filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
+                    filename = filename.Substring(filename.LastIndexOf("\\") + 1, filename.Length - filename.LastIndexOf("\\") - 1);
+                    ModelName = $"{filename}";
+                }
+            }
+            return true;
+        }
         public void ImportXml(string fileName)
         {
             Clear();
+
+            FullPathXml = fileName;
+
             XDocument doc = XDocument.Load(fileName);
 
             foreach (XElement element in doc.Elements().First().Elements())

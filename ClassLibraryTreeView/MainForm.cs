@@ -25,7 +25,6 @@ namespace ClassLibraryTreeView
     public partial class MainForm : Form
     {
         private ConceptualModel model = new ConceptualModel();
-        string conceptualModelFileName = "";
         public MainForm()
         {
             InitializeComponent();
@@ -75,41 +74,6 @@ namespace ClassLibraryTreeView
             tabPage.Controls.Add(treeView);
             tabControlTrees.TabPages.Add(tabPage);
         }
-        private void OpenFile()
-        {
-            using (OpenFileDialog openFileDialog = new OpenFileDialog())
-            {
-                openFileDialog.InitialDirectory = ".";
-                openFileDialog.Filter = "XML files (*.xml)|*.xml";
-                openFileDialog.FilterIndex = 2;
-                openFileDialog.RestoreDirectory = true;
-                if (openFileDialog.ShowDialog() == DialogResult.OK)
-                {
-                    string filename = openFileDialog.FileName;
-                    conceptualModelFileName = filename;
-                    model.ImportXml(filename);
-                    filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
-                    filename = filename.Substring(filename.LastIndexOf("\\") + 1, filename.Length - filename.LastIndexOf("\\") - 1);
-                    modelName.Text = $"{filename}";
-
-                    tabControlTrees.TabPages.Clear();
-                    propertiesTabs.TabPages.Clear();
-                    info.Text = "";
-
-                    ShowClasses();
-                    ShowAttributes();
-                    ShowTaxonomies();
-                    ShowEnumerations();
-                    ShowMeasureClasses();
-                }
-            }
-        }
-        private void AddPropertiesTab(IIdentifiable element, TabControl tabControl)
-        {
-            TabPage tabPage = new TabPage("Properties");
-            tabPage.Controls.Add(new IIdentifiablePropertiesListView(element));
-            tabControl.TabPages.Add(tabPage);
-        }
         private void ViewTaxonomyProperties(object sender, TreeNodeMouseClickEventArgs e)
         {
             propertiesTabs.TabPages.Clear();
@@ -121,7 +85,8 @@ namespace ClassLibraryTreeView
                     {
                         Taxonomy taxonomy = (Taxonomy)e.Node.Tag;
                         info.Text = $"Taxonomy : {taxonomy.Name}";
-                        AddPropertiesTab(taxonomy, propertiesTabs);
+                        propertiesTabs.TabPages.Add(new TabPage("Properties"));
+                        propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(taxonomy));
                         ListView listViewItems = new ListView();
                         listViewItems.View = View.Details;
                         listViewItems.Columns.Clear();
@@ -154,7 +119,8 @@ namespace ClassLibraryTreeView
                             
                             if (node.Id.Equals(taxonomyNode.Id))
                             {
-                                AddPropertiesTab(node, propertiesTabs);
+                                propertiesTabs.TabPages.Add(new TabPage("Properties"));
+                                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(node));
                                 ListView listViewItems = new ListView();
                                 listViewItems.View = View.Details;
                                 listViewItems.Columns.Clear();
@@ -195,13 +161,15 @@ namespace ClassLibraryTreeView
                     {
                         MeasureUnit measureUnit = (MeasureUnit)e.Node.Tag;
                         info.Text = $"Measure Unit : {measureUnit.Name}";
-                        AddPropertiesTab(measureUnit, propertiesTabs);
+                        propertiesTabs.TabPages.Add(new TabPage("Properties"));
+                        propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(measureUnit));
                     }
                     if (e.Node.Parent.Text.ToLower().Contains("classes"))
                     {
                         MeasureClass measureClass = (MeasureClass)e.Node.Tag;
                         info.Text = $"Measure Class : {measureClass.Name}";
-                        AddPropertiesTab(measureClass, propertiesTabs);
+                        propertiesTabs.TabPages.Add(new TabPage("Properties"));
+                        propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(measureClass));
                         ListView listViewItems = new ListView();
                         listViewItems.View = View.Details;
                         listViewItems.Columns.Clear();
@@ -235,7 +203,8 @@ namespace ClassLibraryTreeView
             {
                 EnumerationList enumerationList = (EnumerationList)e.Node.Tag;
                 info.Text = $"Enumeration List : {enumerationList.Name}";
-                AddPropertiesTab(enumerationList, propertiesTabs);
+                propertiesTabs.TabPages.Add(new TabPage("Properties"));
+                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(enumerationList));
 
                 ListView listViewItems = new ListView();
                 listViewItems.View = View.Details;
@@ -269,7 +238,8 @@ namespace ClassLibraryTreeView
             propertiesTabs.TabPages.Clear();
             IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
             info.Text = $"Attribute : {attribute.Name}";
-            AddPropertiesTab(attribute, propertiesTabs);
+            propertiesTabs.TabPages.Add(new TabPage("Properties"));
+            propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(attribute));
         }
         private void ViewClassProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
         {
@@ -285,14 +255,16 @@ namespace ClassLibraryTreeView
             if (cmClass != null)
             {
                 info.Text = $"Class : {cmClass.Name}";
-                AddPropertiesTab(cmClass, propertiesTabs);
 
+                propertiesTabs.TabPages.Add(new TabPage("Properties"));
                 propertiesTabs.TabPages.Add(new TabPage("Permissible Attributes"));
                 propertiesTabs.TabPages.Add(new TabPage("Permissible Grid"));
 
+                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(cmClass));
+
                 // Add permissible attributes
 
-                propertiesTabs.TabPages[1].Controls.Add(new PermissibleAttributesListView(cmClass.PermissibleAttributesMap));
+                propertiesTabs.TabPages[1].Controls.Add(new PropertiesListView(cmClass.PermissibleAttributesMap));
 
                 // add permissible grid
 
@@ -300,53 +272,9 @@ namespace ClassLibraryTreeView
 
             }
         }
-        private void EditPermissibleAttribute(object sender, MouseEventArgs eventArgs)
-        {
-            // контектсное меню
-            /*
-            if (eventArgs.Button == MouseButtons.Right)
-            {
-                if (this.tabControlProperties.SelectedTab.Text.ToLower().Equals("permissible attributes"))
-                {
-                    ListView listView = (ListView)tabControlProperties.SelectedTab.Controls[0];
-                    ListViewItem item = listView.SelectedItems[0];
-                }
-
-                System.Windows.Forms.ContextMenuStrip menu = new System.Windows.Forms.ContextMenuStrip();
-                ToolStripItem itemEdit = menu.Items.Add("Edit");
-                itemEdit.Image = global::ClassLibraryTreeView.Properties.Resources.edit;
-                itemEdit.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-                itemEdit.Click += new EventHandler(this.EditItem);
-
-                ToolStripItem itemAdd = menu.Items.Add("Add");
-                itemAdd.Image = global::ClassLibraryTreeView.Properties.Resources.add;
-                itemAdd.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-                itemAdd.Click += new EventHandler(this.AddItem);
-
-                ToolStripItem itemRemove = menu.Items.Add("Remove");
-                itemRemove.Image = global::ClassLibraryTreeView.Properties.Resources.remove;
-                itemRemove.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-                itemRemove.Click += new EventHandler(this.RemoveItem);
-
-                menu.Show((System.Windows.Forms.Control)sender, new Point(eventArgs.X, eventArgs.Y));
-            }
-            */
-
-            if (eventArgs.Button == MouseButtons.Left)
-            {
-                ListView listView = (ListView)sender;
-                ListViewHitTestInfo info = listView.HitTest(eventArgs.X, eventArgs.Y);
-                ListViewItem item = info.Item;
-                IAttribute attribute = (IAttribute)item.Tag;
-            }
-        }
-        private void ButtonOpenFile_Click(object sender, EventArgs e)
-        {
-            OpenFile();
-        }
         private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
-            string newFileName = conceptualModelFileName;
+            string newFileName = model.FullPathXml;
             newFileName = newFileName.Remove(newFileName.LastIndexOf("."), newFileName.Length - newFileName.LastIndexOf("."));
             newFileName += ".xlsx";
 
@@ -357,24 +285,27 @@ namespace ClassLibraryTreeView
 
             stopWatch.Stop();
             TimeSpan timeSpan = stopWatch.Elapsed;
-
-            // Format and display the TimeSpan value.
-            string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}",
-                timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds,
-                timeSpan.Milliseconds / 10);
-
-            /*
-            dataGridView.AutoGenerateColumns = false;
-            dataGridView.DefaultCellStyle.WrapMode = DataGridViewTriState.True;
-            dataGridView.DataSource = dataTable;
-            */
-
+            string elapsedTime = String.Format("{1:00}:{2:00}.{3:00}", timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10);
+            
             MessageBox.Show($"Export done for {elapsedTime}");
         }
 
         private void BtnOpenFile_Click(object sender, EventArgs e)
         {
-            OpenFile();
+            if (model.OpenFile())
+            {
+                modelName.Text = $"{model.ModelName}";
+
+                tabControlTrees.TabPages.Clear();
+                propertiesTabs.TabPages.Clear();
+                info.Text = "";
+
+                ShowClasses();
+                ShowAttributes();
+                ShowTaxonomies();
+                ShowEnumerations();
+                ShowMeasureClasses();
+            }
         }
 
         private void BtnExportPermissibleGrid_Click(object sender, EventArgs e)
