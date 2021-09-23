@@ -1060,8 +1060,10 @@ namespace ClassLibraryTreeView
                 // define classes attributes rows
 
                 int row = 3;
+                Dictionary<string, IClass> map = classes["physicals"];
                 ConcurrentDictionary<int, IClass> classRows = new ConcurrentDictionary<int, IClass>(); // dictionary of pairs "row number - conceptual model class"
-                foreach (IClass cmClass in classes["merged"].Values) // fill dictionary of pairs "row number - conceptual model class"
+                // foreach (IClass cmClass in classes["merged"].Values) // fill dictionary of pairs "row number - conceptual model class"
+                foreach (IClass cmClass in map.Values) // fill dictionary of pairs "row number - conceptual model class"
                 {
                     if (classRows.TryAdd(row, cmClass))
                     {
@@ -1071,7 +1073,7 @@ namespace ClassLibraryTreeView
 
                 // write header
 
-                SetCell(worksheet.Cell(CellName(2, 0)), CellStyle.Header, $"Classes ({classes["merged"].Count})"); // set classes count header cell
+                SetCell(worksheet.Cell(CellName(2, 0)), CellStyle.Header, $"Classes ({map.Count})"); // set classes count header cell
                 SetCell(worksheet.Cell(CellName(2, MaxDepth + 1)), CellStyle.Header, $"Discipline"); // set class discipline header cell
                 SetCell(worksheet.Cell(CellName(2, MaxDepth + 2)), CellStyle.Header, $"Class ID"); // set class id header cell
 
