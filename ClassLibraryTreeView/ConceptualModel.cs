@@ -438,6 +438,32 @@ namespace ClassLibraryTreeView
                 }
             }
 
+            foreach (Dictionary<string, IClass> map in classes.Values) // set permissible attributes names
+            {
+                if (map.Count > 0)
+                {
+                    foreach (IClass cmClass in map.Values)
+                    {
+                        if (cmClass.PermissibleAttributes.Count > 0)
+                        {
+                            foreach(IAttribute cmClassAttribute in cmClass.PermissibleAttributes)
+                            {
+                                if (cmClassAttribute.Name.Equals(""))
+                                {
+                                    foreach (string group in attributes.Keys)
+                                    {
+                                        if (attributes[group].ContainsKey(cmClassAttribute.Id))
+                                        {
+                                            cmClassAttribute.Name = attributes[group][cmClassAttribute.Id].Name;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             foreach (Dictionary<string, IClass> map in classes.Values) // set classes inheritance
             {
                 if (map.Count > 0)
@@ -468,6 +494,95 @@ namespace ClassLibraryTreeView
                                 }
                             }
                             map[cmClass.Extends].Children.Add(cmClass.Id, cmClass);
+                        }
+                    }
+                }
+            }
+
+            foreach (IClass physicalClass in classes["physicals"].Values)
+            {
+                if (physicalClass.Parent == null)
+                {
+                    foreach (IClass functionalClass in classes["functionals"].Values)
+                    {
+                        if (functionalClass.Parent == null)
+                        {
+                            if (functionalClass.PermissibleAttributes.Count > 0)
+                            {
+                                foreach (IAttribute functionalClassAttribute in functionalClass.PermissibleAttributes)
+                                {
+                                    bool contains = false;
+                                    foreach (IAttribute physicalClassAttribute in physicalClass.PermissibleAttributes)
+                                    {
+                                        if (physicalClassAttribute.Id.Equals(functionalClassAttribute.Id))
+                                        {
+                                            contains = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (!contains)
+                                    {
+                                        physicalClass.PermissibleAttributes.Add(functionalClassAttribute);
+                                    }
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            foreach (IClass physicalClass in classes["physicals"].Values)
+            {
+                foreach (IClass functionalClass in classes["functionals"].Values)
+                {
+                    if (functionalClass.Name.Equals(physicalClass.Name))
+                    {
+                        if (functionalClass.PermissibleAttributes.Count > 0)
+                        {
+                            foreach (IAttribute functionalClassAttribute in functionalClass.PermissibleAttributes)
+                            {
+                                bool contains = false;
+                                foreach (IAttribute physicalClassAttribute in physicalClass.PermissibleAttributes)
+                                {
+                                    if (physicalClassAttribute.Id.Equals(functionalClassAttribute.Id))
+                                    {
+                                        contains = true;
+                                        break;
+                                    }
+                                }
+
+                                if (!contains)
+                                {
+                                    physicalClass.PermissibleAttributes.Add(functionalClassAttribute);
+                                }
+                            }
+
+                            if (physicalClass.Children.Count > 0)
+                            {
+                                foreach(IClass physicalClassChild in physicalClass.Children.Values)
+                                {
+                                    foreach (IAttribute functionalClassAttribute in functionalClass.PermissibleAttributes)
+                                    {
+                                        bool contains = false;
+                                        foreach (IAttribute physicalClassChildAttribute in physicalClassChild.PermissibleAttributes)
+                                        {
+                                            if (physicalClassChildAttribute.Id.Equals(functionalClassAttribute.Id))
+                                            {
+                                                contains = true;
+                                                break;
+                                            }
+                                        }
+
+                                        if (!contains)
+                                        {
+                                            physicalClassChild.PermissibleAttributes.Add(functionalClassAttribute);
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -879,7 +994,7 @@ namespace ClassLibraryTreeView
         private int AddClassAttributes(IClass cmClass, List<KeyValuePair<int, string[]>> rows, int rowIndex)
         {
             int row = rowIndex;
-            List<IAttribute> attributes = ClassPermissibleAttributes(cmClass);
+            List<IAttribute> attributes = cmClass.PermissibleAttributes;
             if (attributes.Count > 0)
             {
                 foreach (IAttribute attribute in attributes)
@@ -902,16 +1017,13 @@ namespace ClassLibraryTreeView
                 SetCell(worksheet.Cell(CellName(0, 3)), CellStyle.Header, $"Attribute Name");
 
                 int row = 1;
-                Dictionary<string, IClass> map = classes["merged"];
                 List<KeyValuePair<int, string[]>> rows = new List<KeyValuePair<int, string[]>>();
 
-                foreach (IClass cmClass in classes["merged"].Values)
+
+
+                foreach (IClass physicalClass in classes["physicals"].Values)
                 {
-                    if (cmClass.Extends.Equals(""))
-                    {
-                        row = AddClassAttributes(cmClass, rows, row);
-                        row = AddClassChildren(cmClass, rows, row);
-                    }
+                    row = AddClassAttributes(physicalClass, rows, row);
                 }
 
                 foreach (var classRow in rows)
