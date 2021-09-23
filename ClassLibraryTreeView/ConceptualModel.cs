@@ -164,21 +164,24 @@ namespace ClassLibraryTreeView
             string parent = cmClass.Extends;
             while (!parent.Equals(""))
             {
-                foreach (IAttribute attribute in map[parent].PermissibleAttributes)
+                if (map.ContainsKey(parent))
                 {
-                    if (attribute.Name.Equals(""))
+                    foreach (IAttribute attribute in map[parent].PermissibleAttributes)
                     {
-                        attribute.Name = GetAttributeById(attribute.Id).Name;
+                        if (attribute.Name.Equals(""))
+                        {
+                            attribute.Name = GetAttributeById(attribute.Id).Name;
+                        }
+                        result.Add(attribute);
                     }
-                    result.Add(attribute);
                 }
                 if (mapExt != null)
                 {
-                    foreach(IClass pClass in mapExt.Values)
+                    foreach(IClass physicalClass in mapExt.Values)
                     {
-                        if (pClass.Name.Equals(map[parent].Name))
+                        if (physicalClass.Name.Equals(mapExt[parent].Name))
                         {
-                            foreach (IAttribute attribute in pClass.PermissibleAttributes)
+                            foreach (IAttribute attribute in physicalClass.PermissibleAttributes)
                             {
                                 if (attribute.Name.Equals(""))
                                 {
@@ -195,41 +198,39 @@ namespace ClassLibraryTreeView
 
             return result;
         }
-        public Dictionary<string, IAttribute> GetPermissibleAttributes(IClass cmClass)
+        // public Dictionary<string, IAttribute> GetPermissibleAttributes(IClass cmClass)
+        public void SetPermissibleAttributes(IClass cmClass)
         {
             string xtype = cmClass.Xtype.ToLower();
             Dictionary<string, IClass> map = classes[xtype];
             if (map == null)
             {
-                return null;
+                return;
             }
-            Dictionary<string, IAttribute> result = new Dictionary<string, IAttribute>();
-            foreach(IAttribute attribute in cmClass.PermissibleAttributes)
+            /*
+            Dictionary<string, IAttribute> result = new
+            IClass parent = cmClass.Parent;
+            while (parent != null)
             {
-                if (!result.ContainsKey(attribute.Id))
+                foreach (IAttribute attribute in parent.PermissibleAttributes)
                 {
-                    IAttribute newAttribute = new IAttribute(attribute);
-                    newAttribute.Presence = "";
-                    result.Add(attribute.Id, new IAttribute(newAttribute));
-                }
-            }
-
-            string parent = cmClass.Extends;
-            while (!parent.Equals(""))
-            {
-                foreach (IAttribute attribute in map[parent].PermissibleAttributes)
-                {
-                    if (!result.ContainsKey(attribute.Id))
+                    if (!cmClass.PermissibleAttributes result.ContainsKey(attribute.Id))
                     {
-                        IAttribute newAttribute = new IAttribute(attribute);
-                        newAttribute.Presence = "";
-                        result.Add(attribute.Id, new IAttribute(newAttribute));
+                        // IAttribute newAttribute = new IAttribute(attribute);
+                        // newAttribute.Presence = "";
+                        // result.Add(attribute.Id, new IAttribute(newAttribute));
+                        result.Add(attribute.Id, attribute);
                     }
                 }
                 parent = map[parent].Extends;
             }
-
-            return result;
+            
+            cmClass.PermissibleAttributes.Clear();
+            foreach(IAttribute attribute in result.Values)
+            {
+                cmClass.PermissibleAttributes.Add(attribute);
+            }
+            */
         }
         public List<IAttribute> PermissibleAttributes(IClass cmClass)
         {
@@ -445,15 +446,36 @@ namespace ClassLibraryTreeView
                     {
                         if (!cmClass.Extends.Equals(""))
                         {
+                            cmClass.Parent = map[cmClass.Extends];
+                            if (cmClass.Parent.PermissibleAttributes.Count > 0)
+                            {
+                                foreach (IAttribute parentAttribute in cmClass.Parent.PermissibleAttributes)
+                                {
+                                    bool contains = false;
+                                    foreach(IAttribute cmClassAttribute in cmClass.PermissibleAttributes)
+                                    {
+                                        if (cmClassAttribute.Id.Equals(parentAttribute.Id))
+                                        {
+                                            contains = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if(!contains)
+                                    {
+                                        cmClass.PermissibleAttributes.Add(parentAttribute);
+                                    }
+                                }
+                            }
                             map[cmClass.Extends].Children.Add(cmClass.Id, cmClass);
                         }
                     }
                 }
             }
 
-            MergeByName(); // MergeByAssociations();
+            // MergeByName(); // MergeByAssociations();
 
-            CalculateMaxDepth();
+            // CalculateMaxDepth();
         }
         public IAttribute GetAttribute(string id)
         {
@@ -592,6 +614,25 @@ namespace ClassLibraryTreeView
                 }
             }
         }
+        private void MergeAttributes(IClass sourceClass, IClass recipientClass)
+        {
+            List<IAttribute> sourceAttributes = ClassPermissibleAttributes(sourceClass);
+            List<IAttribute> recipientAttributes = ClassPermissibleAttributes(recipientClass);
+            
+            foreach (IAttribute attribute in recipientAttributes)
+            {
+                recipientClass.PermissibleAttributes.Add(attribute);
+            }
+
+            foreach (IAttribute attribute in sourceAttributes)
+            {
+                if(!recipientClass.PermissibleAttributes.Contains(attribute))
+                {
+                    recipientClass.PermissibleAttributes.Add(attribute);
+                }
+            }
+        }
+
         private void MergeByName()
         {
             if (!classes.ContainsKey("merged"))
@@ -599,41 +640,39 @@ namespace ClassLibraryTreeView
                 classes.Add("merged", new Dictionary<string, IClass>());
             }
 
-            Dictionary<string, IClass> merged = classes["merged"];
-
-            foreach (IClass cmClass in classes["functionals"].Values)
+            bool hasPhysicals = classes.ContainsKey("physicals");
+            
+            foreach (IClass functionalClass in classes["functionals"].Values)
             {
-                if (cmClass.Extends.Equals(""))
+                // IClass mergedClass = new IClass(functionalClass);
+
+                if (hasPhysicals)
                 {
-                    merged.Add(cmClass.Id, cmClass);
-                    AddChildren(cmClass, merged);
-                    // DefinePermissibleAttributes(cmClass);
-                }
-            }
-
-            if (!classes.ContainsKey("physicals"))
-            {
-                return;
-            }
-
-            foreach (IClass fClass in merged.Values)
-            {
-                foreach (IClass pClass in classes["physicals"].Values)
-                {
-                    if (pClass.Name.Equals(fClass.Name))
+                    foreach (IClass physicalClass in classes["physicals"].Values)
                     {
-                        foreach (IClass child in pClass.Children.Values)
+                        if (physicalClass.Name.Equals(functionalClass.Name))
                         {
-                            IClass cmClass = fClass.ContainsChildByName(child);
-
-                            if (cmClass == null)
+                            if (physicalClass.Children.Count > 0)
                             {
-                                fClass.Children.Add(child.Id, child);
+                                foreach (IClass physicalChild in physicalClass.Children.Values)
+                                {
+                                    // mergedClass.Children.Add(child.Id, child);
+                                    IClass functionalChild = functionalClass.ContainsChildByName(physicalChild);
+                                    if (functionalChild == null)
+                                    {
+                                        physicalChild.Extends = functionalClass.Id;
+                                        functionalClass.Children.Add(physicalChild.Id, physicalChild);
+                                        // functionalChild.Id = physicalChild.Id;
+                                    }
+                                    
+                                }
                             }
                         }
                     }
                 }
-                // DefinePermissibleAttributes(fClass);
+
+                // classes["merged"].Add(mergedClass.Id, mergedClass);
+                classes["merged"].Add(functionalClass.Id, functionalClass);
             }
         }
         public void AddClassChildren(IClass cmClass, Dictionary<string, IClass> map)
@@ -680,10 +719,15 @@ namespace ClassLibraryTreeView
         {
             int row = rowPair.Key;
             string[] values = rowPair.Value;
-
-            for(int col = 0; col < values.Length; col++)
+            CellStyle style = CellStyle.Class;
+            if (row % 2 == 0)
             {
-                SetCell(worksheet.Cell(CellName(row, col)), CellStyle.Class, values[col]);
+                // style = CellStyle.ClassId;
+            }
+
+            for (int col = 0; col < values.Length; col++)
+            {
+                SetCell(worksheet.Cell(CellName(row, col)), style, values[col]);
             }
 
             int progress = (row * 100) / classesCount;

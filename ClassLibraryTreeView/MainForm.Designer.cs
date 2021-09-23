@@ -35,6 +35,7 @@ namespace ClassLibraryTreeView
             this.labelModelName = new System.Windows.Forms.ToolStripLabel();
             this.labelInfo = new System.Windows.Forms.ToolStripLabel();
             this.layoutMain = new System.Windows.Forms.SplitContainer();
+            this.btnReport = new System.Windows.Forms.Button();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.modelName = new System.Windows.Forms.Label();
             this.btnUndo = new System.Windows.Forms.Button();
@@ -49,7 +50,6 @@ namespace ClassLibraryTreeView
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
             this.info = new System.Windows.Forms.Label();
-            this.btnReport = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.layoutMain)).BeginInit();
             this.layoutMain.Panel1.SuspendLayout();
             this.layoutMain.Panel2.SuspendLayout();
@@ -122,6 +122,19 @@ namespace ClassLibraryTreeView
             this.layoutMain.SplitterDistance = 64;
             this.layoutMain.SplitterWidth = 5;
             this.layoutMain.TabIndex = 9;
+            // 
+            // btnReport
+            // 
+            this.btnReport.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnReport.Enabled = false;
+            this.btnReport.Image = global::ClassLibraryTreeView.Properties.Resources.enumerations;
+            this.btnReport.Location = new System.Drawing.Point(600, 0);
+            this.btnReport.Margin = new System.Windows.Forms.Padding(4);
+            this.btnReport.Name = "btnReport";
+            this.btnReport.Size = new System.Drawing.Size(100, 64);
+            this.btnReport.TabIndex = 8;
+            this.btnReport.UseVisualStyleBackColor = true;
+            this.btnReport.Click += new System.EventHandler(this.BtnReport_Click);
             // 
             // progressBar
             // 
@@ -306,19 +319,6 @@ namespace ClassLibraryTreeView
             this.info.TabIndex = 6;
             this.info.Text = "Info";
             this.info.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            // 
-            // btnReport
-            // 
-            this.btnReport.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnReport.Enabled = false;
-            this.btnReport.Image = global::ClassLibraryTreeView.Properties.Resources.enumerations;
-            this.btnReport.Location = new System.Drawing.Point(600, 0);
-            this.btnReport.Margin = new System.Windows.Forms.Padding(4);
-            this.btnReport.Name = "btnReport";
-            this.btnReport.Size = new System.Drawing.Size(100, 64);
-            this.btnReport.TabIndex = 8;
-            this.btnReport.UseVisualStyleBackColor = true;
-            this.btnReport.Click += new System.EventHandler(this.BtnReport_Click);
             // 
             // MainForm
             // 

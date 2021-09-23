@@ -204,8 +204,8 @@ namespace ClassLibraryTreeView
                 propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(cmClass)); // Add properties
                 // propertiesTabs.TabPages[1].Controls.Add(new PropertiesListView(cmClass.PermissibleAttributesMap)); // Add permissible attributes
 
-                List<IAttribute> pattributes = model.ClassPermissibleAttributes(cmClass);
-
+                // List<IAttribute> pattributes = model.ClassPermissibleAttributes(cmClass);
+                List<IAttribute> pattributes = cmClass.PermissibleAttributes;
 
                 propertiesTabs.TabPages.Add(new TabPage($"Permissible Attributes ({pattributes.Count})"));
                 propertiesTabs.TabPages[1].Controls.Add(new PropertiesListView(pattributes)); // Add permissible attributes
@@ -335,5 +335,7 @@ namespace ClassLibraryTreeView
             layoutMain.Panel1.Enabled = true;
             progressBar.Visible = false;
         }
+
+
     }
 }

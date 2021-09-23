@@ -109,6 +109,7 @@ namespace ClassLibraryTreeView.Classes
             PermissibleAttributes = new List<IAttribute>();
             PermissibleAttributesMap = new Dictionary<string, IAttribute>();
             Xtype = "";
+            Parent = null;
             Children = new Dictionary<string, IClass>();
         }
         public KeyValuePair<string, string>[] Attributes()
@@ -203,6 +204,7 @@ namespace ClassLibraryTreeView.Classes
             PermissibleAttributes = new List<IAttribute>(someClass.PermissibleAttributes);
             PermissibleAttributesMap = new Dictionary<string, IAttribute>(someClass.PermissibleAttributesMap);
             Xtype = someClass.Xtype;
+            Parent = someClass.Parent;
             Children = new Dictionary<string, IClass>(someClass.Children);
         }
         public IClass ContainsChildByName(IClass cmClass)
@@ -235,6 +237,7 @@ namespace ClassLibraryTreeView.Classes
         public List<IAttribute> PermissibleAttributes { get; set; }
         public Dictionary<string, IAttribute> PermissibleAttributesMap { get; set; }
         public string Xtype { get; set; }
+        public IClass Parent { get; set; }
         public Dictionary<string, IClass> Children { get; set; }
     }
 }
