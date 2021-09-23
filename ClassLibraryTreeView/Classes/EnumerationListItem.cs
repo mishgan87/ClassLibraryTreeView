@@ -1,20 +1,64 @@
 ﻿using ClassLibraryTreeView.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace ClassLibraryTreeView.Classes
 {
-    public class EnumerationList : IIdentifiable
+    public class EnumerationListItem : IIdentifiable
     {
-        // Interface members
-        public string Id { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public bool IsObsolete { get; set; }
-        public string SortOrder { get; set; }
-        public List<string> Aspect { get; set; }
-        // Class members
-        public List<EnumerationListItem> Items { get; set; }
+        public EnumerationListItem()
+        {
+            Init();
+        }
+        public EnumerationListItem(string id, string name, string description)
+        {
+            Id = id;
+            Name = name;
+            Description = description;
+        }
+        public EnumerationListItem(XElement item)
+        {
+            Init();
+            foreach (XAttribute attribute in item.Attributes())
+            {
+                string name = attribute.Name.LocalName.ToLower();
+                switch (name)
+                {
+                    case "name":
+                        Name = $"{attribute.Value}";
+                        break;
+                    case "id":
+                        Id = $"{attribute.Value}";
+                        break;
+                    case "description":
+                        Description = $"{attribute.Value}";
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        public void Init()
+        {
+            Id = "";
+            Name = "";
+            Description = "";
+            IsObsolete = false;
+            SortOrder = "";
+            Aspect = new List<string>();
+        }
+        public bool Equals(EnumerationListItem item)
+        {
+            if (!Id.Equals(item.Id)
+               || !Name.Equals(item.Name)
+               || !Description.Equals(item.Description))
+            {
+                return false;
+            }
+            return true;
+        }
+
         public KeyValuePair<string, string>[] Attributes()
         {
             List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
@@ -39,10 +83,22 @@ namespace ClassLibraryTreeView.Classes
 
             return result.ToArray();
         }
-        public EnumerationList(XElement source)
+
+        public bool Equals(IIdentifiable source)
         {
-            Clone(source);
+            if (!Id.Equals(source.Id)
+               || !Name.Equals(source.Name)
+               || !Description.Equals(source.Description)
+               || !IsObsolete.Equals(source.IsObsolete)
+               || !SortOrder.Equals(source.SortOrder)
+               || !Aspect.Equals(source.Aspect))
+            {
+                return false;
+            }
+
+            return true;
         }
+
         public void Clone(IIdentifiable source)
         {
             Id = source.Id;
@@ -51,9 +107,6 @@ namespace ClassLibraryTreeView.Classes
             IsObsolete = source.IsObsolete;
             SortOrder = source.SortOrder;
             Aspect = new List<string>(source.Aspect);
-
-            EnumerationList enumerationList = (EnumerationList)source;
-            Items = new List<EnumerationListItem>(enumerationList.Items);
         }
 
         public void Clone(XElement source)
@@ -90,51 +143,13 @@ namespace ClassLibraryTreeView.Classes
                         break;
                 }
             }
-            
-            foreach(XElement child in source.Elements())
-            {
-                string name = child.Name.LocalName.ToLower();
-                if (name.Equals("items"))
-                {
-                    foreach (XElement item in child.Elements())
-                    {
-                        Items.Add(new EnumerationListItem(item));
-                    }
-                }
-            }
         }
 
-        public bool Equals(IIdentifiable source)
-        {
-            if (!Id.Equals(source.Id)
-               || !Name.Equals(source.Name)
-               || !Description.Equals(source.Description)
-               || !IsObsolete.Equals(source.IsObsolete)
-               || !SortOrder.Equals(source.SortOrder)
-               || !Aspect.Equals(source.Aspect))
-            {
-                return false;
-            }
-
-            EnumerationList enumerationList = (EnumerationList)source;
-            if (!Items.Equals(enumerationList.Items))
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        public void Init()
-        {
-            Id = "";
-            Name = "";
-            Description = "";
-            IsObsolete = false;
-            SortOrder = "";
-            Aspect = new List<string>();
-
-            Items = new List<EnumerationListItem>();
-        }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public bool IsObsolete { get; set; }
+        public string SortOrder { get; set; }
+        public List<string> Aspect { get; set; }
     }
 }

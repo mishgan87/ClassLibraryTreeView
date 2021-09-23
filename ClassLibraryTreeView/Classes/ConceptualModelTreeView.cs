@@ -188,6 +188,14 @@ namespace ClassLibraryTreeView.Classes
                 treeNode.Text = map[key].Name;
                 treeNode.Tag = map[key];
                 rootNode.Nodes.Add(treeNode);
+
+                foreach (EnumerationListItem item in map[key].Items)
+                {
+                    TreeNode treeSubNode = new TreeNode();
+                    treeSubNode.Text = item.Id;
+                    treeSubNode.Tag = item;
+                    treeNode.Nodes.Add(treeSubNode);
+                }
             }
             this.Nodes.Add(rootNode);
         }
@@ -225,6 +233,7 @@ namespace ClassLibraryTreeView.Classes
                 TreeNode treeNode = new TreeNode(key);
                 treeNode.Text = map[key].Name;
                 treeNode.Tag = map[key];
+
                 if (map[key].Nodes.Count > 0)
                 {
                     foreach (TaxonomyNode node in map[key].Nodes)
@@ -232,9 +241,16 @@ namespace ClassLibraryTreeView.Classes
                         TreeNode treeSubNode = new TreeNode();
                         treeSubNode.Text = node.Name;
                         treeSubNode.Tag = node;
+
+                        foreach (string id in node.Classes)
+                        {
+                            treeSubNode.Nodes.Add(new TreeNode(id));
+                        }
+
                         treeNode.Nodes.Add(treeSubNode);
                     }
                 }
+
                 rootNode.Nodes.Add(treeNode);
             }
             this.Nodes.Add(rootNode);

@@ -17,6 +17,57 @@ namespace ClassLibraryTreeView.Classes
         private ComboBox comboBoxProperty = new ComboBox();
         private Rectangle ClickedItem = new Rectangle();
         private Dictionary<string, IAttribute> attributes = null;
+        private IIdentifiable parentTag = null;
+        public PropertiesListView(List<IAttribute> pattributes)
+        {
+            Init();
+
+            if (pattributes.Count == 0)
+            {
+                return;
+            }
+
+            KeyValuePair<string, string>[] names = pattributes.First().Attributes();
+            foreach (KeyValuePair<string, string> name in names)
+            {
+                this.Columns.Add($"{name.Key}", 150, HorizontalAlignment.Left);
+            }
+
+            foreach (IAttribute attribute in pattributes)
+            {
+                KeyValuePair<string, string>[] properties = attribute.Attributes();
+                List<string> items = new List<string>();
+                foreach (KeyValuePair<string, string> property in properties)
+                {
+                    items.Add(property.Value);
+                }
+
+                ListViewItem item = new ListViewItem(items.ToArray());
+                item.Tag = attribute;
+                this.Items.Add(item);
+
+                if (attribute.ValidationType.ToLower().Equals("association"))
+                {
+                    string[] rules = ConceptualModel.SplitValidationRules(attribute.ValidationRule);
+                    string concept = rules[1];
+
+                    for (int index = 2; index < rules.Length; index++)
+                    {
+                        items.Clear();
+                        foreach (KeyValuePair<string, string> property in properties)
+                        {
+                            string value = "";
+                            if (property.Key.ToLower().Equals("validationrule"))
+                            {
+                                value = rules[index];
+                            }
+                            items.Add(value);
+                        }
+                        this.Items.Add(new ListViewItem(items.ToArray()));
+                    }
+                }
+            }
+        }
         public PropertiesListView(IIdentifiable element) : base()
         {
             Init();
@@ -25,6 +76,8 @@ namespace ClassLibraryTreeView.Classes
             {
                 return;
             }
+
+            parentTag = element;
 
             this.Columns.Add("Property", 300, HorizontalAlignment.Left);
             this.Columns.Add("Value", 300, HorizontalAlignment.Left);
@@ -110,6 +163,12 @@ namespace ClassLibraryTreeView.Classes
             this.View = View.Details;
             this.FullRowSelect = true;
             this.MouseDoubleClick += new MouseEventHandler(this.OnMouseDoubleClick);
+
+            this.DrawItem += new DrawListViewItemEventHandler(this.OnDrawItem);
+        }
+        private void OnDrawItem(object sender,  DrawListViewItemEventArgs e)
+        {
+            e.Item.SubItems[0].BackColor = Color.LightGray;
         }
         private void PropertyChanged(object sender, EventArgs e)
         {
@@ -136,6 +195,11 @@ namespace ClassLibraryTreeView.Classes
                 TextBox textBox = (TextBox)sender;
                 editedItem.SubItems[editedSubItemIndex].Text = textBox.Text;
                 textBox.Hide();
+
+                if (parentTag != null)
+                {
+
+                }
             }
         }
         private void OnMouseDoubleClick(object sender, MouseEventArgs e)
@@ -173,17 +237,18 @@ namespace ClassLibraryTreeView.Classes
                     return;
                 }
 
-                if (this.Columns[editedSubItemIndex].Text.ToLower().Equals("validationtype"))
+                if (this.Columns[editedSubItemIndex].Text.ToLower().Equals("validationtype") || editedItem.Text.ToLower().Equals("validationtype"))
                 {
-                    ShowComboBox(new object[] { "Unselect", "Unselect", "Enumeration", "ValueRangeInclusive", "RegularExpression", "Association" });
+                    ShowComboBox(new object[] { "Unselect", "Enumeration", "ValueRangeInclusive", "RegularExpression", "Association" });
                     return;
                 }
 
-                if (this.Columns[editedSubItemIndex].Text.ToLower().Equals("presence"))
+                if (this.Columns[editedSubItemIndex].Text.ToLower().Equals("presence") || editedItem.Text.ToLower().Equals("presence"))
                 {
                     ShowComboBox(new object[] { "Unselect", "NotApplicable", "Optional", "Preferred", "Required" });
                     return;
                 }
+
 
                 ShowTextBox();
             }

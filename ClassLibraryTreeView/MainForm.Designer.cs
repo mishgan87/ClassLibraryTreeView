@@ -35,6 +35,7 @@ namespace ClassLibraryTreeView
             this.labelModelName = new System.Windows.Forms.ToolStripLabel();
             this.labelInfo = new System.Windows.Forms.ToolStripLabel();
             this.layoutMain = new System.Windows.Forms.SplitContainer();
+            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.modelName = new System.Windows.Forms.Label();
             this.btnUndo = new System.Windows.Forms.Button();
             this.btnDelete = new System.Windows.Forms.Button();
@@ -45,8 +46,10 @@ namespace ClassLibraryTreeView
             this.layoutSplitter = new System.Windows.Forms.SplitContainer();
             this.treeTabs = new System.Windows.Forms.TabControl();
             this.layoutProperties = new System.Windows.Forms.SplitContainer();
+            this.button2 = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
             this.info = new System.Windows.Forms.Label();
-            this.progressBar = new System.Windows.Forms.ProgressBar();
+            this.btnReport = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.layoutMain)).BeginInit();
             this.layoutMain.Panel1.SuspendLayout();
             this.layoutMain.Panel2.SuspendLayout();
@@ -64,12 +67,12 @@ namespace ClassLibraryTreeView
             // propertiesTabs
             // 
             this.propertiesTabs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.propertiesTabs.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.propertiesTabs.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.propertiesTabs.Location = new System.Drawing.Point(0, 0);
             this.propertiesTabs.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.propertiesTabs.Name = "propertiesTabs";
             this.propertiesTabs.SelectedIndex = 0;
-            this.propertiesTabs.Size = new System.Drawing.Size(876, 344);
+            this.propertiesTabs.Size = new System.Drawing.Size(876, 361);
             this.propertiesTabs.TabIndex = 0;
             // 
             // labelModelName
@@ -101,6 +104,7 @@ namespace ClassLibraryTreeView
             // 
             // layoutMain.Panel1
             // 
+            this.layoutMain.Panel1.Controls.Add(this.btnReport);
             this.layoutMain.Panel1.Controls.Add(this.progressBar);
             this.layoutMain.Panel1.Controls.Add(this.modelName);
             this.layoutMain.Panel1.Controls.Add(this.btnUndo);
@@ -119,6 +123,15 @@ namespace ClassLibraryTreeView
             this.layoutMain.SplitterWidth = 5;
             this.layoutMain.TabIndex = 9;
             // 
+            // progressBar
+            // 
+            this.progressBar.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.progressBar.Location = new System.Drawing.Point(600, 0);
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(572, 64);
+            this.progressBar.TabIndex = 7;
+            this.progressBar.Visible = false;
+            // 
             // modelName
             // 
             this.modelName.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -133,6 +146,7 @@ namespace ClassLibraryTreeView
             // btnUndo
             // 
             this.btnUndo.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnUndo.Enabled = false;
             this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
             this.btnUndo.Location = new System.Drawing.Point(500, 0);
             this.btnUndo.Margin = new System.Windows.Forms.Padding(4);
@@ -144,6 +158,7 @@ namespace ClassLibraryTreeView
             // btnDelete
             // 
             this.btnDelete.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnDelete.Enabled = false;
             this.btnDelete.Image = ((System.Drawing.Image)(resources.GetObject("btnDelete.Image")));
             this.btnDelete.Location = new System.Drawing.Point(400, 0);
             this.btnDelete.Margin = new System.Windows.Forms.Padding(4);
@@ -156,6 +171,7 @@ namespace ClassLibraryTreeView
             // btnAdd
             // 
             this.btnAdd.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnAdd.Enabled = false;
             this.btnAdd.Image = ((System.Drawing.Image)(resources.GetObject("btnAdd.Image")));
             this.btnAdd.Location = new System.Drawing.Point(300, 0);
             this.btnAdd.Margin = new System.Windows.Forms.Padding(4);
@@ -168,6 +184,7 @@ namespace ClassLibraryTreeView
             // btnSave
             // 
             this.btnSave.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnSave.Enabled = false;
             this.btnSave.Image = ((System.Drawing.Image)(resources.GetObject("btnSave.Image")));
             this.btnSave.Location = new System.Drawing.Point(200, 0);
             this.btnSave.Margin = new System.Windows.Forms.Padding(4);
@@ -179,6 +196,7 @@ namespace ClassLibraryTreeView
             // btnExportPermissibleGrid
             // 
             this.btnExportPermissibleGrid.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnExportPermissibleGrid.Enabled = false;
             this.btnExportPermissibleGrid.Image = ((System.Drawing.Image)(resources.GetObject("btnExportPermissibleGrid.Image")));
             this.btnExportPermissibleGrid.Location = new System.Drawing.Point(100, 0);
             this.btnExportPermissibleGrid.Margin = new System.Windows.Forms.Padding(4);
@@ -243,6 +261,8 @@ namespace ClassLibraryTreeView
             // 
             // layoutProperties.Panel1
             // 
+            this.layoutProperties.Panel1.Controls.Add(this.button2);
+            this.layoutProperties.Panel1.Controls.Add(this.button1);
             this.layoutProperties.Panel1.Controls.Add(this.info);
             this.layoutProperties.Panel1.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             // 
@@ -250,9 +270,31 @@ namespace ClassLibraryTreeView
             // 
             this.layoutProperties.Panel2.Controls.Add(this.propertiesTabs);
             this.layoutProperties.Size = new System.Drawing.Size(876, 428);
-            this.layoutProperties.SplitterDistance = 79;
+            this.layoutProperties.SplitterDistance = 62;
             this.layoutProperties.SplitterWidth = 5;
             this.layoutProperties.TabIndex = 11;
+            // 
+            // button2
+            // 
+            this.button2.Dock = System.Windows.Forms.DockStyle.Right;
+            this.button2.Image = global::ClassLibraryTreeView.Properties.Resources.add;
+            this.button2.Location = new System.Drawing.Point(676, 0);
+            this.button2.Margin = new System.Windows.Forms.Padding(4);
+            this.button2.Name = "button2";
+            this.button2.Size = new System.Drawing.Size(100, 62);
+            this.button2.TabIndex = 8;
+            this.button2.UseVisualStyleBackColor = true;
+            // 
+            // button1
+            // 
+            this.button1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.button1.Image = ((System.Drawing.Image)(resources.GetObject("button1.Image")));
+            this.button1.Location = new System.Drawing.Point(776, 0);
+            this.button1.Margin = new System.Windows.Forms.Padding(4);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(100, 62);
+            this.button1.TabIndex = 8;
+            this.button1.UseVisualStyleBackColor = true;
             // 
             // info
             // 
@@ -260,18 +302,23 @@ namespace ClassLibraryTreeView
             this.info.Location = new System.Drawing.Point(0, 0);
             this.info.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.info.Name = "info";
-            this.info.Size = new System.Drawing.Size(876, 79);
+            this.info.Size = new System.Drawing.Size(876, 62);
             this.info.TabIndex = 6;
             this.info.Text = "Info";
             this.info.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
-            // progressBar
+            // btnReport
             // 
-            this.progressBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.progressBar.Location = new System.Drawing.Point(600, 0);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(572, 64);
-            this.progressBar.TabIndex = 7;
+            this.btnReport.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnReport.Enabled = false;
+            this.btnReport.Image = global::ClassLibraryTreeView.Properties.Resources.enumerations;
+            this.btnReport.Location = new System.Drawing.Point(600, 0);
+            this.btnReport.Margin = new System.Windows.Forms.Padding(4);
+            this.btnReport.Name = "btnReport";
+            this.btnReport.Size = new System.Drawing.Size(100, 64);
+            this.btnReport.TabIndex = 8;
+            this.btnReport.UseVisualStyleBackColor = true;
+            this.btnReport.Click += new System.EventHandler(this.BtnReport_Click);
             // 
             // MainForm
             // 
@@ -317,6 +364,9 @@ namespace ClassLibraryTreeView
         private Label info;
         private Label modelName;
         private ProgressBar progressBar;
+        private Button button2;
+        private Button button1;
+        private Button btnReport;
     }
 }
 

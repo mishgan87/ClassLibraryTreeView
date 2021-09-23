@@ -81,6 +81,7 @@
     <Compile Include="Classes\ConceptualModelTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="Classes\EnumerationListItem.cs" />
     <Compile Include="Classes\GridCell.cs" />
     <Compile Include="Classes\MeasureClass.cs" />
     <Compile Include="Classes\PropertiesListView.cs">
