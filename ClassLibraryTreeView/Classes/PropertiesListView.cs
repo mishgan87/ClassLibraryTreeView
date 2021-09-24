@@ -18,22 +18,22 @@ namespace ClassLibraryTreeView.Classes
         private Rectangle ClickedItem = new Rectangle();
         private Dictionary<string, IAttribute> attributes = null;
         private IIdentifiable parentTag = null;
-        public PropertiesListView(List<IAttribute> pattributes)
+        public PropertiesListView(Dictionary<string, IAttribute> permissibleAttributes)
         {
             Init();
 
-            if (pattributes.Count == 0)
+            if (permissibleAttributes.Count == 0)
             {
                 return;
             }
 
-            KeyValuePair<string, string>[] names = pattributes.First().Attributes();
+            KeyValuePair<string, string>[] names = permissibleAttributes.Values.First().Attributes();
             foreach (KeyValuePair<string, string> name in names)
             {
                 this.Columns.Add($"{name.Key}", 150, HorizontalAlignment.Left);
             }
 
-            foreach (IAttribute attribute in pattributes)
+            foreach (IAttribute attribute in permissibleAttributes.Values)
             {
                 KeyValuePair<string, string>[] properties = attribute.Attributes();
                 List<string> items = new List<string>();
@@ -44,6 +44,10 @@ namespace ClassLibraryTreeView.Classes
 
                 ListViewItem item = new ListViewItem(items.ToArray());
                 item.Tag = attribute;
+                if (attribute.CameFrom != null)
+                {
+                    item.BackColor = Color.Yellow;
+                }
                 this.Items.Add(item);
 
                 if (attribute.ValidationType.ToLower().Equals("association"))
@@ -91,58 +95,6 @@ namespace ClassLibraryTreeView.Classes
             }
 
             
-        }
-        public PropertiesListView(Dictionary<string, IAttribute> permissibleAttributes) : base()
-        {
-            Init();
-
-            if (permissibleAttributes.Count == 0)
-            {
-                return;
-            }
-
-            this.attributes = permissibleAttributes;
-
-            KeyValuePair<string, string>[] names = this.attributes.First().Value.Attributes();
-            foreach (KeyValuePair<string, string> name in names)
-            {
-                this.Columns.Add($"{name.Key}", 150, HorizontalAlignment.Left);
-            }
-
-            foreach (IAttribute attribute in attributes.Values)
-            {
-                KeyValuePair<string, string>[] properties = attribute.Attributes();
-                List<string> items = new List<string>();
-                foreach (KeyValuePair<string, string> property in properties)
-                {
-                    items.Add(property.Value);
-                }
-
-                ListViewItem item = new ListViewItem(items.ToArray());
-                item.Tag = attribute;
-                this.Items.Add(item);
-
-                if (attribute.ValidationType.ToLower().Equals("association"))
-                {
-                    string[] rules = ConceptualModel.SplitValidationRules(attribute.ValidationRule);
-                    string concept = rules[1];
-
-                    for (int index = 2; index < rules.Length; index++)
-                    {
-                        items.Clear();
-                        foreach (KeyValuePair<string, string> property in properties)
-                        {
-                            string value = "";
-                            if (property.Key.ToLower().Equals("validationrule"))
-                            {
-                                value = rules[index];
-                            }
-                            items.Add(value);
-                        }
-                        this.Items.Add(new ListViewItem(items.ToArray()));
-                    }
-                }
-            }
         }
         private void Init()
         {

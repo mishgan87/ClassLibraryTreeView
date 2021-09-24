@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using ClassLibraryTreeView.Classes;
+using System.Collections.Generic;
 using System.Xml.Linq;
 
 namespace ClassLibraryTreeView.Interfaces
@@ -28,6 +29,7 @@ namespace ClassLibraryTreeView.Interfaces
         public string Concept { get; set; }
         public string Discipline { get; set; }
         public bool IsUoMRequired { get; set; }
+        public IClass CameFrom { get; set; }
         public IAttribute()
         {
             Init();
@@ -243,6 +245,8 @@ namespace ClassLibraryTreeView.Interfaces
             Concept = "";
             Discipline = "";
             IsUoMRequired = false;
+
+            CameFrom = null;
         }
     }
 }

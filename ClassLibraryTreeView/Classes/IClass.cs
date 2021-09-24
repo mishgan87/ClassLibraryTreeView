@@ -87,7 +87,9 @@ namespace ClassLibraryTreeView.Classes
                 {
                     foreach (XElement attribute in child.Elements())
                     {
-                        PermissibleAttributes.Add(new IAttribute(attribute));
+                        IAttribute permissibleAttribute = new IAttribute(attribute);
+                        // PermissibleAttributes.Add(permissibleAttribute);
+                        PermissibleAttributes.Add(permissibleAttribute.Id, permissibleAttribute);
                     }
                 }
             }
@@ -106,8 +108,8 @@ namespace ClassLibraryTreeView.Classes
             Concept = "";
             LifeCycleType = "";
             NamingTemplates = new List<string>();
-            PermissibleAttributes = new List<IAttribute>();
-            PermissibleAttributesMap = new Dictionary<string, IAttribute>();
+            // PermissibleAttributes = new List<IAttribute>();
+            PermissibleAttributes = new Dictionary<string, IAttribute>();
             Xtype = "";
             Parent = null;
             Children = new Dictionary<string, IClass>();
@@ -176,7 +178,6 @@ namespace ClassLibraryTreeView.Classes
                  || (!LifeCycleType.Equals(someClass.LifeCycleType))
                  || (!NamingTemplates.Equals(someClass.NamingTemplates))
                  || (!PermissibleAttributes.Equals(someClass.PermissibleAttributes))
-                 || (!PermissibleAttributesMap.Equals(someClass.PermissibleAttributesMap))
                  || (!Xtype.Equals(someClass.Xtype))
                  || (!Children.Equals(someClass.Children)) )
             {
@@ -201,13 +202,21 @@ namespace ClassLibraryTreeView.Classes
             Concept = someClass.Concept;
             LifeCycleType = someClass.LifeCycleType;
             NamingTemplates = new List<string>(someClass.NamingTemplates);
-            PermissibleAttributes = new List<IAttribute>(someClass.PermissibleAttributes);
-            PermissibleAttributesMap = new Dictionary<string, IAttribute>(someClass.PermissibleAttributesMap);
+            // PermissibleAttributes = new List<IAttribute>(someClass.PermissibleAttributes);
+            PermissibleAttributes = new Dictionary<string, IAttribute>(someClass.PermissibleAttributes);
             Xtype = someClass.Xtype;
             Parent = someClass.Parent;
             Children = new Dictionary<string, IClass>(someClass.Children);
         }
-        public IClass ContainsChildByName(IClass cmClass)
+        public IClass GetChildById(IClass cmClass)
+        {
+            if (Children.ContainsKey(cmClass.Id))
+            {
+                return Children[cmClass.Id];
+            }
+            return null;
+        }
+        public IClass GetChildByName(IClass cmClass)
         {
             foreach (IClass child in Children.Values)
             {
@@ -219,7 +228,34 @@ namespace ClassLibraryTreeView.Classes
             return null;
         }
         public bool ContainsChild(IClass cmClass) => Children.ContainsValue(cmClass);
+        public string PermissibleAttributePresence(string id)
+        {
+            if (PermissibleAttributes.ContainsKey(id))
+            {
+                if (!PermissibleAttributes[id].Presence.Equals(""))
+                {
+                    return PermissibleAttributes[id].Presence.Substring(0, 1);
+                }
+                return "X";
+            }
 
+            return "";
+        }
+        public int Depth
+        {
+            get
+            {
+                int depth = 0;
+                IClass parent = this.Parent;
+                while (parent != null)
+                {
+                    depth++;
+                    parent = parent.Parent;
+                }
+                return depth;
+            }
+        }
+        
         // Interface members
         public string Id { get; set; }
         public string Name { get; set; }
@@ -234,8 +270,8 @@ namespace ClassLibraryTreeView.Classes
         public string Concept { get; set; }
         public string LifeCycleType { get; set; }
         public List<string> NamingTemplates { get; set; }
-        public List<IAttribute> PermissibleAttributes { get; set; }
-        public Dictionary<string, IAttribute> PermissibleAttributesMap { get; set; }
+        // public List<IAttribute> PermissibleAttributes { get; set; }
+        public Dictionary<string, IAttribute> PermissibleAttributes { get; set; }
         public string Xtype { get; set; }
         public IClass Parent { get; set; }
         public Dictionary<string, IClass> Children { get; set; }
