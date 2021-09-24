@@ -35,6 +35,7 @@ namespace ClassLibraryTreeView
             this.labelModelName = new System.Windows.Forms.ToolStripLabel();
             this.labelInfo = new System.Windows.Forms.ToolStripLabel();
             this.layoutMain = new System.Windows.Forms.SplitContainer();
+            this.btnSearch = new System.Windows.Forms.Button();
             this.btnReport = new System.Windows.Forms.Button();
             this.progressBar = new System.Windows.Forms.ProgressBar();
             this.modelName = new System.Windows.Forms.Label();
@@ -72,7 +73,7 @@ namespace ClassLibraryTreeView
             this.propertiesTabs.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.propertiesTabs.Name = "propertiesTabs";
             this.propertiesTabs.SelectedIndex = 0;
-            this.propertiesTabs.Size = new System.Drawing.Size(876, 361);
+            this.propertiesTabs.Size = new System.Drawing.Size(876, 595);
             this.propertiesTabs.TabIndex = 0;
             // 
             // labelModelName
@@ -104,6 +105,7 @@ namespace ClassLibraryTreeView
             // 
             // layoutMain.Panel1
             // 
+            this.layoutMain.Panel1.Controls.Add(this.btnSearch);
             this.layoutMain.Panel1.Controls.Add(this.btnReport);
             this.layoutMain.Panel1.Controls.Add(this.progressBar);
             this.layoutMain.Panel1.Controls.Add(this.modelName);
@@ -118,10 +120,23 @@ namespace ClassLibraryTreeView
             // layoutMain.Panel2
             // 
             this.layoutMain.Panel2.Controls.Add(this.layoutSplitter);
-            this.layoutMain.Size = new System.Drawing.Size(1172, 497);
+            this.layoutMain.Size = new System.Drawing.Size(1172, 731);
             this.layoutMain.SplitterDistance = 64;
             this.layoutMain.SplitterWidth = 5;
             this.layoutMain.TabIndex = 9;
+            // 
+            // btnSearch
+            // 
+            this.btnSearch.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnSearch.Enabled = false;
+            this.btnSearch.Image = global::ClassLibraryTreeView.Properties.Resources.search;
+            this.btnSearch.Location = new System.Drawing.Point(700, 0);
+            this.btnSearch.Margin = new System.Windows.Forms.Padding(4);
+            this.btnSearch.Name = "btnSearch";
+            this.btnSearch.Size = new System.Drawing.Size(100, 64);
+            this.btnSearch.TabIndex = 9;
+            this.btnSearch.UseVisualStyleBackColor = true;
+            this.btnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
             // 
             // btnReport
             // 
@@ -246,7 +261,7 @@ namespace ClassLibraryTreeView
             // layoutSplitter.Panel2
             // 
             this.layoutSplitter.Panel2.Controls.Add(this.layoutProperties);
-            this.layoutSplitter.Size = new System.Drawing.Size(1172, 428);
+            this.layoutSplitter.Size = new System.Drawing.Size(1172, 662);
             this.layoutSplitter.SplitterDistance = 291;
             this.layoutSplitter.SplitterWidth = 5;
             this.layoutSplitter.TabIndex = 12;
@@ -259,7 +274,7 @@ namespace ClassLibraryTreeView
             this.treeTabs.Margin = new System.Windows.Forms.Padding(4);
             this.treeTabs.Name = "treeTabs";
             this.treeTabs.SelectedIndex = 0;
-            this.treeTabs.Size = new System.Drawing.Size(291, 428);
+            this.treeTabs.Size = new System.Drawing.Size(291, 662);
             this.treeTabs.TabIndex = 11;
             // 
             // layoutProperties
@@ -282,7 +297,7 @@ namespace ClassLibraryTreeView
             // layoutProperties.Panel2
             // 
             this.layoutProperties.Panel2.Controls.Add(this.propertiesTabs);
-            this.layoutProperties.Size = new System.Drawing.Size(876, 428);
+            this.layoutProperties.Size = new System.Drawing.Size(876, 662);
             this.layoutProperties.SplitterDistance = 62;
             this.layoutProperties.SplitterWidth = 5;
             this.layoutProperties.TabIndex = 11;
@@ -324,7 +339,7 @@ namespace ClassLibraryTreeView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1172, 497);
+            this.ClientSize = new System.Drawing.Size(1172, 731);
             this.Controls.Add(this.layoutMain);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(4);
@@ -367,6 +382,7 @@ namespace ClassLibraryTreeView
         private Button button2;
         private Button button1;
         private Button btnReport;
+        private Button btnSearch;
     }
 }
 

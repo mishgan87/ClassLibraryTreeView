@@ -16,7 +16,6 @@ namespace ClassLibraryTreeView.Classes
         private int editedSubItemIndex = -1;
         private ComboBox comboBoxProperty = new ComboBox();
         private Rectangle ClickedItem = new Rectangle();
-        private Dictionary<string, IAttribute> attributes = null;
         private IIdentifiable parentTag = null;
         public PropertiesListView(Dictionary<string, IAttribute> permissibleAttributes)
         {

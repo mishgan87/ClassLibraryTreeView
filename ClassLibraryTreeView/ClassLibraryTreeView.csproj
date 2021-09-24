@@ -92,6 +92,18 @@
     <Compile Include="Classes\DocumentClass.cs" />
     <Compile Include="Classes\FunctionalClass.cs" />
     <Compile Include="Classes\EnumerationList.cs" />
+    <Compile Include="Forms\ClassAttributesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\ClassAttributesForm.Designer.cs">
+      <DependentUpon>ClassAttributesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\SearchingForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\SearchingForm.Designer.cs">
+      <DependentUpon>SearchingForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Interfaces\IAttribute.cs" />
     <Compile Include="Classes\IClass.cs" />
     <Compile Include="Interfaces\IIdentifiable.cs" />
@@ -107,6 +119,12 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="Forms\ClassAttributesForm.resx">
+      <DependentUpon>ClassAttributesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\SearchingForm.resx">
+      <DependentUpon>SearchingForm.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>

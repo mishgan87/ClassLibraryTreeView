@@ -51,7 +51,7 @@ namespace ClassLibraryTreeView
         {
             get
             {
-                if (classes.ContainsKey("functioanls"))
+                if (classes.ContainsKey("functionals"))
                 {
                     return classes["functionals"];
                 }
@@ -286,15 +286,13 @@ namespace ClassLibraryTreeView
         public void ImportXml(string fileName)
         {
             Clear();
-
             FullPathXml = fileName;
-
             XDocument doc = XDocument.Load(fileName);
 
             foreach (XElement element in doc.Elements().First().Elements())
             {
                 string name = element.Name.LocalName.ToLower();
-                
+
                 if (name.Equals("referencedata"))
                 {
                     GetReferenceData(element);
@@ -332,6 +330,12 @@ namespace ClassLibraryTreeView
 
             DefinePermissibleAttributesNames();
             SetClassesInheritance();
+
+            if (Physicals == null)
+            {
+                CalculateMaxDepth();
+                return;
+            }
 
             foreach (IClass physicalClass in classes["physicals"].Values)
             {
@@ -400,7 +404,7 @@ namespace ClassLibraryTreeView
 
             // MergeByName(); // MergeByAssociations();
 
-            // CalculateMaxDepth();
+            CalculateMaxDepth();
         }
         public IAttribute GetAttribute(string id)
         {
@@ -757,8 +761,36 @@ namespace ClassLibraryTreeView
             }
             return row;
         }
-        public void ExportClassAttributes()
+        public List<KeyValuePair<int, string[]>> ExportClassAttributes()
         {
+            int row = 1;
+            List<KeyValuePair<int, string[]>> rows = new List<KeyValuePair<int, string[]>>();
+
+            Dictionary<string, IClass> map = null;
+            if (Physicals != null)
+            {
+                map = Physicals;
+            }
+            else
+            {
+                if (Functionals != null)
+                {
+                    map = Functionals;
+                }
+            }
+
+            if (map == null)
+            {
+                return null;
+            }
+
+            foreach (IClass physicalClass in map.Values)
+            {
+                row = AddClassAttributes(physicalClass, rows, row);
+            }
+
+            return rows;
+            /*
             using (XLWorkbook workbook = new XLWorkbook())
             {
                 IXLWorksheet worksheet = workbook.Worksheets.Add($"MergedClassAttributes");
@@ -767,16 +799,6 @@ namespace ClassLibraryTreeView
                 SetCell(worksheet.Cell(CellName(0, 1)), CellStyle.Header, $"Class Name");
                 SetCell(worksheet.Cell(CellName(0, 2)), CellStyle.Header, $"Attribute ID");
                 SetCell(worksheet.Cell(CellName(0, 3)), CellStyle.Header, $"Attribute Name");
-
-                int row = 1;
-                List<KeyValuePair<int, string[]>> rows = new List<KeyValuePair<int, string[]>>();
-
-
-
-                foreach (IClass physicalClass in classes["physicals"].Values)
-                {
-                    row = AddClassAttributes(physicalClass, rows, row);
-                }
 
                 foreach (var classRow in rows)
                 {
@@ -799,7 +821,25 @@ namespace ClassLibraryTreeView
                 {
                     MessageBox.Show(ex.Message);
                 }
+                
             }
+            */
+        }
+        private int AddClassChildren(IClass cmClass, ConcurrentDictionary<int, IClass> classRows, int rowIndex)
+        {
+            int row = rowIndex;
+            if (cmClass.Children.Count > 0)
+            {
+                foreach(IClass cmClassChild in cmClass.Children.Values)
+                {
+                    if (classRows.TryAdd(row, cmClassChild))
+                    {
+                        row++;
+                    }
+                    row = AddClassChildren(cmClassChild, classRows, row);
+                }
+            }
+            return row;
         }
         public void ExportPermissibleGrid()
         {
@@ -811,15 +851,37 @@ namespace ClassLibraryTreeView
 
                 // define classes attributes rows
 
+                Dictionary<string, IClass> map = null;
+                if (Physicals != null)
+                {
+                    map = Physicals;
+                }
+                else
+                {
+                    if (Functionals != null)
+                    {
+                        map = Functionals;
+                    }
+                }
+
+                if (map == null)
+                {
+                    return;
+                }
+
                 int row = 3;
-                Dictionary<string, IClass> map = classes["physicals"];
+
                 ConcurrentDictionary<int, IClass> classRows = new ConcurrentDictionary<int, IClass>(); // dictionary of pairs "row number - conceptual model class"
 
-                foreach (IClass cmClass in map.Values) // fill dictionary of pairs "row number - conceptual model class"
+                foreach (IClass cmClass in map.Values) // fill dictionary of pairs <row number, conceptual model class>
                 {
-                    if (classRows.TryAdd(row, cmClass))
+                    if (cmClass.Parent == null)
                     {
-                        row++;
+                        if (classRows.TryAdd(row, cmClass))
+                        {
+                            row++;
+                        }
+                        row = AddClassChildren(cmClass, classRows, row);
                     }
                 }
 

@@ -1,7 +1,9 @@
 ﻿using ClassLibraryTreeView.Classes;
+using ClassLibraryTreeView.Forms;
 using ClassLibraryTreeView.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -106,6 +108,7 @@ namespace ClassLibraryTreeView
                         listViewItems.View = View.Details;
                         listViewItems.Columns.Clear();
                         listViewItems.Items.Clear();
+                        listViewItems.GridLines = true;
                         listViewItems.Columns.Add("Id", 300, HorizontalAlignment.Left);
                         listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
                         listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
@@ -223,6 +226,11 @@ namespace ClassLibraryTreeView
             {
                 ViewTaxonomyProperties(eventArgs.Node.Tag);
             }
+
+            if (this.treeTabs.SelectedTab.Text.ToLower().Equals("measures"))
+            {
+                ViewMeasureProperties(sender, eventArgs);
+            }
         }
         private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
@@ -271,6 +279,7 @@ namespace ClassLibraryTreeView
                 this.btnAdd.Enabled = false;
                 this.btnSave.Enabled = false;
                 this.btnReport.Enabled = true;
+                this.btnSearch.Enabled = true;
             }
         }
 
@@ -317,12 +326,18 @@ namespace ClassLibraryTreeView
             }
         }
 
-        private async void BtnReport_Click(object sender, EventArgs e)
+        // private async void BtnReport_Click(object sender, EventArgs e)
+        private void BtnReport_Click(object sender, EventArgs e)
         {
             layoutMain.Panel1.Enabled = false;
             progressBar.Value = 0;
             progressBar.Visible = true;
 
+            List<KeyValuePair<int, string[]>> classAttributes = model.ExportClassAttributes();
+
+            ClassAttributesForm classAttributesForm = new ClassAttributesForm(classAttributes);
+            classAttributesForm.Show();
+            /*
             try
             {
                 await Task.Run(() => model.ExportClassAttributes());
@@ -331,11 +346,15 @@ namespace ClassLibraryTreeView
             {
                 MessageBox.Show(ex.Message);
             }
-            
+            */
             layoutMain.Panel1.Enabled = true;
             progressBar.Visible = false;
         }
 
-
+        private void BtnSearch_Click(object sender, EventArgs e)
+        {
+            SearchingForm searchForm = new SearchingForm(model);
+            searchForm.Show();
+        }
     }
 }
