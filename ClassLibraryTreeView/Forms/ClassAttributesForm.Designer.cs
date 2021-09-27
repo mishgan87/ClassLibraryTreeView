@@ -32,20 +32,25 @@ namespace ClassLibraryTreeView.Forms
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ClassAttributesForm));
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.groupBoxFilterBy = new System.Windows.Forms.GroupBox();
             this.checkBoxFilterByAttributeName = new System.Windows.Forms.CheckBox();
             this.checkBoxFilterByAttributeId = new System.Windows.Forms.CheckBox();
-            this.checkBoxFilterByClassName = new System.Windows.Forms.CheckBox();
-            this.checkBoxFilterByClassId = new System.Windows.Forms.CheckBox();
             this.btnResetFilter = new System.Windows.Forms.Button();
+            this.checkBoxFilterByClassName = new System.Windows.Forms.CheckBox();
             this.btnApplyFilter = new System.Windows.Forms.Button();
-            this.listViewFIlter = new System.Windows.Forms.ListView();
+            this.checkBoxFilterByClassId = new System.Windows.Forms.CheckBox();
+            this.comboBoxAttributeName = new System.Windows.Forms.ComboBox();
+            this.comboBoxAttributeId = new System.Windows.Forms.ComboBox();
+            this.comboBoxClassName = new System.Windows.Forms.ComboBox();
+            this.comboBoxClassId = new System.Windows.Forms.ComboBox();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
-            this.groupBoxFilterBy.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
+            this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridView
@@ -57,7 +62,7 @@ namespace ClassLibraryTreeView.Forms
             this.dataGridView.Name = "dataGridView";
             this.dataGridView.RowTemplate.Height = 24;
             this.dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
-            this.dataGridView.Size = new System.Drawing.Size(1012, 297);
+            this.dataGridView.Size = new System.Drawing.Size(684, 547);
             this.dataGridView.TabIndex = 0;
             // 
             // splitContainer1
@@ -70,38 +75,21 @@ namespace ClassLibraryTreeView.Forms
             // 
             // splitContainer1.Panel1
             // 
-            this.splitContainer1.Panel1.Controls.Add(this.listViewFIlter);
-            this.splitContainer1.Panel1.Controls.Add(this.groupBoxFilterBy);
-            this.splitContainer1.Panel1.Controls.Add(this.btnResetFilter);
-            this.splitContainer1.Panel1.Controls.Add(this.btnApplyFilter);
+            this.splitContainer1.Panel1.Controls.Add(this.tableLayoutPanel1);
             // 
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.dataGridView);
-            this.splitContainer1.Size = new System.Drawing.Size(1012, 654);
-            this.splitContainer1.SplitterDistance = 353;
+            this.splitContainer1.Size = new System.Drawing.Size(684, 792);
+            this.splitContainer1.SplitterDistance = 241;
             this.splitContainer1.TabIndex = 1;
-            // 
-            // groupBoxFilterBy
-            // 
-            this.groupBoxFilterBy.Controls.Add(this.checkBoxFilterByAttributeName);
-            this.groupBoxFilterBy.Controls.Add(this.checkBoxFilterByAttributeId);
-            this.groupBoxFilterBy.Controls.Add(this.checkBoxFilterByClassName);
-            this.groupBoxFilterBy.Controls.Add(this.checkBoxFilterByClassId);
-            this.groupBoxFilterBy.Dock = System.Windows.Forms.DockStyle.Top;
-            this.groupBoxFilterBy.Location = new System.Drawing.Point(0, 0);
-            this.groupBoxFilterBy.Name = "groupBoxFilterBy";
-            this.groupBoxFilterBy.Size = new System.Drawing.Size(1012, 106);
-            this.groupBoxFilterBy.TabIndex = 9;
-            this.groupBoxFilterBy.TabStop = false;
             // 
             // checkBoxFilterByAttributeName
             // 
             this.checkBoxFilterByAttributeName.AutoSize = true;
-            this.checkBoxFilterByAttributeName.Dock = System.Windows.Forms.DockStyle.Top;
-            this.checkBoxFilterByAttributeName.Location = new System.Drawing.Point(3, 76);
+            this.checkBoxFilterByAttributeName.Location = new System.Drawing.Point(3, 147);
             this.checkBoxFilterByAttributeName.Name = "checkBoxFilterByAttributeName";
-            this.checkBoxFilterByAttributeName.Size = new System.Drawing.Size(1006, 19);
+            this.checkBoxFilterByAttributeName.Size = new System.Drawing.Size(194, 18);
             this.checkBoxFilterByAttributeName.TabIndex = 3;
             this.checkBoxFilterByAttributeName.Text = "Filter by Attribute Name";
             this.checkBoxFilterByAttributeName.UseVisualStyleBackColor = true;
@@ -110,76 +98,141 @@ namespace ClassLibraryTreeView.Forms
             // checkBoxFilterByAttributeId
             // 
             this.checkBoxFilterByAttributeId.AutoSize = true;
-            this.checkBoxFilterByAttributeId.Dock = System.Windows.Forms.DockStyle.Top;
-            this.checkBoxFilterByAttributeId.Location = new System.Drawing.Point(3, 57);
+            this.checkBoxFilterByAttributeId.Location = new System.Drawing.Point(3, 99);
             this.checkBoxFilterByAttributeId.Name = "checkBoxFilterByAttributeId";
-            this.checkBoxFilterByAttributeId.Size = new System.Drawing.Size(1006, 19);
+            this.checkBoxFilterByAttributeId.Size = new System.Drawing.Size(180, 18);
             this.checkBoxFilterByAttributeId.TabIndex = 2;
             this.checkBoxFilterByAttributeId.Text = "Filter by Attribute Id";
             this.checkBoxFilterByAttributeId.UseVisualStyleBackColor = true;
             this.checkBoxFilterByAttributeId.CheckedChanged += new System.EventHandler(this.CheckBoxCheckedChanged);
             // 
+            // btnResetFilter
+            // 
+            this.btnResetFilter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnResetFilter.Location = new System.Drawing.Point(103, 3);
+            this.btnResetFilter.Name = "btnResetFilter";
+            this.btnResetFilter.Size = new System.Drawing.Size(94, 37);
+            this.btnResetFilter.TabIndex = 8;
+            this.btnResetFilter.Text = "Reset";
+            this.btnResetFilter.UseVisualStyleBackColor = true;
+            this.btnResetFilter.Click += new System.EventHandler(this.BtnResetFilter_Click);
+            // 
             // checkBoxFilterByClassName
             // 
             this.checkBoxFilterByClassName.AutoSize = true;
-            this.checkBoxFilterByClassName.Dock = System.Windows.Forms.DockStyle.Top;
-            this.checkBoxFilterByClassName.Location = new System.Drawing.Point(3, 38);
+            this.checkBoxFilterByClassName.Location = new System.Drawing.Point(3, 51);
             this.checkBoxFilterByClassName.Name = "checkBoxFilterByClassName";
-            this.checkBoxFilterByClassName.Size = new System.Drawing.Size(1006, 19);
+            this.checkBoxFilterByClassName.Size = new System.Drawing.Size(166, 18);
             this.checkBoxFilterByClassName.TabIndex = 1;
             this.checkBoxFilterByClassName.Text = "Filter by Class Name";
             this.checkBoxFilterByClassName.UseVisualStyleBackColor = true;
             this.checkBoxFilterByClassName.CheckedChanged += new System.EventHandler(this.CheckBoxCheckedChanged);
             // 
+            // btnApplyFilter
+            // 
+            this.btnApplyFilter.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnApplyFilter.Location = new System.Drawing.Point(3, 3);
+            this.btnApplyFilter.Name = "btnApplyFilter";
+            this.btnApplyFilter.Size = new System.Drawing.Size(94, 37);
+            this.btnApplyFilter.TabIndex = 7;
+            this.btnApplyFilter.Text = "Apply";
+            this.btnApplyFilter.UseVisualStyleBackColor = true;
+            this.btnApplyFilter.Click += new System.EventHandler(this.BtnApplyFilter_Click);
+            // 
             // checkBoxFilterByClassId
             // 
             this.checkBoxFilterByClassId.AutoSize = true;
-            this.checkBoxFilterByClassId.Dock = System.Windows.Forms.DockStyle.Top;
-            this.checkBoxFilterByClassId.Location = new System.Drawing.Point(3, 19);
+            this.checkBoxFilterByClassId.Location = new System.Drawing.Point(3, 3);
             this.checkBoxFilterByClassId.Name = "checkBoxFilterByClassId";
-            this.checkBoxFilterByClassId.Size = new System.Drawing.Size(1006, 19);
+            this.checkBoxFilterByClassId.Size = new System.Drawing.Size(152, 18);
             this.checkBoxFilterByClassId.TabIndex = 0;
             this.checkBoxFilterByClassId.Text = "Filter by Class Id";
             this.checkBoxFilterByClassId.UseVisualStyleBackColor = true;
             this.checkBoxFilterByClassId.CheckedChanged += new System.EventHandler(this.CheckBoxCheckedChanged);
             // 
-            // btnResetFilter
+            // comboBoxAttributeName
             // 
-            this.btnResetFilter.Image = global::ClassLibraryTreeView.Properties.Resources.cancel;
-            this.btnResetFilter.Location = new System.Drawing.Point(925, 289);
-            this.btnResetFilter.Name = "btnResetFilter";
-            this.btnResetFilter.Size = new System.Drawing.Size(75, 62);
-            this.btnResetFilter.TabIndex = 8;
-            this.btnResetFilter.UseVisualStyleBackColor = true;
+            this.comboBoxAttributeName.FormattingEnabled = true;
+            this.comboBoxAttributeName.Location = new System.Drawing.Point(3, 171);
+            this.comboBoxAttributeName.Name = "comboBoxAttributeName";
+            this.comboBoxAttributeName.Size = new System.Drawing.Size(267, 23);
+            this.comboBoxAttributeName.TabIndex = 9;
             // 
-            // btnApplyFilter
+            // comboBoxAttributeId
             // 
-            this.btnApplyFilter.Image = global::ClassLibraryTreeView.Properties.Resources.apply;
-            this.btnApplyFilter.Location = new System.Drawing.Point(832, 288);
-            this.btnApplyFilter.Name = "btnApplyFilter";
-            this.btnApplyFilter.Size = new System.Drawing.Size(75, 62);
-            this.btnApplyFilter.TabIndex = 7;
-            this.btnApplyFilter.UseVisualStyleBackColor = true;
-            this.btnApplyFilter.Click += new System.EventHandler(this.BtnApplyFilter_Click);
+            this.comboBoxAttributeId.FormattingEnabled = true;
+            this.comboBoxAttributeId.Location = new System.Drawing.Point(3, 123);
+            this.comboBoxAttributeId.Name = "comboBoxAttributeId";
+            this.comboBoxAttributeId.Size = new System.Drawing.Size(267, 23);
+            this.comboBoxAttributeId.TabIndex = 10;
             // 
-            // listViewFIlter
+            // comboBoxClassName
             // 
-            this.listViewFIlter.Dock = System.Windows.Forms.DockStyle.Top;
-            this.listViewFIlter.FullRowSelect = true;
-            this.listViewFIlter.GridLines = true;
-            this.listViewFIlter.HideSelection = false;
-            this.listViewFIlter.Location = new System.Drawing.Point(0, 106);
-            this.listViewFIlter.Name = "listViewFIlter";
-            this.listViewFIlter.Size = new System.Drawing.Size(1012, 167);
-            this.listViewFIlter.TabIndex = 10;
-            this.listViewFIlter.UseCompatibleStateImageBehavior = false;
-            this.listViewFIlter.View = System.Windows.Forms.View.Details;
+            this.comboBoxClassName.FormattingEnabled = true;
+            this.comboBoxClassName.Location = new System.Drawing.Point(3, 75);
+            this.comboBoxClassName.Name = "comboBoxClassName";
+            this.comboBoxClassName.Size = new System.Drawing.Size(267, 23);
+            this.comboBoxClassName.TabIndex = 11;
+            // 
+            // comboBoxClassId
+            // 
+            this.comboBoxClassId.FormattingEnabled = true;
+            this.comboBoxClassId.Location = new System.Drawing.Point(3, 27);
+            this.comboBoxClassId.Name = "comboBoxClassId";
+            this.comboBoxClassId.Size = new System.Drawing.Size(267, 23);
+            this.comboBoxClassId.TabIndex = 12;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 2;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 40F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 60F));
+            this.tableLayoutPanel1.Controls.Add(this.checkBoxFilterByClassId, 0, 0);
+            this.tableLayoutPanel1.Controls.Add(this.comboBoxClassId, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.checkBoxFilterByClassName, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.comboBoxClassName, 0, 3);
+            this.tableLayoutPanel1.Controls.Add(this.checkBoxFilterByAttributeId, 0, 4);
+            this.tableLayoutPanel1.Controls.Add(this.comboBoxAttributeId, 0, 5);
+            this.tableLayoutPanel1.Controls.Add(this.checkBoxFilterByAttributeName, 0, 6);
+            this.tableLayoutPanel1.Controls.Add(this.comboBoxAttributeName, 0, 7);
+            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 8);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 9;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 10F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(684, 241);
+            this.tableLayoutPanel1.TabIndex = 10;
+            // 
+            // tableLayoutPanel2
+            // 
+            this.tableLayoutPanel2.ColumnCount = 2;
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel2.Controls.Add(this.btnResetFilter, 1, 0);
+            this.tableLayoutPanel2.Controls.Add(this.btnApplyFilter, 0, 0);
+            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Left;
+            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 195);
+            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
+            this.tableLayoutPanel2.RowCount = 1;
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel2.Size = new System.Drawing.Size(200, 43);
+            this.tableLayoutPanel2.TabIndex = 13;
             // 
             // ClassAttributesForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1012, 654);
+            this.ClientSize = new System.Drawing.Size(684, 792);
             this.Controls.Add(this.splitContainer1);
             this.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -191,8 +244,9 @@ namespace ClassLibraryTreeView.Forms
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
-            this.groupBoxFilterBy.ResumeLayout(false);
-            this.groupBoxFilterBy.PerformLayout();
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
+            this.tableLayoutPanel2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -203,11 +257,15 @@ namespace ClassLibraryTreeView.Forms
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Button btnApplyFilter;
         private System.Windows.Forms.Button btnResetFilter;
-        private System.Windows.Forms.GroupBox groupBoxFilterBy;
         private System.Windows.Forms.CheckBox checkBoxFilterByAttributeName;
         private System.Windows.Forms.CheckBox checkBoxFilterByAttributeId;
         private System.Windows.Forms.CheckBox checkBoxFilterByClassName;
         private System.Windows.Forms.CheckBox checkBoxFilterByClassId;
-        private System.Windows.Forms.ListView listViewFIlter;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
+        private System.Windows.Forms.ComboBox comboBoxAttributeId;
+        private System.Windows.Forms.ComboBox comboBoxClassName;
+        private System.Windows.Forms.ComboBox comboBoxAttributeName;
+        private System.Windows.Forms.ComboBox comboBoxClassId;
+        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
     }
 }
