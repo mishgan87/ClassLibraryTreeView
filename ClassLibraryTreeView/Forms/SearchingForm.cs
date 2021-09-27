@@ -21,12 +21,12 @@ namespace ClassLibraryTreeView.Forms
         }
         private void Find()
         {
-            if (radioButtonClasses.Checked)
+            if (checkBoxClasses.Checked)
             {
                 FindInClasses();
             }
 
-            if (radioButtonAttributes.Checked)
+            if (checkBoxAttributes.Checked)
             {
                 FindInAttributes();
             }
@@ -48,7 +48,7 @@ namespace ClassLibraryTreeView.Forms
         {
             List<IClass> classesList = new List<IClass>();
             string text = textBox.Text;
-            if (radioButtonSearchId.Checked)
+            if (checkBoxId.Checked)
             {
                 foreach(var map in model.classes.Values)
                 {
@@ -82,7 +82,7 @@ namespace ClassLibraryTreeView.Forms
             string text = textBox.Text;
             List<IAttribute> attributesList = new List<IAttribute>();
 
-            if (radioButtonSearchId.Checked)
+            if (checkBoxId.Checked)
             {
                 foreach (var map in model.attributes.Values)
                 {

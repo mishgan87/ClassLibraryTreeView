@@ -238,15 +238,17 @@ namespace ClassLibraryTreeView
                             foreach (IAttribute cmClassAttribute in cmClass.PermissibleAttributes.Values)
                             {
                                 IAttribute attribute = GetAttribute(cmClassAttribute.Id);
-                                if (attribute.ApplicableClasses == null)
+                                if (attribute != null)
                                 {
-                                    attribute.ApplicableClasses = new Dictionary<string, IClass>();
+                                    if (attribute.ApplicableClasses == null)
+                                    {
+                                        attribute.ApplicableClasses = new Dictionary<string, IClass>();
+                                    }
+                                    if (!attribute.ApplicableClasses.ContainsKey(cmClass.Id))
+                                    {
+                                        attribute.ApplicableClasses.Add(cmClass.Id, cmClass);
+                                    }
                                 }
-                                if (!attribute.ApplicableClasses.ContainsKey(cmClass.Id))
-                                {
-                                    attribute.ApplicableClasses.Add(cmClass.Id, cmClass);
-                                }
-
                                 if (cmClassAttribute.Name.Equals(""))
                                 {
                                     foreach (string group in attributes.Keys)
