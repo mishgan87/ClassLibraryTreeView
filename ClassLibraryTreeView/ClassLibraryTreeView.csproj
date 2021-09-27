@@ -66,6 +66,8 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Messaging" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -186,6 +188,9 @@
     <None Include="Icons\taxonomies.ico" />
     <None Include="Icons\upload.ico" />
     <None Include="Icons\viewer.ico" />
+    <None Include="Icons\apply.ico" />
+    <None Include="Icons\cancel.ico" />
+    <None Include="Icons\reset.ico" />
     <Content Include="viewer.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

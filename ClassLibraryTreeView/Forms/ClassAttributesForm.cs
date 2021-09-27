@@ -16,9 +16,17 @@ namespace ClassLibraryTreeView.Forms
     {
         ConceptualModel model = null;
         DataTable table = null;
+        
+        List<string> classIdList = null;
+        List<string> classNameList = null;
+        List<string> attributeIdList = null;
+        List<string> attributeNameList = null;
+
         public ClassAttributesForm(ConceptualModel modelReference) : base()
         {
             InitializeComponent();
+
+            listViewFIlter.Columns.Add($"ID", 300, HorizontalAlignment.Left);
 
             model = modelReference;
 
@@ -29,38 +37,30 @@ namespace ClassLibraryTreeView.Forms
             table.Columns.Add($"Attribute ID");
             table.Columns.Add($"Attribute Name");
 
-            foreach(string classMapKey in model.classes.Keys)
+            classIdList = new List<string>();
+            classNameList = new List<string>();
+            attributeIdList = new List<string>();
+            attributeNameList = new List<string>();
+
+            foreach (string classMapKey in model.classes.Keys)
             {
                 var map = model.classes[classMapKey];
                 foreach (IClass cmClass in map.Values)
                 {
                     string classId = cmClass.Id;
                     string className = cmClass.Name;
+
+                    classIdList.Add(classId);
+                    classNameList.Add(className);
+
                     foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
                     {
                         string attributeId = attribute.Id;
                         string attributeName = attribute.Name;
                         table.Rows.Add(new string[] { classId, className, attributeId, attributeName });
 
-                        if (!comboBoxClassId.Items.Contains(classId))
-                        {
-                            comboBoxClassId.Items.Add(classId);
-                        }
-
-                        if (!comboBoxClassName.Items.Contains(className))
-                        {
-                            comboBoxClassName.Items.Add(className);
-                        }
-
-                        if (!comboBoxAttributeId.Items.Contains(attributeId))
-                        {
-                            comboBoxAttributeId.Items.Add(attributeId);
-                        }
-
-                        if (!comboBoxAttributeName.Items.Contains(attributeName))
-                        {
-                            comboBoxAttributeName.Items.Add(attributeName);
-                        }
+                        attributeIdList.Add(attributeId);
+                        attributeNameList.Add(attributeName);
                     }
                 }
             }
@@ -70,7 +70,31 @@ namespace ClassLibraryTreeView.Forms
 
         private void BtnApplyFilter_Click(object sender, EventArgs e)
         {
+            List<IClass> classList = null;
 
+            if (checkBoxFilterByClassId.Checked)
+            {
+                classList = model.GetClassesWithId(listViewFIlter.SelectedItems[0].Text);
+                Print(classList);
+            }
+
+            if (checkBoxFilterByClassName.Checked)
+            {
+                classList = model.GetClassesWithName(listViewFIlter.SelectedItems[0].Text);
+                Print(classList);
+            }
+
+            if (checkBoxFilterByAttributeId.Checked)
+            {
+                classList = model.GetClassesWithAttributeId(listViewFIlter.SelectedItems[0].Text);
+                PrintSingleAttributeId(classList, listViewFIlter.SelectedItems[0].Text);
+            }
+
+            if (checkBoxFilterByAttributeName.Checked)
+            {
+                classList = model.GetClassesWithAttributeName(listViewFIlter.SelectedItems[0].Text);
+                PrintSingleAttributeName(classList, listViewFIlter.SelectedItems[0].Text);
+            }
         }
         private void Print(List<IClass> classList)
         {
@@ -127,28 +151,54 @@ namespace ClassLibraryTreeView.Forms
 
             dataGridView.DataSource = table;
         }
-        private void ComboBoxClassId_SelectedIndexChanged(object sender, EventArgs e)
+        private void FillFilterListView(List<string> values)
         {
-            List<IClass> classList = model.GetClassesWithId(comboBoxClassId.Text);
-            Print(classList);
+            foreach (string value in values)
+            {
+                string[] items = new string[] { $"{value}" };
+                ListViewItem item = new ListViewItem(items);
+                listViewFIlter.Items.Add(item);
+            }
         }
-
-        private void ComboBoxClassName_SelectedIndexChanged(object sender, EventArgs e)
+        private void CheckBoxCheckedChanged(object sender, EventArgs e)
         {
-            List<IClass> classList = model.GetClassesWithName(comboBoxClassName.Text);
-            Print(classList);
-        }
+            listViewFIlter.Items.Clear();
 
-        private void ComboBoxAttributeId_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            List<IClass> classList = model.GetClassesWithAttributeId(comboBoxAttributeId.Text);
-            PrintSingleAttributeId(classList, comboBoxAttributeId.Text);
-        }
+            if (checkBoxFilterByClassId.Focused && checkBoxFilterByClassId.Checked)
+            {
+                checkBoxFilterByClassName.Checked = false;
+                checkBoxFilterByAttributeId.Checked = false;
+                checkBoxFilterByAttributeName.Checked = false;
+                FillFilterListView(classIdList);
+                return;
+            }
 
-        private void ComboBoxAttributeName_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            List<IClass> classList = model.GetClassesWithAttributeName(comboBoxAttributeName.Text);
-            PrintSingleAttributeName(classList, comboBoxAttributeName.Text);
+            if (checkBoxFilterByClassName.Focused && checkBoxFilterByClassName.Checked)
+            {
+                checkBoxFilterByClassId.Checked = false;
+                checkBoxFilterByAttributeId.Checked = false;
+                checkBoxFilterByAttributeName.Checked = false;
+                FillFilterListView(classNameList);
+                return;
+            }
+
+            if (checkBoxFilterByAttributeId.Focused && checkBoxFilterByAttributeId.Checked)
+            {
+                checkBoxFilterByClassId.Checked = false;
+                checkBoxFilterByClassName.Checked = false;
+                checkBoxFilterByAttributeName.Checked = false;
+                FillFilterListView(attributeIdList);
+                return;
+            }
+
+            if (checkBoxFilterByAttributeName.Focused && checkBoxFilterByAttributeName.Checked)
+            {
+                checkBoxFilterByClassId.Checked = false;
+                checkBoxFilterByClassName.Checked = false;
+                checkBoxFilterByAttributeId.Checked = false;
+                FillFilterListView(attributeNameList);
+                return;
+            }
         }
     }
 }
