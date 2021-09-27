@@ -89,6 +89,7 @@ namespace ClassLibraryTreeView.Forms
             this.comboBoxAttributeName.Size = new System.Drawing.Size(250, 23);
             this.comboBoxAttributeName.Sorted = true;
             this.comboBoxAttributeName.TabIndex = 3;
+            this.comboBoxAttributeName.SelectedIndexChanged += new System.EventHandler(this.ComboBoxAttributeName_SelectedIndexChanged);
             // 
             // comboBoxAttributeId
             // 
@@ -101,6 +102,7 @@ namespace ClassLibraryTreeView.Forms
             this.comboBoxAttributeId.Size = new System.Drawing.Size(250, 23);
             this.comboBoxAttributeId.Sorted = true;
             this.comboBoxAttributeId.TabIndex = 2;
+            this.comboBoxAttributeId.SelectedIndexChanged += new System.EventHandler(this.ComboBoxAttributeId_SelectedIndexChanged);
             // 
             // comboBoxClassName
             // 
@@ -113,6 +115,7 @@ namespace ClassLibraryTreeView.Forms
             this.comboBoxClassName.Size = new System.Drawing.Size(250, 23);
             this.comboBoxClassName.Sorted = true;
             this.comboBoxClassName.TabIndex = 1;
+            this.comboBoxClassName.SelectedIndexChanged += new System.EventHandler(this.ComboBoxClassName_SelectedIndexChanged);
             // 
             // comboBoxClassId
             // 

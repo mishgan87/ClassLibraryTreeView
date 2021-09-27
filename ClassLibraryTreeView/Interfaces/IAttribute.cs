@@ -30,7 +30,7 @@ namespace ClassLibraryTreeView.Interfaces
         public string Discipline { get; set; }
         public bool IsUoMRequired { get; set; }
         public IClass CameFrom { get; set; }
-        // public List<IClass> ApplicableClasses { get; set; }
+        public Dictionary<string, IClass> ApplicableClasses { get; set; }
         public IAttribute()
         {
             Init();
@@ -248,6 +248,7 @@ namespace ClassLibraryTreeView.Interfaces
             IsUoMRequired = false;
 
             CameFrom = null;
+            ApplicableClasses = null;
         }
     }
 }

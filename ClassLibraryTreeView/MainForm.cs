@@ -194,6 +194,16 @@ namespace ClassLibraryTreeView
                 info.Text = $"Attribute : {attribute.Name}";
                 propertiesTabs.TabPages.Add(new TabPage("Properties"));
                 propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(attribute));
+
+                if (attribute.ApplicableClasses == null)
+                {
+                    propertiesTabs.TabPages.Add(new TabPage($"Applicable classes (0)"));
+                }
+                else
+                {
+                    propertiesTabs.TabPages.Add(new TabPage($"Applicable classes ({attribute.ApplicableClasses.Values.Count})"));
+                }
+                propertiesTabs.TabPages[1].Controls.Add(new PropertiesListView(attribute.ApplicableClasses));
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("classes"))
@@ -201,17 +211,16 @@ namespace ClassLibraryTreeView
                 IClass cmClass = (IClass)eventArgs.Node.Tag;
                 info.Text = $"Class : {cmClass.Name}";
 
+                // Add properties
+
                 propertiesTabs.TabPages.Add(new TabPage("Properties"));
-                
-                
-                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(cmClass)); // Add properties
-                // propertiesTabs.TabPages[1].Controls.Add(new PropertiesListView(cmClass.PermissibleAttributesMap)); // Add permissible attributes
+                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(cmClass));
 
-                // List<IAttribute> pattributes = model.ClassPermissibleAttributes(cmClass);
+                // Add permissible attributes
+
                 Dictionary<string, IAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
-
                 propertiesTabs.TabPages.Add(new TabPage($"Permissible Attributes ({permissibleAttributes.Values.Count})"));
-                propertiesTabs.TabPages[1].Controls.Add(new PropertiesListView(permissibleAttributes)); // Add permissible attributes
+                propertiesTabs.TabPages[1].Controls.Add(new PropertiesListView(permissibleAttributes)); 
 
 
                 // propertiesTabs.TabPages[2].Controls.Add(listView); // add permissible grid

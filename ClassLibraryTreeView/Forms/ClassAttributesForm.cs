@@ -15,13 +15,14 @@ namespace ClassLibraryTreeView.Forms
     public partial class ClassAttributesForm : Form
     {
         ConceptualModel model = null;
+        DataTable table = null;
         public ClassAttributesForm(ConceptualModel modelReference) : base()
         {
             InitializeComponent();
 
             model = modelReference;
 
-            DataTable table = new DataTable();
+            table = new DataTable();
 
             table.Columns.Add($"Class ID");
             table.Columns.Add($"Class Name");
@@ -71,31 +72,83 @@ namespace ClassLibraryTreeView.Forms
         {
 
         }
-
-        private void ComboBoxClassId_SelectedIndexChanged(object sender, EventArgs e)
+        private void Print(List<IClass> classList)
         {
-            string text = comboBoxClassId.Text;
-
-            DataTable table = new DataTable();
-
-            table.Columns.Add($"Class ID");
-            table.Columns.Add($"Class Name");
-            table.Columns.Add($"Attribute ID");
-            table.Columns.Add($"Attribute Name");
-            foreach (var (classId, className, attributeId, attributeName) in from Dictionary<string, IClass> map in model.classes.Values
-                                                                             where map.ContainsKey(text)
-                                                                             let cmClass = map[text]
-                                                                             let classId = cmClass.Id
-                                                                             let className = cmClass.Name
-                                                                             from IAttribute attribute in cmClass.PermissibleAttributes.Values
-                                                                             let attributeId = attribute.Id
-                                                                             let attributeName = attribute.Name
-                                                                             select (classId, className, attributeId, attributeName))
+            table.Rows.Clear();
+            foreach (IClass cmClass in classList)
             {
-                table.Rows.Add(new string[] { classId, className, attributeId, attributeName });
+                string classId = cmClass.Id;
+                string className = cmClass.Name;
+
+                foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
+                {
+                    string attributeId = attribute.Id;
+                    string attributeName = attribute.Name;
+                    table.Rows.Add(new string[] { classId, className, attributeId, attributeName });
+                }
             }
 
             dataGridView.DataSource = table;
+        }
+        private void PrintSingleAttributeId(List<IClass> classList, string attributeId)
+        {
+            table.Rows.Clear();
+            foreach (IClass cmClass in classList)
+            {
+                string classId = cmClass.Id;
+                string className = cmClass.Name;
+                foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
+                {
+                    if (attribute.Id.Equals(attributeId))
+                    {
+                        table.Rows.Add(new string[] { classId, className, attribute.Id, attribute.Name });
+                    }
+                }
+            }
+
+            dataGridView.DataSource = table;
+        }
+        private void PrintSingleAttributeName(List<IClass> classList, string attributeName)
+        {
+            table.Rows.Clear();
+            foreach (IClass cmClass in classList)
+            {
+                string classId = cmClass.Id;
+                string className = cmClass.Name;
+
+                foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
+                {
+                    if (attribute.Name.Equals(attributeName))
+                    {
+                        table.Rows.Add(new string[] { classId, className, attribute.Id, attribute.Name });
+                    }
+                }
+            }
+
+            dataGridView.DataSource = table;
+        }
+        private void ComboBoxClassId_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            List<IClass> classList = model.GetClassesWithId(comboBoxClassId.Text);
+            Print(classList);
+        }
+
+        private void ComboBoxClassName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            List<IClass> classList = model.GetClassesWithName(comboBoxClassName.Text);
+            Print(classList);
+        }
+
+        private void ComboBoxAttributeId_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            List<IClass> classList = model.GetClassesWithAttributeId(comboBoxAttributeId.Text);
+            PrintSingleAttributeId(classList, comboBoxAttributeId.Text);
+        }
+
+        private void ComboBoxAttributeName_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            List<IClass> classList = model.GetClassesWithAttributeName(comboBoxAttributeName.Text);
+            PrintSingleAttributeName(classList, comboBoxAttributeName.Text);
         }
     }
 }

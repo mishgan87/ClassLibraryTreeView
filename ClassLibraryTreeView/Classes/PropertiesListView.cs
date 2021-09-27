@@ -17,6 +17,35 @@ namespace ClassLibraryTreeView.Classes
         private ComboBox comboBoxProperty = new ComboBox();
         private Rectangle ClickedItem = new Rectangle();
         private IIdentifiable parentTag = null;
+        public PropertiesListView(Dictionary<string, IClass> applicableClasses)
+        {
+            Init();
+
+            if (applicableClasses == null)
+            {
+                return;
+            }
+
+            KeyValuePair<string, string>[] names = applicableClasses.Values.First().Attributes();
+            foreach (KeyValuePair<string, string> name in names)
+            {
+                this.Columns.Add($"{name.Key}", 150, HorizontalAlignment.Left);
+            }
+
+            foreach (IClass cmClass in applicableClasses.Values)
+            {
+                List<string> items = new List<string>();
+                KeyValuePair<string, string>[] properties = cmClass.Attributes();
+                foreach (KeyValuePair<string, string> property in properties)
+                {
+                    items.Add(property.Value);
+                }
+                ListViewItem item = new ListViewItem(items.ToArray());
+                item.Tag = cmClass;
+                this.Items.Add(item);
+            }
+
+        }
         public PropertiesListView(Dictionary<string, IAttribute> permissibleAttributes)
         {
             Init();
@@ -92,8 +121,6 @@ namespace ClassLibraryTreeView.Classes
                 ListViewItem item = new ListViewItem(items);
                 this.Items.Add(item);
             }
-
-            
         }
         private void Init()
         {
