@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ClassLibraryTreeView.Classes;
+using ClassLibraryTreeView.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,9 +14,12 @@ namespace ClassLibraryTreeView.Forms
 {
     public partial class ClassAttributesForm : Form
     {
-        public ClassAttributesForm(List<KeyValuePair<int, string[]>> rows) : base()
+        ConceptualModel model = null;
+        public ClassAttributesForm(ConceptualModel modelReference) : base()
         {
             InitializeComponent();
+
+            model = modelReference;
 
             DataTable table = new DataTable();
 
@@ -23,13 +28,43 @@ namespace ClassLibraryTreeView.Forms
             table.Columns.Add($"Attribute ID");
             table.Columns.Add($"Attribute Name");
 
-            foreach (KeyValuePair<int, string[]> classRow in rows)
+            foreach(string classMapKey in model.classes.Keys)
             {
-                table.Rows.Add(classRow.Value);
+                var map = model.classes[classMapKey];
+                foreach (IClass cmClass in map.Values)
+                {
+                    string classId = cmClass.Id;
+                    string className = cmClass.Name;
+                    foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
+                    {
+                        string attributeId = attribute.Id;
+                        string attributeName = attribute.Name;
+                        table.Rows.Add(new string[] { classId, className, attributeId, attributeName });
+
+                        if (!comboBoxClassId.Items.Contains(classId))
+                        {
+                            comboBoxClassId.Items.Add(classId);
+                        }
+
+                        if (!comboBoxClassName.Items.Contains(className))
+                        {
+                            comboBoxClassName.Items.Add(className);
+                        }
+
+                        if (!comboBoxAttributeId.Items.Contains(attributeId))
+                        {
+                            comboBoxAttributeId.Items.Add(attributeId);
+                        }
+
+                        if (!comboBoxAttributeName.Items.Contains(attributeName))
+                        {
+                            comboBoxAttributeName.Items.Add(attributeName);
+                        }
+                    }
+                }
             }
 
             dataGridView.DataSource = table;
-
         }
 
         private void BtnApplyFilter_Click(object sender, EventArgs e)
@@ -37,19 +72,30 @@ namespace ClassLibraryTreeView.Forms
 
         }
 
-        private void ComboBoxColumn_SelectedIndexChanged(object sender, EventArgs e)
+        private void ComboBoxClassId_SelectedIndexChanged(object sender, EventArgs e)
         {
-            List<string> values = new List<string>();
+            string text = comboBoxClassId.Text;
 
-            for(int row = 0; row < dataGridView.Rows.Count; row++)
+            DataTable table = new DataTable();
+
+            table.Columns.Add($"Class ID");
+            table.Columns.Add($"Class Name");
+            table.Columns.Add($"Attribute ID");
+            table.Columns.Add($"Attribute Name");
+            foreach (var (classId, className, attributeId, attributeName) in from Dictionary<string, IClass> map in model.classes.Values
+                                                                             where map.ContainsKey(text)
+                                                                             let cmClass = map[text]
+                                                                             let classId = cmClass.Id
+                                                                             let className = cmClass.Name
+                                                                             from IAttribute attribute in cmClass.PermissibleAttributes.Values
+                                                                             let attributeId = attribute.Id
+                                                                             let attributeName = attribute.Name
+                                                                             select (classId, className, attributeId, attributeName))
             {
-                int col = comboBoxColumn.SelectedIndex;
-                string value = (string)dataGridView.Rows[row].Cells[col].Value;
-                values.Add(value);
+                table.Rows.Add(new string[] { classId, className, attributeId, attributeName });
             }
 
-            comboBoxValue.Items.Clear();
-            comboBoxValue.Items.AddRange(values.ToArray());
+            dataGridView.DataSource = table;
         }
     }
 }

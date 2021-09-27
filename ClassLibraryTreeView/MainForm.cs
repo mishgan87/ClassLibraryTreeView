@@ -333,9 +333,9 @@ namespace ClassLibraryTreeView
             progressBar.Value = 0;
             progressBar.Visible = true;
 
-            List<KeyValuePair<int, string[]>> classAttributes = model.ExportClassAttributes();
+            // model.ExportClassAttributes();
 
-            ClassAttributesForm classAttributesForm = new ClassAttributesForm(classAttributes);
+            ClassAttributesForm classAttributesForm = new ClassAttributesForm(model);
             classAttributesForm.Show();
             /*
             try

@@ -761,7 +761,7 @@ namespace ClassLibraryTreeView
             }
             return row;
         }
-        public List<KeyValuePair<int, string[]>> ExportClassAttributes()
+        public void ExportClassAttributes()
         {
             int row = 1;
             List<KeyValuePair<int, string[]>> rows = new List<KeyValuePair<int, string[]>>();
@@ -781,16 +781,14 @@ namespace ClassLibraryTreeView
 
             if (map == null)
             {
-                return null;
+                return;
             }
 
-            foreach (IClass physicalClass in map.Values)
+            foreach (IClass cmClass in map.Values)
             {
-                row = AddClassAttributes(physicalClass, rows, row);
+                row = AddClassAttributes(cmClass, rows, row);
             }
 
-            return rows;
-            /*
             using (XLWorkbook workbook = new XLWorkbook())
             {
                 IXLWorksheet worksheet = workbook.Worksheets.Add($"MergedClassAttributes");
@@ -821,9 +819,7 @@ namespace ClassLibraryTreeView
                 {
                     MessageBox.Show(ex.Message);
                 }
-                
             }
-            */
         }
         private int AddClassChildren(IClass cmClass, ConcurrentDictionary<int, IClass> classRows, int rowIndex)
         {
