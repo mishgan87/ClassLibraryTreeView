@@ -25,6 +25,11 @@ namespace ClassLibraryTreeView.Forms
             {
                 FindInClasses();
             }
+
+            if (radioButtonAttributes.Checked)
+            {
+                FindInAttributes();
+            }
         }
         private void PrintItem(IIdentifiable item)
         {
@@ -75,6 +80,36 @@ namespace ClassLibraryTreeView.Forms
         private void FindInAttributes()
         {
             string text = textBox.Text;
+            List<IAttribute> attributesList = new List<IAttribute>();
+
+            if (radioButtonSearchId.Checked)
+            {
+                foreach (var map in model.attributes.Values)
+                {
+                    if (map.ContainsKey(text))
+                    {
+                        attributesList.Add(map[text]);
+                    }
+                }
+            }
+
+            if (attributesList.Count == 0)
+            {
+                return;
+            }
+
+            KeyValuePair<string, string>[] columnsNames = attributesList[0].Attributes();
+            foreach (KeyValuePair<string, string> columnName in columnsNames)
+            {
+                listViewResult.Columns.Add($"{columnName.Key}", 150, HorizontalAlignment.Left);
+            }
+
+            listViewResult.Items.Clear();
+
+            foreach (IAttribute attribute in attributesList)
+            {
+                PrintItem(attribute);
+            }
         }
         ConceptualModel model = null;
 

@@ -113,10 +113,10 @@
     <Compile Include="Classes\MeasureUnit.cs" />
     <Compile Include="Classes\Taxonomy.cs" />
     <Compile Include="Classes\TaxonomyNode.cs" />
-    <Compile Include="MainForm.cs">
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -127,7 +127,7 @@
     <EmbeddedResource Include="Forms\SearchingForm.resx">
       <DependentUpon>SearchingForm.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="MainForm.resx">
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">

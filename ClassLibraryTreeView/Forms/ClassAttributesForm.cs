@@ -40,9 +40,9 @@ namespace ClassLibraryTreeView.Forms
             attributeIdList = new List<string>();
             attributeNameList = new List<string>();
 
-            FillGridViewByDefault();
+            FillGridViewByDefault(true);
         }
-        private void FillGridViewByDefault()
+        private void FillGridViewByDefault(bool isInit)
         {
             table.Rows.Clear();
             foreach (string classMapKey in model.classes.Keys)
@@ -52,16 +52,19 @@ namespace ClassLibraryTreeView.Forms
                 {
                     string classId = cmClass.Id;
                     string className = cmClass.Name;
-
-                    if (!classIdList.Contains(classId))
+                    
+                    if (isInit)
                     {
-                        classIdList.Add(classId);
-                        comboBoxClassId.Items.Add(classId);
-                    }
-                    if (!classNameList.Contains(className))
-                    {
-                        classNameList.Add(className);
-                        comboBoxClassName.Items.Add(className);
+                        if (!classIdList.Contains(classId))
+                        {
+                            classIdList.Add(classId);
+                            comboBoxClassId.Items.Add(classId);
+                        }
+                        if (!classNameList.Contains(className))
+                        {
+                            classNameList.Add(className);
+                            comboBoxClassName.Items.Add(className);
+                        }
                     }
 
                     foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
@@ -78,20 +81,28 @@ namespace ClassLibraryTreeView.Forms
                         */
                         table.Rows.Add(new string[] { classId, className, attributeId, attributeName });
 
-                        if (!attributeIdList.Contains(attributeId))
+                        if (isInit)
                         {
-                            attributeIdList.Add(attributeId);
-                            comboBoxAttributeId.Items.Add(attributeId);
-                        }
-                        if (!attributeNameList.Contains(attributeName))
-                        {
-                            attributeNameList.Add(attributeName);
-                            comboBoxAttributeName.Items.Add(attributeName);
+                            if (!attributeIdList.Contains(attributeId))
+                            {
+                                attributeIdList.Add(attributeId);
+                                comboBoxAttributeId.Items.Add(attributeId);
+                            }
+                            if (!attributeNameList.Contains(attributeName))
+                            {
+                                attributeNameList.Add(attributeName);
+                                comboBoxAttributeName.Items.Add(attributeName);
+                            }
                         }
                     }
                 }
             }
             dataGridView.DataSource = table;
+
+            comboBoxClassId.Enabled = false;
+            comboBoxClassName.Enabled = false;
+            comboBoxAttributeId.Enabled = false;
+            comboBoxAttributeName.Enabled = false;
         }
         private void BtnApplyFilter_Click(object sender, EventArgs e)
         {
@@ -240,7 +251,7 @@ namespace ClassLibraryTreeView.Forms
             checkBoxFilterByAttributeId.Checked = false;
             checkBoxFilterByAttributeName.Checked = false;
 
-            FillGridViewByDefault();
+            FillGridViewByDefault(false);
         }
     }
 }
