@@ -17,7 +17,9 @@ namespace ClassLibraryTreeView.Forms
     {
         ConceptualModel model = null;
         DataTable table = null;
-        
+
+        List<string>[] itemsLists = null;
+
         List<string> classIdList = null;
         List<string> classNameList = null;
         List<string> attributeIdList = null;
@@ -35,12 +37,43 @@ namespace ClassLibraryTreeView.Forms
             table.Columns.Add($"Attribute ID");
             table.Columns.Add($"Attribute Name");
 
+            itemsLists = new List<string>[4];
+            for (int index = 0; index < 4; index++)
+            {
+                itemsLists[index] = new List<string>();
+            }
+
             classIdList = new List<string>();
             classNameList = new List<string>();
             attributeIdList = new List<string>();
             attributeNameList = new List<string>();
 
+            dataGridView.CellMouseClick += new DataGridViewCellMouseEventHandler(this.OnHeaderMouseClick);
+
             FillGridViewByDefault(true);
+        }
+        private void OnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButtons.Right && eventArgs.RowIndex == -1)
+            {
+                int columnIndex = eventArgs.ColumnIndex;
+
+                ComboBox comboBox = new ComboBox();
+                comboBox.Items.AddRange(itemsLists[columnIndex].ToArray());
+                comboBox.Bounds = new Rectangle(
+                    this.dataGridView.Columns[columnIndex].HeaderCell.ContentBounds.X,
+                    this.dataGridView.Columns[columnIndex].HeaderCell.ContentBounds.Y,
+                    this.dataGridView.Columns[columnIndex].HeaderCell.ContentBounds.Width,
+                    this.dataGridView.Columns[columnIndex].HeaderCell.ContentBounds.Height
+                    );
+                // comboBox.Items.Clear();
+                // comboBox.Items.AddRange(items);
+                // comboBox.Bounds = ClickedItem;
+                // comboBox.Text = editedItem.SubItems[editedSubItemIndex].Text;
+                comboBox.Visible = true;
+                comboBox.BringToFront();
+                comboBox.Focus();
+            }
         }
         private void FillGridViewByDefault(bool isInit)
         {
@@ -55,15 +88,17 @@ namespace ClassLibraryTreeView.Forms
                     
                     if (isInit)
                     {
-                        if (!classIdList.Contains(classId))
+                        if (!itemsLists[0].Contains(classId)) // if (!classIdList.Contains(classId))
                         {
                             classIdList.Add(classId);
                             comboBoxClassId.Items.Add(classId);
+                            itemsLists[0].Add(classId);
                         }
-                        if (!classNameList.Contains(className))
+                        if (!itemsLists[1].Contains(className)) // if (!classNameList.Contains(className))
                         {
                             classNameList.Add(className);
                             comboBoxClassName.Items.Add(className);
+                            itemsLists[1].Add(className);
                         }
                     }
 
@@ -83,15 +118,17 @@ namespace ClassLibraryTreeView.Forms
 
                         if (isInit)
                         {
-                            if (!attributeIdList.Contains(attributeId))
+                            if (!itemsLists[2].Contains(attributeId)) // if (!attributeIdList.Contains(attributeId))
                             {
                                 attributeIdList.Add(attributeId);
                                 comboBoxAttributeId.Items.Add(attributeId);
+                                itemsLists[2].Add(attributeId);
                             }
-                            if (!attributeNameList.Contains(attributeName))
+                            if (!itemsLists[3].Contains(attributeName)) // if (!attributeNameList.Contains(attributeName))
                             {
                                 attributeNameList.Add(attributeName);
                                 comboBoxAttributeName.Items.Add(attributeName);
+                                itemsLists[3].Add(attributeName);
                             }
                         }
                     }
@@ -104,7 +141,7 @@ namespace ClassLibraryTreeView.Forms
             comboBoxAttributeId.Enabled = false;
             comboBoxAttributeName.Enabled = false;
         }
-        private void BtnApplyFilter_Click(object sender, EventArgs e)
+        private void ApplyFilter()
         {
             table.Rows.Clear();
             List<IClass> classList = null;
@@ -252,6 +289,11 @@ namespace ClassLibraryTreeView.Forms
             checkBoxFilterByAttributeName.Checked = false;
 
             FillGridViewByDefault(false);
+        }
+
+        private void СomboBoxSelectedIndexChanged(object sender, EventArgs e)
+        {
+            ApplyFilter();
         }
     }
 }

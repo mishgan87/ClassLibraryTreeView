@@ -124,7 +124,7 @@ namespace ClassLibraryTreeView
                         listViewItems.Dock = DockStyle.Fill;
                         listViewItems.Font = propertiesTabs.Font;
 
-                        TabPage pageItems = new TabPage("Units");
+                        TabPage pageItems = new TabPage($"Units ({measureClass.Units.Count})");
                         pageItems.Controls.Add(listViewItems);
                         propertiesTabs.TabPages.Add(pageItems);
                     }
@@ -145,7 +145,7 @@ namespace ClassLibraryTreeView
             EnumerationList enumerationList = (EnumerationList)tag;
             info.Text = $"Enumeration List : {enumerationList.Name}";
             propertiesTabs.TabPages.Add(new TabPage("Properties"));
-            propertiesTabs.TabPages.Add(new TabPage("Items"));
+            propertiesTabs.TabPages.Add(new TabPage($"Items ({enumerationList.Items.Count})"));
             propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(enumerationList));
 
             ListView listView = new ListView();

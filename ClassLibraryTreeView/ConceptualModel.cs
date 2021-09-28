@@ -286,7 +286,10 @@ namespace ClassLibraryTreeView
                                         newAttribute.CameFrom = cmClass.Parent;
                                         cmClass.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
                                         IAttribute attribute = GetAttributeById(newAttribute.Id);
-                                        attribute.AddApplicableClass(cmClass);
+                                        if (attribute != null)
+                                        {
+                                            attribute.AddApplicableClass(cmClass);
+                                        }
                                     }
                                 }
                             }
@@ -350,6 +353,8 @@ namespace ClassLibraryTreeView
                 return;
             }
 
+            // merge permissible attributes of root functional and physical classes
+
             foreach (IClass physicalClass in classes["physicals"].Values)
             {
                 if (physicalClass.Parent == null)
@@ -358,26 +363,15 @@ namespace ClassLibraryTreeView
                     {
                         if (functionalClass.Parent == null)
                         {
-                            if (functionalClass.PermissibleAttributes.Count > 0)
-                            {
-                                foreach (IAttribute functionalClassAttribute in functionalClass.PermissibleAttributes.Values)
-                                {
-                                    if (!physicalClass.PermissibleAttributes.ContainsKey(functionalClassAttribute.Id))
-                                    {
-                                        IAttribute newAttribute = new IAttribute(functionalClassAttribute);
-                                        newAttribute.CameFrom = functionalClass;
-                                        physicalClass.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
-                                        IAttribute attribute = GetAttributeById(newAttribute.Id);
-                                        attribute.AddApplicableClass(physicalClass);
-                                    }
-                                }
-                            }
+                            MergePermissibleAttributes(functionalClass, physicalClass);
                             break;
                         }
                     }
                     break;
                 }
             }
+
+            // merge permissible attributes of functional and physical classes (classes merged by name)
 
             foreach (IClass physicalClass in classes["physicals"].Values)
             {
@@ -387,33 +381,13 @@ namespace ClassLibraryTreeView
                     {
                         if (functionalClass.PermissibleAttributes.Count > 0)
                         {
-                            foreach (IAttribute functionalClassAttribute in functionalClass.PermissibleAttributes.Values)
-                            {
-                                if (!physicalClass.PermissibleAttributes.ContainsKey(functionalClassAttribute.Id))
-                                {
-                                    IAttribute newAttribute = new IAttribute(functionalClassAttribute);
-                                    newAttribute.CameFrom = functionalClass;
-                                    physicalClass.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
-                                    IAttribute attribute = GetAttributeById(newAttribute.Id);
-                                    attribute.AddApplicableClass(physicalClass);
-                                }
-                            }
+                            MergePermissibleAttributes(functionalClass, physicalClass);
 
                             if (physicalClass.Children.Count > 0)
                             {
                                 foreach(IClass physicalClassChild in physicalClass.Children.Values)
                                 {
-                                    foreach (IAttribute functionalClassAttribute in functionalClass.PermissibleAttributes.Values)
-                                    {
-                                        if (!physicalClassChild.PermissibleAttributes.ContainsKey(functionalClassAttribute.Id))
-                                        {
-                                            IAttribute newAttribute = new IAttribute(functionalClassAttribute);
-                                            newAttribute.CameFrom = functionalClass;
-                                            physicalClassChild.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
-                                            IAttribute attribute = GetAttributeById(newAttribute.Id);
-                                            attribute.AddApplicableClass(physicalClassChild);
-                                        }
-                                    }
+                                    MergePermissibleAttributes(functionalClass, physicalClassChild);
                                 }
                             }
                         }
@@ -424,6 +398,26 @@ namespace ClassLibraryTreeView
             // MergeByName(); // MergeByAssociations();
 
             CalculateMaxDepth();
+        }
+        public void MergePermissibleAttributes(IClass cmClassSource, IClass cmClassRecipient)
+        {
+            if (cmClassSource.PermissibleAttributes.Count > 0)
+            {
+                foreach (IAttribute cmClassSourceAttribute in cmClassSource.PermissibleAttributes.Values)
+                {
+                    if (!cmClassRecipient.PermissibleAttributes.ContainsKey(cmClassSourceAttribute.Id))
+                    {
+                        IAttribute newAttribute = new IAttribute(cmClassSourceAttribute);
+                        newAttribute.CameFrom = cmClassSource;
+                        cmClassRecipient.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
+                        IAttribute attribute = GetAttributeById(newAttribute.Id);
+                        if (attribute != null)
+                        {
+                            attribute.AddApplicableClass(cmClassRecipient);
+                        }
+                    }
+                }
+            }
         }
         public IAttribute GetAttributeByName(string name)
         {

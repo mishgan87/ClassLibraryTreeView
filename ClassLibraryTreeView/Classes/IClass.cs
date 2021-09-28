@@ -255,7 +255,6 @@ namespace ClassLibraryTreeView.Classes
                 return depth;
             }
         }
-        
         // Interface members
         public string Id { get; set; }
         public string Name { get; set; }

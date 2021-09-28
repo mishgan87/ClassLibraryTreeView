@@ -41,16 +41,13 @@ namespace ClassLibraryTreeView.Forms
             this.comboBoxAttributeId = new System.Windows.Forms.ComboBox();
             this.checkBoxFilterByAttributeName = new System.Windows.Forms.CheckBox();
             this.comboBoxAttributeName = new System.Windows.Forms.ComboBox();
-            this.tableLayoutPanel2 = new System.Windows.Forms.TableLayoutPanel();
             this.btnResetFilter = new System.Windows.Forms.Button();
-            this.btnApplyFilter = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
             this.tableLayoutPanel1.SuspendLayout();
-            this.tableLayoutPanel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // dataGridView
@@ -60,6 +57,7 @@ namespace ClassLibraryTreeView.Forms
             this.dataGridView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dataGridView.Location = new System.Drawing.Point(0, 0);
             this.dataGridView.Name = "dataGridView";
+            this.dataGridView.ReadOnly = true;
             this.dataGridView.RowTemplate.Height = 24;
             this.dataGridView.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dataGridView.Size = new System.Drawing.Size(684, 547);
@@ -97,7 +95,7 @@ namespace ClassLibraryTreeView.Forms
             this.tableLayoutPanel1.Controls.Add(this.comboBoxAttributeId, 0, 5);
             this.tableLayoutPanel1.Controls.Add(this.checkBoxFilterByAttributeName, 0, 6);
             this.tableLayoutPanel1.Controls.Add(this.comboBoxAttributeName, 0, 7);
-            this.tableLayoutPanel1.Controls.Add(this.tableLayoutPanel2, 0, 8);
+            this.tableLayoutPanel1.Controls.Add(this.btnResetFilter, 0, 8);
             this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
             this.tableLayoutPanel1.Name = "tableLayoutPanel1";
@@ -132,6 +130,7 @@ namespace ClassLibraryTreeView.Forms
             this.comboBoxClassId.Name = "comboBoxClassId";
             this.comboBoxClassId.Size = new System.Drawing.Size(267, 23);
             this.comboBoxClassId.TabIndex = 12;
+            this.comboBoxClassId.SelectedIndexChanged += new System.EventHandler(this.СomboBoxSelectedIndexChanged);
             // 
             // checkBoxFilterByClassName
             // 
@@ -151,6 +150,7 @@ namespace ClassLibraryTreeView.Forms
             this.comboBoxClassName.Name = "comboBoxClassName";
             this.comboBoxClassName.Size = new System.Drawing.Size(267, 23);
             this.comboBoxClassName.TabIndex = 11;
+            this.comboBoxClassName.SelectedIndexChanged += new System.EventHandler(this.СomboBoxSelectedIndexChanged);
             // 
             // checkBoxFilterByAttributeId
             // 
@@ -170,6 +170,7 @@ namespace ClassLibraryTreeView.Forms
             this.comboBoxAttributeId.Name = "comboBoxAttributeId";
             this.comboBoxAttributeId.Size = new System.Drawing.Size(267, 23);
             this.comboBoxAttributeId.TabIndex = 10;
+            this.comboBoxAttributeId.SelectedIndexChanged += new System.EventHandler(this.СomboBoxSelectedIndexChanged);
             // 
             // checkBoxFilterByAttributeName
             // 
@@ -189,44 +190,17 @@ namespace ClassLibraryTreeView.Forms
             this.comboBoxAttributeName.Name = "comboBoxAttributeName";
             this.comboBoxAttributeName.Size = new System.Drawing.Size(267, 23);
             this.comboBoxAttributeName.TabIndex = 9;
-            // 
-            // tableLayoutPanel2
-            // 
-            this.tableLayoutPanel2.ColumnCount = 2;
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
-            this.tableLayoutPanel2.Controls.Add(this.btnResetFilter, 1, 0);
-            this.tableLayoutPanel2.Controls.Add(this.btnApplyFilter, 0, 0);
-            this.tableLayoutPanel2.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tableLayoutPanel2.Location = new System.Drawing.Point(3, 195);
-            this.tableLayoutPanel2.Name = "tableLayoutPanel2";
-            this.tableLayoutPanel2.RowCount = 1;
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel2.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
-            this.tableLayoutPanel2.Size = new System.Drawing.Size(267, 43);
-            this.tableLayoutPanel2.TabIndex = 13;
+            this.comboBoxAttributeName.SelectedIndexChanged += new System.EventHandler(this.СomboBoxSelectedIndexChanged);
             // 
             // btnResetFilter
             // 
-            this.btnResetFilter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnResetFilter.Location = new System.Drawing.Point(136, 3);
+            this.btnResetFilter.Location = new System.Drawing.Point(3, 195);
             this.btnResetFilter.Name = "btnResetFilter";
             this.btnResetFilter.Size = new System.Drawing.Size(128, 37);
             this.btnResetFilter.TabIndex = 8;
             this.btnResetFilter.Text = "Reset";
             this.btnResetFilter.UseVisualStyleBackColor = true;
             this.btnResetFilter.Click += new System.EventHandler(this.BtnResetFilter_Click);
-            // 
-            // btnApplyFilter
-            // 
-            this.btnApplyFilter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnApplyFilter.Location = new System.Drawing.Point(3, 3);
-            this.btnApplyFilter.Name = "btnApplyFilter";
-            this.btnApplyFilter.Size = new System.Drawing.Size(127, 37);
-            this.btnApplyFilter.TabIndex = 7;
-            this.btnApplyFilter.Text = "Apply";
-            this.btnApplyFilter.UseVisualStyleBackColor = true;
-            this.btnApplyFilter.Click += new System.EventHandler(this.BtnApplyFilter_Click);
             // 
             // ClassAttributesForm
             // 
@@ -246,7 +220,6 @@ namespace ClassLibraryTreeView.Forms
             this.splitContainer1.ResumeLayout(false);
             this.tableLayoutPanel1.ResumeLayout(false);
             this.tableLayoutPanel1.PerformLayout();
-            this.tableLayoutPanel2.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -255,7 +228,6 @@ namespace ClassLibraryTreeView.Forms
 
         private System.Windows.Forms.DataGridView dataGridView;
         private System.Windows.Forms.SplitContainer splitContainer1;
-        private System.Windows.Forms.Button btnApplyFilter;
         private System.Windows.Forms.Button btnResetFilter;
         private System.Windows.Forms.CheckBox checkBoxFilterByAttributeName;
         private System.Windows.Forms.CheckBox checkBoxFilterByAttributeId;
@@ -266,6 +238,5 @@ namespace ClassLibraryTreeView.Forms
         private System.Windows.Forms.ComboBox comboBoxClassName;
         private System.Windows.Forms.ComboBox comboBoxAttributeName;
         private System.Windows.Forms.ComboBox comboBoxClassId;
-        private System.Windows.Forms.TableLayoutPanel tableLayoutPanel2;
     }
 }
