@@ -284,8 +284,9 @@ namespace ClassLibraryTreeView
                                     {
                                         IAttribute newAttribute = new IAttribute(parentAttribute);
                                         newAttribute.CameFrom = cmClass.Parent;
-                                        // cmClass.PermissibleAttributes.Add(parentAttribute);
                                         cmClass.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
+                                        IAttribute attribute = GetAttributeById(newAttribute.Id);
+                                        attribute.AddApplicableClass(cmClass);
                                     }
                                 }
                             }
@@ -366,6 +367,8 @@ namespace ClassLibraryTreeView
                                         IAttribute newAttribute = new IAttribute(functionalClassAttribute);
                                         newAttribute.CameFrom = functionalClass;
                                         physicalClass.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
+                                        IAttribute attribute = GetAttributeById(newAttribute.Id);
+                                        attribute.AddApplicableClass(physicalClass);
                                     }
                                 }
                             }
@@ -391,6 +394,8 @@ namespace ClassLibraryTreeView
                                     IAttribute newAttribute = new IAttribute(functionalClassAttribute);
                                     newAttribute.CameFrom = functionalClass;
                                     physicalClass.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
+                                    IAttribute attribute = GetAttributeById(newAttribute.Id);
+                                    attribute.AddApplicableClass(physicalClass);
                                 }
                             }
 
@@ -405,6 +410,8 @@ namespace ClassLibraryTreeView
                                             IAttribute newAttribute = new IAttribute(functionalClassAttribute);
                                             newAttribute.CameFrom = functionalClass;
                                             physicalClassChild.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
+                                            IAttribute attribute = GetAttributeById(newAttribute.Id);
+                                            attribute.AddApplicableClass(physicalClassChild);
                                         }
                                     }
                                 }

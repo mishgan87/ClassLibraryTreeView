@@ -224,7 +224,6 @@ namespace ClassLibraryTreeView.Interfaces
                 }
             }
         }
-
         public void Init()
         {
             Id = "";
@@ -249,6 +248,17 @@ namespace ClassLibraryTreeView.Interfaces
 
             CameFrom = null;
             ApplicableClasses = null;
+        }
+        public void AddApplicableClass(IClass cmClass)
+        {
+            if (this.ApplicableClasses == null)
+            {
+                return;
+            }
+            if (!this.ApplicableClasses.ContainsKey(cmClass.Id))
+            {
+                this.ApplicableClasses.Add(cmClass.Id, cmClass);
+            }
         }
     }
 }
