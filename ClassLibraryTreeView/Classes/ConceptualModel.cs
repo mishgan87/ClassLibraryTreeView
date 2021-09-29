@@ -31,7 +31,7 @@ namespace ClassLibraryTreeView
         PresencePreffered = 11,
         PresenceRequired = 12
     }
-    public class ConceptualModel
+    public partial class ConceptualModel
     {
         public event EventHandler<int> ExportProgress;
 
@@ -69,7 +69,6 @@ namespace ClassLibraryTreeView
                 return null;
             }
         }
-
         private void CalculateMaxDepth()
         {
             MaxDepth = 0;
@@ -353,6 +352,27 @@ namespace ClassLibraryTreeView
                 return;
             }
 
+            Action<IClass, IClass> MergeAttributes = (cmClassSource, cmClassRecipient) =>
+            {
+                if (cmClassSource.PermissibleAttributes.Count > 0)
+                {
+                    foreach (IAttribute cmClassSourceAttribute in cmClassSource.PermissibleAttributes.Values)
+                    {
+                        if (!cmClassRecipient.PermissibleAttributes.ContainsKey(cmClassSourceAttribute.Id))
+                        {
+                            IAttribute newAttribute = new IAttribute(cmClassSourceAttribute);
+                            newAttribute.CameFrom = cmClassSource;
+                            cmClassRecipient.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
+                            IAttribute attribute = GetAttributeById(newAttribute.Id);
+                            if (attribute != null)
+                            {
+                                attribute.AddApplicableClass(cmClassRecipient);
+                            }
+                        }
+                    }
+                }
+            };
+
             // merge permissible attributes of root functional and physical classes
 
             foreach (IClass physicalClass in classes["physicals"].Values)
@@ -363,7 +383,7 @@ namespace ClassLibraryTreeView
                     {
                         if (functionalClass.Parent == null)
                         {
-                            MergePermissibleAttributes(functionalClass, physicalClass);
+                            MergeAttributes(functionalClass, physicalClass);
                             break;
                         }
                     }
@@ -381,13 +401,13 @@ namespace ClassLibraryTreeView
                     {
                         if (functionalClass.PermissibleAttributes.Count > 0)
                         {
-                            MergePermissibleAttributes(functionalClass, physicalClass);
+                            MergeAttributes(functionalClass, physicalClass);
 
                             if (physicalClass.Children.Count > 0)
                             {
                                 foreach(IClass physicalClassChild in physicalClass.Children.Values)
                                 {
-                                    MergePermissibleAttributes(functionalClass, physicalClassChild);
+                                    MergeAttributes(functionalClass, physicalClassChild);
                                 }
                             }
                         }
@@ -395,29 +415,7 @@ namespace ClassLibraryTreeView
                 }
             }
 
-            // MergeByName(); // MergeByAssociations();
-
             CalculateMaxDepth();
-        }
-        public void MergePermissibleAttributes(IClass cmClassSource, IClass cmClassRecipient)
-        {
-            if (cmClassSource.PermissibleAttributes.Count > 0)
-            {
-                foreach (IAttribute cmClassSourceAttribute in cmClassSource.PermissibleAttributes.Values)
-                {
-                    if (!cmClassRecipient.PermissibleAttributes.ContainsKey(cmClassSourceAttribute.Id))
-                    {
-                        IAttribute newAttribute = new IAttribute(cmClassSourceAttribute);
-                        newAttribute.CameFrom = cmClassSource;
-                        cmClassRecipient.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
-                        IAttribute attribute = GetAttributeById(newAttribute.Id);
-                        if (attribute != null)
-                        {
-                            attribute.AddApplicableClass(cmClassRecipient);
-                        }
-                    }
-                }
-            }
         }
         public IAttribute GetAttributeByName(string name)
         {
@@ -444,32 +442,16 @@ namespace ClassLibraryTreeView
             }
             return null;
         }
-        public string GetAttributeId(int number)
+        public IAttribute GetAttribute(int number)
         {
             int col = 0;
             foreach (string group in attributes.Keys)
             {
-                foreach (string id in attributes[group].Keys)
+                foreach (IAttribute attribute in attributes[group].Values)
                 {
                     if (col == number)
                     {
-                        return id;
-                    }
-                    col++;
-                }
-            }
-            return null;
-        }
-        public IAttribute GetAttribute(int number)
-        {
-            int col = 0;
-            foreach(string group in attributes.Keys)
-            {
-                foreach(string id in attributes[group].Keys)
-                {
-                    if (col == number)
-                    {
-                        return attributes[group][id];
+                        return attribute;
                     }
                     col++;
                 }
@@ -670,7 +652,7 @@ namespace ClassLibraryTreeView
 
             for (int col = MaxDepth + 3; col < count; col++) // set class attributes presence cells
             {
-                string presence = cmClass.PermissibleAttributePresence(GetAttributeId(col - MaxDepth - 2));
+                string presence = cmClass.PermissibleAttributePresence(GetAttribute(col - MaxDepth - 2).Id);
                 switch (presence)
                 {
                     case "":
@@ -967,65 +949,82 @@ namespace ClassLibraryTreeView
                 workbook.SaveAs(filename);
             }
         }
-        public List<IClass> GetClassesWithId(string classId)
+        public List<IClass> GetClassesWithId(List<string> filter)
         {
             List<IClass> classList = new List<IClass>();
 
             foreach (Dictionary<string, IClass> map in classes.Values)
             {
-                if (map.ContainsKey(classId))
+                foreach (string classId in map.Keys)
                 {
-                    classList.Add(map[classId]);
+                    if (filter.Contains(classId))
+                    {
+                        classList.Add(map[classId]);
+                    }
                 }
             }
 
             return classList;
         }
-        public List<IClass> GetClassesWithName(string className)
+        public List<IClass> GetClassesWithName(List<string> filter)
         {
             List<IClass> classList = new List<IClass>();
 
             foreach (Dictionary<string, IClass> map in classes.Values)
             {
                 foreach (IClass cmClass in map.Values)
-                if (cmClass.Name.Equals(className))
                 {
-                    classList.Add(cmClass);
+                    if (filter.Contains(cmClass.Name))
+                    {
+                        classList.Add(cmClass);
+                    }
                 }
             }
 
             return classList;
         }
-        public List<IClass> GetClassesWithAttributeId(string attributeId)
+        public List<IClass> GetClassesWithAttributeId(List<string> filter)
         {
             List<IClass> classList = new List<IClass>();
-            IAttribute attribute = GetAttribute(attributeId);
-
-            if (attribute.ApplicableClasses == null)
+            
+            foreach (Dictionary<string, IAttribute> group in attributes.Values)
             {
-                return null;
-            }
-
-            foreach (IClass cmClass in attribute.ApplicableClasses.Values)
-            {
-                classList.Add(cmClass);
+                foreach (IAttribute attribute in group.Values)
+                {
+                    if (filter.Contains(attribute.Id))
+                    {
+                        if (attribute.ApplicableClasses != null)
+                        {
+                            foreach (IClass cmClass in attribute.ApplicableClasses.Values)
+                            {
+                                classList.Add(cmClass);
+                            }
+                        }
+                    }
+                }
             }
 
             return classList;
         }
-        public List<IClass> GetClassesWithAttributeName(string attributeName)
+        public List<IClass> GetClassesWithAttributeName(List<string> filter)
         {
             List<IClass> classList = new List<IClass>();
-            IAttribute attribute = GetAttributeByName(attributeName);
 
-            if (attribute.ApplicableClasses == null)
+            foreach (Dictionary<string, IAttribute> group in attributes.Values)
             {
-                return null;
-            }
-
-            foreach (IClass cmClass in attribute.ApplicableClasses.Values)
-            {
-                classList.Add(cmClass);
+                foreach (IAttribute attribute in group.Values)
+                {
+                    if (filter.Contains(attribute.Name))
+                    {
+                        if (attribute.ApplicableClasses != null)
+                        {
+                            foreach (IClass cmClass in attribute.ApplicableClasses.Values)
+                            {
+                                classList.Add(cmClass);
+                            }
+                        }
+                    }
+                }
             }
 
             return classList;

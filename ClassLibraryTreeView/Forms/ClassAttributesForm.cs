@@ -15,15 +15,10 @@ namespace ClassLibraryTreeView.Forms
 {
     public partial class ClassAttributesForm : Form
     {
-        ConceptualModel model = null;
+        int filterMode = -1;
         DataTable table = null;
-
+        ConceptualModel model = null;
         List<string>[] itemsLists = null;
-
-        List<string> classIdList = null;
-        List<string> classNameList = null;
-        List<string> attributeIdList = null;
-        List<string> attributeNameList = null;
 
         public ClassAttributesForm(ConceptualModel modelReference) : base()
         {
@@ -43,40 +38,54 @@ namespace ClassLibraryTreeView.Forms
                 itemsLists[index] = new List<string>();
             }
 
-            classIdList = new List<string>();
-            classNameList = new List<string>();
-            attributeIdList = new List<string>();
-            attributeNameList = new List<string>();
-
             dataGridView.CellMouseClick += new DataGridViewCellMouseEventHandler(this.OnHeaderMouseClick);
 
             FillGridViewByDefault(true);
         }
         private void OnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs eventArgs)
         {
-            if (eventArgs.Button == MouseButtons.Right && eventArgs.RowIndex == -1)
+            if (eventArgs.Button == MouseButtons.Left && eventArgs.RowIndex == -1)
             {
                 int columnIndex = eventArgs.ColumnIndex;
+                filterMode = columnIndex;
+                FilterForm filterForm = new FilterForm(dataGridView.Columns[columnIndex].HeaderText, itemsLists[columnIndex]);
+                filterForm.ItemsChecked += new EventHandler<List<string>>(this.GetFilter);
+                filterForm.Show();
+            }
+        }
+        private void GetFilter(object sender, List<string> filter)
+        {
+            table.Rows.Clear();
+            List<IClass> classList = null;
 
-                ComboBox comboBox = new ComboBox();
-                comboBox.Items.AddRange(itemsLists[columnIndex].ToArray());
-                comboBox.Bounds = new Rectangle(
-                    this.dataGridView.Columns[columnIndex].HeaderCell.ContentBounds.X,
-                    this.dataGridView.Columns[columnIndex].HeaderCell.ContentBounds.Y,
-                    this.dataGridView.Columns[columnIndex].HeaderCell.ContentBounds.Width,
-                    this.dataGridView.Columns[columnIndex].HeaderCell.ContentBounds.Height
-                    );
-                // comboBox.Items.Clear();
-                // comboBox.Items.AddRange(items);
-                // comboBox.Bounds = ClickedItem;
-                // comboBox.Text = editedItem.SubItems[editedSubItemIndex].Text;
-                comboBox.Visible = true;
-                comboBox.BringToFront();
-                comboBox.Focus();
+            if (filterMode == 0)
+            {
+                classList = model.GetClassesWithId(filter);
+                Print(classList);
+            }
+
+            if (filterMode == 1)
+            {
+                classList = model.GetClassesWithName(filter);
+                Print(classList);
+            }
+
+            if (filterMode == 2)
+            {
+                classList = model.GetClassesWithAttributeId(filter);
+                PrintSingleAttributeId(classList, filter);
+            }
+
+            if (filterMode == 3)
+            {
+                classList = model.GetClassesWithAttributeName(filter);
+                PrintSingleAttributeName(classList, filter);
             }
         }
         private void FillGridViewByDefault(bool isInit)
         {
+            dataGridView.Enabled = false;
+            filterMode = -1;
             table.Rows.Clear();
             foreach (string classMapKey in model.classes.Keys)
             {
@@ -88,16 +97,12 @@ namespace ClassLibraryTreeView.Forms
                     
                     if (isInit)
                     {
-                        if (!itemsLists[0].Contains(classId)) // if (!classIdList.Contains(classId))
+                        if (!itemsLists[0].Contains(classId))
                         {
-                            classIdList.Add(classId);
-                            comboBoxClassId.Items.Add(classId);
                             itemsLists[0].Add(classId);
                         }
-                        if (!itemsLists[1].Contains(className)) // if (!classNameList.Contains(className))
+                        if (!itemsLists[1].Contains(className))
                         {
-                            classNameList.Add(className);
-                            comboBoxClassName.Items.Add(className);
                             itemsLists[1].Add(className);
                         }
                     }
@@ -106,28 +111,17 @@ namespace ClassLibraryTreeView.Forms
                     {
                         string attributeId = attribute.Id;
                         string attributeName = attribute.Name;
-                        /*
-                        item.Tag = attribute;
-                        if (attribute.CameFrom != null)
-                        {
-                            item.BackColor = Color.Yellow;
-                        }
-                        this.Items.Add(item);
-                        */
+
                         table.Rows.Add(new string[] { classId, className, attributeId, attributeName });
 
                         if (isInit)
                         {
-                            if (!itemsLists[2].Contains(attributeId)) // if (!attributeIdList.Contains(attributeId))
+                            if (!itemsLists[2].Contains(attributeId))
                             {
-                                attributeIdList.Add(attributeId);
-                                comboBoxAttributeId.Items.Add(attributeId);
                                 itemsLists[2].Add(attributeId);
                             }
-                            if (!itemsLists[3].Contains(attributeName)) // if (!attributeNameList.Contains(attributeName))
+                            if (!itemsLists[3].Contains(attributeName))
                             {
-                                attributeNameList.Add(attributeName);
-                                comboBoxAttributeName.Items.Add(attributeName);
                                 itemsLists[3].Add(attributeName);
                             }
                         }
@@ -135,44 +129,7 @@ namespace ClassLibraryTreeView.Forms
                 }
             }
             dataGridView.DataSource = table;
-
-            comboBoxClassId.Enabled = false;
-            comboBoxClassName.Enabled = false;
-            comboBoxAttributeId.Enabled = false;
-            comboBoxAttributeName.Enabled = false;
-        }
-        private void ApplyFilter()
-        {
-            table.Rows.Clear();
-            List<IClass> classList = null;
-
-            if (checkBoxFilterByClassId.Checked)
-            {
-                string text = comboBoxClassId.Items[comboBoxClassId.SelectedIndex].ToString();
-                classList = model.GetClassesWithId(text);
-                Print(classList);
-            }
-
-            if (checkBoxFilterByClassName.Checked)
-            {
-                string text = comboBoxClassName.Items[comboBoxClassName.SelectedIndex].ToString();
-                classList = model.GetClassesWithName(text);
-                Print(classList);
-            }
-
-            if (checkBoxFilterByAttributeId.Checked)
-            {
-                string text = comboBoxAttributeId.Items[comboBoxAttributeId.SelectedIndex].ToString();
-                classList = model.GetClassesWithAttributeId(text);
-                PrintSingleAttributeId(classList, text);
-            }
-
-            if (checkBoxFilterByAttributeName.Checked)
-            {
-                string text = comboBoxAttributeName.Items[comboBoxAttributeName.SelectedIndex].ToString();
-                classList = model.GetClassesWithAttributeName(text);
-                PrintSingleAttributeName(classList, text);
-            }
+            dataGridView.Enabled = true;
         }
         private void Print(List<IClass> classList)
         {
@@ -192,7 +149,7 @@ namespace ClassLibraryTreeView.Forms
 
             dataGridView.DataSource = table;
         }
-        private void PrintSingleAttributeId(List<IClass> classList, string attributeId)
+        private void PrintSingleAttributeId(List<IClass> classList, List<string> filter)
         {
             table.Rows.Clear();
             foreach (IClass cmClass in classList)
@@ -201,7 +158,7 @@ namespace ClassLibraryTreeView.Forms
                 string className = cmClass.Name;
                 foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
                 {
-                    if (attribute.Id.Equals(attributeId))
+                    if (filter.Contains(attribute.Id))
                     {
                         table.Rows.Add(new string[] { classId, className, attribute.Id, attribute.Name });
                     }
@@ -210,7 +167,7 @@ namespace ClassLibraryTreeView.Forms
 
             dataGridView.DataSource = table;
         }
-        private void PrintSingleAttributeName(List<IClass> classList, string attributeName)
+        private void PrintSingleAttributeName(List<IClass> classList, List<string> filter)
         {
             table.Rows.Clear();
             foreach (IClass cmClass in classList)
@@ -220,7 +177,7 @@ namespace ClassLibraryTreeView.Forms
 
                 foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
                 {
-                    if (attribute.Name.Equals(attributeName))
+                    if (filter.Contains(attribute.Name))
                     {
                         table.Rows.Add(new string[] { classId, className, attribute.Id, attribute.Name });
                     }
@@ -229,71 +186,10 @@ namespace ClassLibraryTreeView.Forms
 
             dataGridView.DataSource = table;
         }
-        private void CheckBoxCheckedChanged(object sender, EventArgs e)
+        private void DataGridView_ColumnAdded(object sender, DataGridViewColumnEventArgs e)
         {
-            comboBoxClassId.Enabled = false;
-            comboBoxClassName.Enabled = false;
-            comboBoxAttributeId.Enabled = false;
-            comboBoxAttributeName.Enabled = false;
-
-            comboBoxClassId.Text = "";
-            comboBoxClassName.Text = "";
-            comboBoxAttributeId.Text = "";
-            comboBoxAttributeName.Text = "";
-
-            if (checkBoxFilterByClassId.Focused && checkBoxFilterByClassId.Checked)
-            {
-                checkBoxFilterByClassName.Checked = false;
-                checkBoxFilterByAttributeId.Checked = false;
-                checkBoxFilterByAttributeName.Checked = false;
-
-                comboBoxClassId.Enabled = true;
-                return;
-            }
-
-            if (checkBoxFilterByClassName.Focused && checkBoxFilterByClassName.Checked)
-            {
-                checkBoxFilterByClassId.Checked = false;
-                checkBoxFilterByAttributeId.Checked = false;
-                checkBoxFilterByAttributeName.Checked = false;
-                comboBoxClassName.Enabled = true;
-                return;
-            }
-
-            if (checkBoxFilterByAttributeId.Focused && checkBoxFilterByAttributeId.Checked)
-            {
-                checkBoxFilterByClassId.Checked = false;
-                checkBoxFilterByClassName.Checked = false;
-                checkBoxFilterByAttributeName.Checked = false;
-                comboBoxAttributeId.Enabled = true;
-                return;
-            }
-
-            if (checkBoxFilterByAttributeName.Focused && checkBoxFilterByAttributeName.Checked)
-            {
-                checkBoxFilterByClassId.Checked = false;
-                checkBoxFilterByClassName.Checked = false;
-                checkBoxFilterByAttributeId.Checked = false;
-                comboBoxAttributeName.Enabled = true;
-                return;
-            }
-        }
-
-        private void BtnResetFilter_Click(object sender, EventArgs e)
-        {
-            table.Rows.Clear();
-
-            checkBoxFilterByClassId.Checked = false;
-            checkBoxFilterByClassName.Checked = false;
-            checkBoxFilterByAttributeId.Checked = false;
-            checkBoxFilterByAttributeName.Checked = false;
-
-            FillGridViewByDefault(false);
-        }
-
-        private void СomboBoxSelectedIndexChanged(object sender, EventArgs e)
-        {
-            ApplyFilter();
+            // e.Column.SortMode = DataGridViewColumnSortMode.NotSortable;
+            e.Column.SortMode = DataGridViewColumnSortMode.Programmatic;
         }
     }
 }

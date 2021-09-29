@@ -89,7 +89,7 @@
     <Compile Include="Classes\PropertiesListView.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ConceptualModel.cs" />
+    <Compile Include="Classes\ConceptualModel.cs" />
     <Compile Include="Classes\ExcelExporter.cs" />
     <Compile Include="Classes\DocumentClass.cs" />
     <Compile Include="Classes\FunctionalClass.cs" />
@@ -99,6 +99,12 @@
     </Compile>
     <Compile Include="Forms\ClassAttributesForm.Designer.cs">
       <DependentUpon>ClassAttributesForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FilterForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FilterForm.Designer.cs">
+      <DependentUpon>FilterForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\SearchingForm.cs">
       <SubType>Form</SubType>
@@ -123,6 +129,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\ClassAttributesForm.resx">
       <DependentUpon>ClassAttributesForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\FilterForm.resx">
+      <DependentUpon>FilterForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\SearchingForm.resx">
       <DependentUpon>SearchingForm.cs</DependentUpon>

@@ -17,98 +17,81 @@ namespace ClassLibraryTreeView.Forms
         public SearchingForm(ConceptualModel modelReference) : base()
         {
             InitializeComponent();
+
+            listViewResult.Columns.Add("ID", 300, HorizontalAlignment.Left);
+            listViewResult.Columns.Add("Name", 300, HorizontalAlignment.Left);
+
             model = modelReference;
         }
         private void Find()
         {
-            if (checkBoxClasses.Checked)
-            {
-                FindInClasses();
-            }
-
-            if (checkBoxAttributes.Checked)
-            {
-                FindInAttributes();
-            }
+            listViewResult.Items.Clear();
+            string text = searchString.Text;
+            FindClasses(text);
+            FindAttributes(text);
         }
-        private void PrintItem(IIdentifiable item)
+        private void FindClasses(string text)
         {
-            KeyValuePair<string, string>[] attributes = item.Attributes();
-            List<string> properties = new List<string>();
-            foreach (KeyValuePair<string, string> property in attributes)
-            {
-                properties.Add(property.Value);
-            }
-
-            ListViewItem listViewItem = new ListViewItem(properties.ToArray());
-
-            listViewResult.Items.Add(listViewItem);
-        }
-        private void FindInClasses()
-        {
-            List<IClass> classesList = new List<IClass>();
-            string text = textBox.Text;
-            if (checkBoxId.Checked)
-            {
-                foreach(var map in model.classes.Values)
-                {
-                    if(map.ContainsKey(text))
-                    {
-                        classesList.Add(map[text]);
-                    }
-                }
-            }
-
-            if (classesList.Count == 0)
+            if (!searchClasses.Checked)
             {
                 return;
             }
 
-            KeyValuePair<string, string>[] columnsNames = classesList[0].Attributes();
-            foreach (KeyValuePair<string, string> columnName in columnsNames)
+            List<IClass> classesList = new List<IClass>();
+
+            foreach (Dictionary<string, IClass> map in model.classes.Values)
             {
-                listViewResult.Columns.Add($"{columnName.Key}", 150, HorizontalAlignment.Left);
+                foreach (IClass cmClass in map.Values)
+                {
+                    if ((cmClass.Id.Contains(text) && searchId.Checked)
+                        || (cmClass.Name.Contains(text) && searchName.Checked))
+                    {
+                        classesList.Add(cmClass);
+                    }
+                }
             }
 
-            listViewResult.Items.Clear();
-
-            foreach (IClass cmClass in classesList)
+            if (classesList.Count > 0)
             {
-                PrintItem(cmClass);
+                foreach (IClass cmClass in classesList)
+                {
+                    ListViewItem listViewItem = new ListViewItem(new string[] { $"{cmClass.Id}", $"{cmClass.Name}" });
+                    listViewItem.Tag = cmClass;
+                    listViewItem.BackColor = Color.Yellow;
+                    listViewResult.Items.Add(listViewItem);
+                }
             }
         }
-        private void FindInAttributes()
+        private void FindAttributes(string text)
         {
-            string text = textBox.Text;
+            if (!searchAttributes.Checked)
+            {
+                return;
+            }
+
             List<IAttribute> attributesList = new List<IAttribute>();
 
-            if (checkBoxId.Checked)
+            foreach (var map in model.attributes.Values)
             {
-                foreach (var map in model.attributes.Values)
+                foreach (var attribute in map.Values)
                 {
-                    if (map.ContainsKey(text))
+                    if ((attribute.Id.Contains(text) && searchId.Checked)
+                        || (attribute.Name.Contains(text) && searchName.Checked))
                     {
-                        attributesList.Add(map[text]);
+                        attributesList.Add(attribute);
                     }
                 }
             }
 
-            if (attributesList.Count == 0)
+            if (attributesList.Count > 0)
             {
-                return;
-            }
-
-            KeyValuePair<string, string>[] columnsNames = attributesList[0].Attributes();
-            foreach (KeyValuePair<string, string> columnName in columnsNames)
-            {
-                listViewResult.Columns.Add($"{columnName.Key}", 150, HorizontalAlignment.Left);
-            }
-
-            listViewResult.Items.Clear();
-
-            foreach (IAttribute attribute in attributesList)
-            {
-                PrintItem(attribute);
+                foreach (IAttribute attribute in attributesList)
+                {
+                    ListViewItem listViewItem = new ListViewItem(new string[] { $"{attribute.Id}", $"{attribute.Name}" });
+                    listViewItem.Tag = attribute;
+                    listViewItem.BackColor = Color.Green;
+                    listViewResult.Items.Add(listViewItem);
+                }
             }
         }
         ConceptualModel model = null;
@@ -116,10 +99,6 @@ namespace ClassLibraryTreeView.Forms
         private void BtnSearch_Click(object sender, EventArgs e)
         {
             Find();
-        }
-        private void OnMouseDoubleClick(object sender, MouseEventArgs e)
-        {
-
         }
     }
 }
