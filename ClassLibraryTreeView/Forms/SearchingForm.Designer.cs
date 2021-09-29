@@ -48,39 +48,46 @@ namespace ClassLibraryTreeView.Forms
             this.searchMeasureUnits = new System.Windows.Forms.ToolStripMenuItem();
             this.searchMeasureClasses = new System.Windows.Forms.ToolStripMenuItem();
             this.searchString = new System.Windows.Forms.ToolStripTextBox();
+            this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.searchPanel.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
+            this.splitContainer1.Panel1.SuspendLayout();
+            this.splitContainer1.Panel2.SuspendLayout();
+            this.splitContainer1.SuspendLayout();
             this.SuspendLayout();
             // 
             // listViewResult
             // 
-            this.listViewResult.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.listViewResult.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewResult.FullRowSelect = true;
             this.listViewResult.GridLines = true;
             this.listViewResult.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
             this.listViewResult.HideSelection = false;
-            this.listViewResult.Location = new System.Drawing.Point(0, 57);
+            this.listViewResult.Location = new System.Drawing.Point(0, 0);
             this.listViewResult.Margin = new System.Windows.Forms.Padding(2);
             this.listViewResult.Name = "listViewResult";
-            this.listViewResult.Size = new System.Drawing.Size(851, 504);
+            this.listViewResult.Size = new System.Drawing.Size(851, 519);
             this.listViewResult.TabIndex = 1;
             this.listViewResult.UseCompatibleStateImageBehavior = false;
             this.listViewResult.View = System.Windows.Forms.View.Details;
             // 
             // searchPanel
             // 
+            this.searchPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.searchPanel.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold);
+            this.searchPanel.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.searchPanel.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnSearch,
             this.searchString});
             this.searchPanel.Location = new System.Drawing.Point(0, 0);
             this.searchPanel.Name = "searchPanel";
-            this.searchPanel.Size = new System.Drawing.Size(851, 55);
+            this.searchPanel.Size = new System.Drawing.Size(851, 38);
             this.searchPanel.TabIndex = 17;
             this.searchPanel.Text = "toolStrip1";
             // 
             // btnSearch
             // 
-            this.btnSearch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.btnSearch.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.btnSearch.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.searchId,
             this.searchName,
@@ -93,11 +100,11 @@ namespace ClassLibraryTreeView.Forms
             this.searchEnumerations,
             this.searchMeasureUnits,
             this.searchMeasureClasses});
-            this.btnSearch.Image = global::ClassLibraryTreeView.Properties.Resources.search;
+            this.btnSearch.ImageAlign = System.Drawing.ContentAlignment.TopLeft;
             this.btnSearch.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
             this.btnSearch.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(64, 52);
+            this.btnSearch.Size = new System.Drawing.Size(65, 35);
             this.btnSearch.Text = "Search";
             this.btnSearch.ButtonClick += new System.EventHandler(this.BtnSearch_Click);
             // 
@@ -194,17 +201,37 @@ namespace ClassLibraryTreeView.Forms
             // 
             // searchString
             // 
+            this.searchString.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.searchString.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold);
             this.searchString.Name = "searchString";
-            this.searchString.Size = new System.Drawing.Size(500, 55);
+            this.searchString.Size = new System.Drawing.Size(500, 38);
+            // 
+            // splitContainer1
+            // 
+            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.splitContainer1.IsSplitterFixed = true;
+            this.splitContainer1.Location = new System.Drawing.Point(0, 0);
+            this.splitContainer1.Name = "splitContainer1";
+            this.splitContainer1.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitContainer1.Panel1
+            // 
+            this.splitContainer1.Panel1.Controls.Add(this.searchPanel);
+            // 
+            // splitContainer1.Panel2
+            // 
+            this.splitContainer1.Panel2.Controls.Add(this.listViewResult);
+            this.splitContainer1.Size = new System.Drawing.Size(851, 561);
+            this.splitContainer1.SplitterDistance = 38;
+            this.splitContainer1.TabIndex = 18;
             // 
             // SearchingForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(851, 561);
-            this.Controls.Add(this.searchPanel);
-            this.Controls.Add(this.listViewResult);
+            this.Controls.Add(this.splitContainer1);
             this.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
@@ -213,8 +240,12 @@ namespace ClassLibraryTreeView.Forms
             this.Text = "Search";
             this.searchPanel.ResumeLayout(false);
             this.searchPanel.PerformLayout();
+            this.splitContainer1.Panel1.ResumeLayout(false);
+            this.splitContainer1.Panel1.PerformLayout();
+            this.splitContainer1.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
+            this.splitContainer1.ResumeLayout(false);
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -235,5 +266,6 @@ namespace ClassLibraryTreeView.Forms
         private ToolStripMenuItem searchMeasureUnits;
         private ToolStripMenuItem searchMeasureClasses;
         private ToolStripTextBox searchString;
+        private SplitContainer splitContainer1;
     }
 }
