@@ -53,7 +53,7 @@ namespace ClassLibraryTreeView.Forms
             this.listView.HideSelection = false;
             this.listView.Location = new System.Drawing.Point(0, 0);
             this.listView.Name = "listView";
-            this.listView.Size = new System.Drawing.Size(494, 407);
+            this.listView.Size = new System.Drawing.Size(494, 437);
             this.listView.TabIndex = 0;
             this.listView.UseCompatibleStateImageBehavior = false;
             this.listView.View = System.Windows.Forms.View.Details;
@@ -66,11 +66,11 @@ namespace ClassLibraryTreeView.Forms
             // btnApply
             // 
             this.btnApply.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnApply.Image = global::ClassLibraryTreeView.Properties.Resources.apply;
             this.btnApply.Location = new System.Drawing.Point(334, 0);
             this.btnApply.Name = "btnApply";
-            this.btnApply.Size = new System.Drawing.Size(80, 79);
+            this.btnApply.Size = new System.Drawing.Size(80, 49);
             this.btnApply.TabIndex = 1;
+            this.btnApply.Text = "Apply";
             this.btnApply.UseVisualStyleBackColor = true;
             this.btnApply.Click += new System.EventHandler(this.BtnApply_Click);
             // 
@@ -78,11 +78,11 @@ namespace ClassLibraryTreeView.Forms
             // 
             this.btnCancel.AutoSize = true;
             this.btnCancel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnCancel.Image = global::ClassLibraryTreeView.Properties.Resources.cancel;
             this.btnCancel.Location = new System.Drawing.Point(414, 0);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(80, 79);
+            this.btnCancel.Size = new System.Drawing.Size(80, 49);
             this.btnCancel.TabIndex = 2;
+            this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.BtnCancel_Click);
             // 
@@ -104,7 +104,7 @@ namespace ClassLibraryTreeView.Forms
             this.splitContainer1.Panel2.Controls.Add(this.btnApply);
             this.splitContainer1.Panel2.Controls.Add(this.btnCancel);
             this.splitContainer1.Size = new System.Drawing.Size(494, 490);
-            this.splitContainer1.SplitterDistance = 407;
+            this.splitContainer1.SplitterDistance = 437;
             this.splitContainer1.TabIndex = 3;
             // 
             // FilterForm

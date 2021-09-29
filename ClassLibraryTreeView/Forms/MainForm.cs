@@ -343,9 +343,11 @@ namespace ClassLibraryTreeView
             progressBar.Visible = true;
 
             // model.ExportClassAttributes();
+            TabPage page = new TabPage($"Class Attributes");
+            AttributesGrid classAttributesGrid = new AttributesGrid(model);
+            page.Controls.Add(classAttributesGrid);
+            propertiesTabs.TabPages.Add(page);
 
-            ClassAttributesForm classAttributesForm = new ClassAttributesForm(model);
-            classAttributesForm.Show();
             /*
             try
             {
