@@ -27,7 +27,7 @@ namespace ClassLibraryTreeView.Classes
             mode = viewMode;
             model = conceptualModel;
 
-            NodeMouseClick += new TreeNodeMouseClickEventHandler(this.ShowContextMenu);
+            NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.ShowContextMenu);
 
             this.LabelEdit = true;
             this.Dock = DockStyle.Fill;

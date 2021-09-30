@@ -33,7 +33,9 @@ namespace ClassLibraryTreeView.Forms
             label.Dock = DockStyle.Fill;
             tabControl.Dock = DockStyle.Fill;
 
-            this.SplitterDistance = 80;
+            label.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+
+            this.SplitterDistance = 50;
             this.Panel1.Controls.Add(label);
             this.Panel2.Controls.Add(tabControl);
 

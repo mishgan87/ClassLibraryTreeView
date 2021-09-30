@@ -33,7 +33,6 @@ namespace ClassLibraryTreeView
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.labelModelName = new System.Windows.Forms.ToolStripLabel();
             this.labelInfo = new System.Windows.Forms.ToolStripLabel();
-            this.layoutMain = new System.Windows.Forms.SplitContainer();
             this.btnSearch = new System.Windows.Forms.Button();
             this.btnReport = new System.Windows.Forms.Button();
             this.progressBar = new System.Windows.Forms.ProgressBar();
@@ -44,18 +43,24 @@ namespace ClassLibraryTreeView
             this.btnSave = new System.Windows.Forms.Button();
             this.btnExportPermissibleGrid = new System.Windows.Forms.Button();
             this.btnOpenFile = new System.Windows.Forms.Button();
-            this.layoutSplitter = new System.Windows.Forms.SplitContainer();
             this.treeTabs = new System.Windows.Forms.TabControl();
-            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.tabControl = new System.Windows.Forms.TabControl();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
+            this.layoutMenu = new System.Windows.Forms.SplitContainer();
+            this.layoutWorkplace = new System.Windows.Forms.SplitContainer();
+            this.layoutMain = new System.Windows.Forms.SplitContainer();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutMenu)).BeginInit();
+            this.layoutMenu.Panel1.SuspendLayout();
+            this.layoutMenu.Panel2.SuspendLayout();
+            this.layoutMenu.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.layoutWorkplace)).BeginInit();
+            this.layoutWorkplace.Panel1.SuspendLayout();
+            this.layoutWorkplace.Panel2.SuspendLayout();
+            this.layoutWorkplace.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.layoutMain)).BeginInit();
             this.layoutMain.Panel1.SuspendLayout();
             this.layoutMain.Panel2.SuspendLayout();
             this.layoutMain.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.layoutSplitter)).BeginInit();
-            this.layoutSplitter.Panel1.SuspendLayout();
-            this.layoutSplitter.Panel2.SuspendLayout();
-            this.layoutSplitter.SuspendLayout();
             this.SuspendLayout();
             // 
             // labelModelName
@@ -75,175 +80,128 @@ namespace ClassLibraryTreeView
             this.labelInfo.Size = new System.Drawing.Size(41, 76);
             this.labelInfo.Text = "Info";
             // 
-            // layoutMain
-            // 
-            this.layoutMain.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layoutMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.layoutMain.IsSplitterFixed = true;
-            this.layoutMain.Location = new System.Drawing.Point(0, 0);
-            this.layoutMain.Name = "layoutMain";
-            this.layoutMain.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // layoutMain.Panel1
-            // 
-            this.layoutMain.Panel1.Controls.Add(this.btnSearch);
-            this.layoutMain.Panel1.Controls.Add(this.btnReport);
-            this.layoutMain.Panel1.Controls.Add(this.progressBar);
-            this.layoutMain.Panel1.Controls.Add(this.modelName);
-            this.layoutMain.Panel1.Controls.Add(this.btnUndo);
-            this.layoutMain.Panel1.Controls.Add(this.btnDelete);
-            this.layoutMain.Panel1.Controls.Add(this.btnAdd);
-            this.layoutMain.Panel1.Controls.Add(this.btnSave);
-            this.layoutMain.Panel1.Controls.Add(this.btnExportPermissibleGrid);
-            this.layoutMain.Panel1.Controls.Add(this.btnOpenFile);
-            this.layoutMain.Panel1.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            // 
-            // layoutMain.Panel2
-            // 
-            this.layoutMain.Panel2.Controls.Add(this.layoutSplitter);
-            this.layoutMain.Size = new System.Drawing.Size(1411, 750);
-            this.layoutMain.SplitterDistance = 70;
-            this.layoutMain.TabIndex = 9;
-            // 
             // btnSearch
             // 
-            this.btnSearch.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnSearch.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnSearch.Enabled = false;
             this.btnSearch.Image = global::ClassLibraryTreeView.Properties.Resources.search;
-            this.btnSearch.Location = new System.Drawing.Point(525, 0);
+            this.btnSearch.Location = new System.Drawing.Point(0, 420);
             this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(75, 70);
+            this.btnSearch.Size = new System.Drawing.Size(81, 70);
             this.btnSearch.TabIndex = 9;
             this.btnSearch.UseVisualStyleBackColor = true;
             this.btnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
             // 
             // btnReport
             // 
-            this.btnReport.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnReport.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnReport.Enabled = false;
             this.btnReport.Image = global::ClassLibraryTreeView.Properties.Resources.enumerations;
-            this.btnReport.Location = new System.Drawing.Point(450, 0);
+            this.btnReport.Location = new System.Drawing.Point(0, 490);
             this.btnReport.Name = "btnReport";
-            this.btnReport.Size = new System.Drawing.Size(75, 70);
+            this.btnReport.Size = new System.Drawing.Size(81, 70);
             this.btnReport.TabIndex = 8;
             this.btnReport.UseVisualStyleBackColor = true;
             this.btnReport.Click += new System.EventHandler(this.BtnReport_Click);
             // 
             // progressBar
             // 
-            this.progressBar.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.progressBar.Location = new System.Drawing.Point(450, 0);
-            this.progressBar.Margin = new System.Windows.Forms.Padding(2, 2, 2, 2);
+            this.progressBar.Dock = System.Windows.Forms.DockStyle.Top;
+            this.progressBar.Location = new System.Drawing.Point(0, 0);
+            this.progressBar.Margin = new System.Windows.Forms.Padding(2);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(961, 70);
+            this.progressBar.Size = new System.Drawing.Size(1411, 41);
             this.progressBar.TabIndex = 7;
             this.progressBar.Visible = false;
             // 
             // modelName
             // 
             this.modelName.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modelName.Location = new System.Drawing.Point(450, 0);
+            this.modelName.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.modelName.Location = new System.Drawing.Point(0, 0);
             this.modelName.Name = "modelName";
-            this.modelName.Size = new System.Drawing.Size(961, 70);
+            this.modelName.Size = new System.Drawing.Size(1411, 59);
             this.modelName.TabIndex = 6;
             this.modelName.Text = "Conceptual model";
             this.modelName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // btnUndo
             // 
-            this.btnUndo.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnUndo.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnUndo.Enabled = false;
             this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
-            this.btnUndo.Location = new System.Drawing.Point(375, 0);
+            this.btnUndo.Location = new System.Drawing.Point(0, 280);
             this.btnUndo.Name = "btnUndo";
-            this.btnUndo.Size = new System.Drawing.Size(75, 70);
+            this.btnUndo.Size = new System.Drawing.Size(81, 70);
             this.btnUndo.TabIndex = 5;
             this.btnUndo.UseVisualStyleBackColor = true;
             // 
             // btnDelete
             // 
-            this.btnDelete.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnDelete.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnDelete.Enabled = false;
             this.btnDelete.Image = ((System.Drawing.Image)(resources.GetObject("btnDelete.Image")));
-            this.btnDelete.Location = new System.Drawing.Point(300, 0);
+            this.btnDelete.Location = new System.Drawing.Point(0, 210);
             this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(75, 70);
+            this.btnDelete.Size = new System.Drawing.Size(81, 70);
             this.btnDelete.TabIndex = 1;
             this.btnDelete.UseVisualStyleBackColor = true;
             this.btnDelete.Click += new System.EventHandler(this.BtnDelete_Click);
             // 
             // btnAdd
             // 
-            this.btnAdd.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnAdd.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnAdd.Enabled = false;
             this.btnAdd.Image = ((System.Drawing.Image)(resources.GetObject("btnAdd.Image")));
-            this.btnAdd.Location = new System.Drawing.Point(225, 0);
+            this.btnAdd.Location = new System.Drawing.Point(0, 140);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(75, 70);
+            this.btnAdd.Size = new System.Drawing.Size(81, 70);
             this.btnAdd.TabIndex = 5;
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.BtnAdd_Click);
             // 
             // btnSave
             // 
-            this.btnSave.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnSave.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnSave.Enabled = false;
             this.btnSave.Image = ((System.Drawing.Image)(resources.GetObject("btnSave.Image")));
-            this.btnSave.Location = new System.Drawing.Point(150, 0);
+            this.btnSave.Location = new System.Drawing.Point(0, 70);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(75, 70);
+            this.btnSave.Size = new System.Drawing.Size(81, 70);
             this.btnSave.TabIndex = 4;
             this.btnSave.UseVisualStyleBackColor = true;
             // 
             // btnExportPermissibleGrid
             // 
-            this.btnExportPermissibleGrid.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnExportPermissibleGrid.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnExportPermissibleGrid.Enabled = false;
             this.btnExportPermissibleGrid.Image = ((System.Drawing.Image)(resources.GetObject("btnExportPermissibleGrid.Image")));
-            this.btnExportPermissibleGrid.Location = new System.Drawing.Point(75, 0);
+            this.btnExportPermissibleGrid.Location = new System.Drawing.Point(0, 350);
             this.btnExportPermissibleGrid.Name = "btnExportPermissibleGrid";
-            this.btnExportPermissibleGrid.Size = new System.Drawing.Size(75, 70);
+            this.btnExportPermissibleGrid.Size = new System.Drawing.Size(81, 70);
             this.btnExportPermissibleGrid.TabIndex = 3;
             this.btnExportPermissibleGrid.UseVisualStyleBackColor = true;
             this.btnExportPermissibleGrid.Click += new System.EventHandler(this.BtnExportPermissibleGrid_Click);
             // 
             // btnOpenFile
             // 
-            this.btnOpenFile.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnOpenFile.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnOpenFile.Image = ((System.Drawing.Image)(resources.GetObject("btnOpenFile.Image")));
             this.btnOpenFile.Location = new System.Drawing.Point(0, 0);
             this.btnOpenFile.Name = "btnOpenFile";
-            this.btnOpenFile.Size = new System.Drawing.Size(75, 70);
+            this.btnOpenFile.Size = new System.Drawing.Size(81, 70);
             this.btnOpenFile.TabIndex = 0;
             this.btnOpenFile.UseVisualStyleBackColor = true;
             this.btnOpenFile.Click += new System.EventHandler(this.BtnOpenFile_Click);
             // 
-            // layoutSplitter
-            // 
-            this.layoutSplitter.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.layoutSplitter.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.layoutSplitter.Location = new System.Drawing.Point(0, 0);
-            this.layoutSplitter.Name = "layoutSplitter";
-            // 
-            // layoutSplitter.Panel1
-            // 
-            this.layoutSplitter.Panel1.Controls.Add(this.treeTabs);
-            // 
-            // layoutSplitter.Panel2
-            // 
-            this.layoutSplitter.Panel2.Controls.Add(this.tabControl);
-            this.layoutSplitter.Size = new System.Drawing.Size(1411, 676);
-            this.layoutSplitter.SplitterDistance = 337;
-            this.layoutSplitter.TabIndex = 12;
-            // 
             // treeTabs
             // 
             this.treeTabs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeTabs.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.treeTabs.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.treeTabs.Location = new System.Drawing.Point(0, 0);
             this.treeTabs.Name = "treeTabs";
             this.treeTabs.SelectedIndex = 0;
-            this.treeTabs.Size = new System.Drawing.Size(337, 676);
+            this.treeTabs.Size = new System.Drawing.Size(442, 646);
             this.treeTabs.TabIndex = 11;
             // 
             // tabControl
@@ -253,8 +211,71 @@ namespace ClassLibraryTreeView
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(1070, 676);
+            this.tabControl.Size = new System.Drawing.Size(880, 646);
             this.tabControl.TabIndex = 12;
+            // 
+            // layoutMenu
+            // 
+            this.layoutMenu.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layoutMenu.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.layoutMenu.IsSplitterFixed = true;
+            this.layoutMenu.Location = new System.Drawing.Point(0, 0);
+            this.layoutMenu.Name = "layoutMenu";
+            // 
+            // layoutMenu.Panel1
+            // 
+            this.layoutMenu.Panel1.Controls.Add(this.btnReport);
+            this.layoutMenu.Panel1.Controls.Add(this.btnSearch);
+            this.layoutMenu.Panel1.Controls.Add(this.btnExportPermissibleGrid);
+            this.layoutMenu.Panel1.Controls.Add(this.btnUndo);
+            this.layoutMenu.Panel1.Controls.Add(this.btnDelete);
+            this.layoutMenu.Panel1.Controls.Add(this.btnAdd);
+            this.layoutMenu.Panel1.Controls.Add(this.btnSave);
+            this.layoutMenu.Panel1.Controls.Add(this.btnOpenFile);
+            // 
+            // layoutMenu.Panel2
+            // 
+            this.layoutMenu.Panel2.Controls.Add(this.layoutWorkplace);
+            this.layoutMenu.Size = new System.Drawing.Size(1411, 646);
+            this.layoutMenu.SplitterDistance = 81;
+            this.layoutMenu.TabIndex = 13;
+            // 
+            // layoutWorkplace
+            // 
+            this.layoutWorkplace.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layoutWorkplace.Location = new System.Drawing.Point(0, 0);
+            this.layoutWorkplace.Name = "layoutWorkplace";
+            // 
+            // layoutWorkplace.Panel1
+            // 
+            this.layoutWorkplace.Panel1.Controls.Add(this.treeTabs);
+            // 
+            // layoutWorkplace.Panel2
+            // 
+            this.layoutWorkplace.Panel2.Controls.Add(this.tabControl);
+            this.layoutWorkplace.Size = new System.Drawing.Size(1326, 646);
+            this.layoutWorkplace.SplitterDistance = 442;
+            this.layoutWorkplace.TabIndex = 14;
+            // 
+            // layoutMain
+            // 
+            this.layoutMain.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.layoutMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+            this.layoutMain.IsSplitterFixed = true;
+            this.layoutMain.Location = new System.Drawing.Point(0, 41);
+            this.layoutMain.Name = "layoutMain";
+            this.layoutMain.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // layoutMain.Panel1
+            // 
+            this.layoutMain.Panel1.Controls.Add(this.modelName);
+            // 
+            // layoutMain.Panel2
+            // 
+            this.layoutMain.Panel2.Controls.Add(this.layoutMenu);
+            this.layoutMain.Size = new System.Drawing.Size(1411, 709);
+            this.layoutMain.SplitterDistance = 59;
+            this.layoutMain.TabIndex = 14;
             // 
             // MainForm
             // 
@@ -262,18 +283,23 @@ namespace ClassLibraryTreeView
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1411, 750);
             this.Controls.Add(this.layoutMain);
+            this.Controls.Add(this.progressBar);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainForm";
             this.Text = "CMViewer";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.layoutMenu.Panel1.ResumeLayout(false);
+            this.layoutMenu.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.layoutMenu)).EndInit();
+            this.layoutMenu.ResumeLayout(false);
+            this.layoutWorkplace.Panel1.ResumeLayout(false);
+            this.layoutWorkplace.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.layoutWorkplace)).EndInit();
+            this.layoutWorkplace.ResumeLayout(false);
             this.layoutMain.Panel1.ResumeLayout(false);
             this.layoutMain.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.layoutMain)).EndInit();
             this.layoutMain.ResumeLayout(false);
-            this.layoutSplitter.Panel1.ResumeLayout(false);
-            this.layoutSplitter.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.layoutSplitter)).EndInit();
-            this.layoutSplitter.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -281,8 +307,6 @@ namespace ClassLibraryTreeView
         #endregion
         private ToolStripLabel labelModelName;
         private ToolStripLabel labelInfo;
-        private SplitContainer layoutMain;
-        private SplitContainer layoutSplitter;
         private TabControl treeTabs;
         private Button btnSave;
         private Button btnExportPermissibleGrid;
@@ -293,9 +317,12 @@ namespace ClassLibraryTreeView
         private Button btnReport;
         private Button btnSearch;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
-        private Label modelName;
         private ProgressBar progressBar;
         private TabControl tabControl;
+        private SplitContainer layoutMenu;
+        private SplitContainer layoutWorkplace;
+        private Label modelName;
+        private SplitContainer layoutMain;
     }
 }
 

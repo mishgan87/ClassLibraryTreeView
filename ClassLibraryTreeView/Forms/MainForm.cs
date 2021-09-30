@@ -89,7 +89,7 @@ namespace ClassLibraryTreeView
         }
         private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
-            layoutMain.Panel1.Enabled = false;
+            layoutMenu.Panel1.Enabled = false;
             progressBar.Value = 0;
             progressBar.Visible = true;
 
@@ -101,7 +101,7 @@ namespace ClassLibraryTreeView
             // string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10);
             // MessageBox.Show($"Export done for {elapsedTime}");
 
-            layoutMain.Panel1.Enabled = true;
+            layoutMenu.Panel1.Enabled = true;
             progressBar.Visible = false;
         }
 
@@ -109,6 +109,7 @@ namespace ClassLibraryTreeView
         {
             if (model.OpenFile())
             {
+                treeTabs.TabPages.Clear();
                 tabControl.TabPages.Clear();
 
                 modelName.Text = $"{model.ModelName}";
@@ -183,7 +184,7 @@ namespace ClassLibraryTreeView
         // private async void BtnReport_Click(object sender, EventArgs e)
         private void BtnReport_Click(object sender, EventArgs e)
         {
-            layoutMain.Panel1.Enabled = false;
+            layoutMenu.Panel1.Enabled = false;
             progressBar.Value = 0;
             progressBar.Visible = true;
 
@@ -204,7 +205,7 @@ namespace ClassLibraryTreeView
                 MessageBox.Show(ex.Message);
             }
             */
-            layoutMain.Panel1.Enabled = true;
+            layoutMenu.Panel1.Enabled = true;
             progressBar.Visible = false;
         }
 

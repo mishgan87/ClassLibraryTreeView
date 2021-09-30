@@ -17,6 +17,7 @@ namespace ClassLibraryTreeView.Classes
         List<string>[] itemsLists = null;
         public AttributesGrid(ConceptualModel modelReference) : base()
         {
+            this.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.Dock = DockStyle.Fill;
             this.ColumnAdded += new DataGridViewColumnEventHandler(this.ColumnAddedAdvance);
             this.CellMouseClick += new DataGridViewCellMouseEventHandler(this.OnHeaderMouseClick);

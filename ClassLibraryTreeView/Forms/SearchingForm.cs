@@ -14,91 +14,48 @@ namespace ClassLibraryTreeView.Forms
 {
     public partial class SearchingForm : Form
     {
+        ConceptualModel model = null;
         public SearchingForm(ConceptualModel modelReference) : base()
         {
             InitializeComponent();
-
+            model = modelReference;
             listViewResult.Columns.Add("ID", 300, HorizontalAlignment.Left);
             listViewResult.Columns.Add("Name", 300, HorizontalAlignment.Left);
-
-            model = modelReference;
         }
-        private void Find()
+        private void BtnSearch_Click(object sender, EventArgs e)
         {
             listViewResult.Items.Clear();
             string text = searchString.Text;
-            FindClasses(text);
-            FindAttributes(text);
-        }
-        private void FindClasses(string text)
-        {
-            if (!searchClasses.Checked)
-            {
-                return;
-            }
+            int filter = 0;
 
-            List<IClass> classesList = new List<IClass>();
+            List<KeyValuePair<string, object>> results = CMSearcher.SearchText(text, model, filter);
 
-            foreach (Dictionary<string, IClass> map in model.classes.Values)
+            if (results.Count > 0)
             {
-                foreach (IClass cmClass in map.Values)
+                foreach (KeyValuePair<string, object> result in results)
                 {
-                    if ((cmClass.Id.Contains(text) && searchId.Checked)
-                        || (cmClass.Name.Contains(text) && searchName.Checked))
+                    string type = result.Key;
+                    ListViewItem listViewItem = null;
+
+                    if (type.Equals("class"))
                     {
-                        classesList.Add(cmClass);
+                        IClass cmClass = (IClass)result.Value;
+                        listViewItem = new ListViewItem(new string[] { $"{cmClass.Id}", $"{cmClass.Name}" });
+                        listViewItem.Tag = cmClass;
+                        listViewItem.BackColor = Color.Yellow;
                     }
-                }
-            }
 
-            if (classesList.Count > 0)
-            {
-                foreach (IClass cmClass in classesList)
-                {
-                    ListViewItem listViewItem = new ListViewItem(new string[] { $"{cmClass.Id}", $"{cmClass.Name}" });
-                    listViewItem.Tag = cmClass;
-                    listViewItem.BackColor = Color.Yellow;
+                    if (type.Equals("attribute"))
+                    {
+                        IAttribute attribute = (IAttribute)result.Value;
+                        listViewItem = new ListViewItem(new string[] { $"{attribute.Id}", $"{attribute.Name}" });
+                        listViewItem.Tag = attribute;
+                        listViewItem.BackColor = Color.Green;
+                    }
+
                     listViewResult.Items.Add(listViewItem);
                 }
             }
-        }
-        private void FindAttributes(string text)
-        {
-            if (!searchAttributes.Checked)
-            {
-                return;
-            }
-
-            List<IAttribute> attributesList = new List<IAttribute>();
-
-            foreach (var map in model.attributes.Values)
-            {
-                foreach (var attribute in map.Values)
-                {
-                    if ((attribute.Id.Contains(text) && searchId.Checked)
-                        || (attribute.Name.Contains(text) && searchName.Checked))
-                    {
-                        attributesList.Add(attribute);
-                    }
-                }
-            }
-
-            if (attributesList.Count > 0)
-            {
-                foreach (IAttribute attribute in attributesList)
-                {
-                    ListViewItem listViewItem = new ListViewItem(new string[] { $"{attribute.Id}", $"{attribute.Name}" });
-                    listViewItem.Tag = attribute;
-                    listViewItem.BackColor = Color.Green;
-                    listViewResult.Items.Add(listViewItem);
-                }
-            }
-        }
-        ConceptualModel model = null;
-
-        private void BtnSearch_Click(object sender, EventArgs e)
-        {
-            Find();
         }
     }
 }
