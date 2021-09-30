@@ -23,7 +23,8 @@ namespace ClassLibraryTreeView.Classes
         public List<string> Aspect { get; set; }
         // Class members
         public string Group { get; set; }
-        public List<string> Units { get; set; }
+        // public List<string> Units { get; set; }
+        public List<MeasureUnit> Units { get; set; }
 
         public KeyValuePair<string, string>[] Attributes()
         {
@@ -64,7 +65,8 @@ namespace ClassLibraryTreeView.Classes
             MeasureClass measureClass = (MeasureClass)source;
 
             Group = measureClass.Group;
-            Units = new List<string>(measureClass.Units);
+            // Units = new List<string>(measureClass.Units);
+            Units = new List<MeasureUnit>(measureClass.Units);
         }
 
         public void Clone(XElement source)
@@ -113,7 +115,7 @@ namespace ClassLibraryTreeView.Classes
                 {
                     foreach (XElement attribute in child.Elements())
                     {
-                        Units.Add(attribute.Attribute("id").Value);
+                        Units.Add(new MeasureUnit(attribute));
                     }
                 }
             }
@@ -152,7 +154,7 @@ namespace ClassLibraryTreeView.Classes
             Aspect = new List<string>();
 
             Group = "";
-            Units = new List<string>();
+            Units = new List<MeasureUnit>();
         }
     }
 }

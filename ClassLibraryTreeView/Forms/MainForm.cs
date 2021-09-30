@@ -39,135 +39,6 @@ namespace ClassLibraryTreeView
         {
             progressBar.Value = progress;
         }
-        private void ViewTaxonomyProperties(object tag)
-        {
-            Type type = tag.GetType();
-            if (type.Name.ToLower().Equals("taxonomy"))
-            {
-                Taxonomy taxonomy = (Taxonomy)tag;
-                info.Text = $"Taxonomy : {taxonomy.Name}";
-                propertiesTabs.TabPages.Add(new TabPage("Properties"));
-                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(taxonomy));
-            }
-
-            if (type.Name.ToLower().Equals("taxonomynode"))
-            {
-                TaxonomyNode taxonomyNode = (TaxonomyNode)tag;
-                info.Text = $"Taxonomy Node : {taxonomyNode.Name}";
-                propertiesTabs.TabPages.Add(new TabPage("Properties"));
-                propertiesTabs.TabPages.Add(new TabPage("Classes"));
-                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(taxonomyNode));
-
-                if (taxonomyNode.Classes.Count == 0)
-                {
-                    return;
-                }
-
-                ListView listView = new ListView();
-                listView.LabelEdit = true;
-                listView.GridLines = true;
-                listView.HeaderStyle = ColumnHeaderStyle.None;
-                listView.Dock = DockStyle.Fill;
-                listView.View = View.Details;
-                listView.FullRowSelect = true;
-
-                listView.Columns.Add("ID", 300, HorizontalAlignment.Left);
-
-                foreach (string id in taxonomyNode.Classes)
-                {
-                    string[] items = { $"{id}" };
-                    ListViewItem item = new ListViewItem(items);
-                    listView.Items.Add(item);
-                }
-
-                propertiesTabs.TabPages[1].Controls.Add(listView);
-            }
-
-        }
-        private void ViewMeasureProperties(object sender, TreeNodeMouseClickEventArgs e)
-        {
-            propertiesTabs.TabPages.Clear();
-            if (e.Node.Tag != null)
-            {
-                if (e.Node.Parent != null)
-                {
-                    if (e.Node.Parent.Text.ToLower().Contains("units"))
-                    {
-                        MeasureUnit measureUnit = (MeasureUnit)e.Node.Tag;
-                        info.Text = $"Measure Unit : {measureUnit.Name}";
-                        propertiesTabs.TabPages.Add(new TabPage("Properties"));
-                        propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(measureUnit));
-                    }
-                    if (e.Node.Parent.Text.ToLower().Contains("classes"))
-                    {
-                        MeasureClass measureClass = (MeasureClass)e.Node.Tag;
-                        info.Text = $"Measure Class : {measureClass.Name}";
-                        propertiesTabs.TabPages.Add(new TabPage("Properties"));
-                        propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(measureClass));
-                        ListView listViewItems = new ListView();
-                        listViewItems.View = View.Details;
-                        listViewItems.Columns.Clear();
-                        listViewItems.Items.Clear();
-                        listViewItems.GridLines = true;
-                        listViewItems.Columns.Add("Id", 300, HorizontalAlignment.Left);
-                        listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
-                        listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
-
-                        foreach (string unitId in measureClass.Units)
-                        {
-                            string[] items = { $"{model.measureUnits[unitId].Id}",
-                                                $"{model.measureUnits[unitId].Name}",
-                                                $"{model.measureUnits[unitId].Description}" };
-                            listViewItems.Items.Add(new ListViewItem(items));
-                        }
-
-                        listViewItems.Dock = DockStyle.Fill;
-                        listViewItems.Font = propertiesTabs.Font;
-
-                        TabPage pageItems = new TabPage($"Units ({measureClass.Units.Count})");
-                        pageItems.Controls.Add(listViewItems);
-                        propertiesTabs.TabPages.Add(pageItems);
-                    }
-                }
-            }
-        }
-        private void ViewEnumerationProperties(object tag)
-        {
-            Type type = tag.GetType();
-            if (type.Name.ToLower().Equals("enumerationlistitem"))
-            {
-                EnumerationListItem enumerationListItem = (EnumerationListItem)tag;
-                info.Text = $"Enumeration List Item : {enumerationListItem.Name}";
-                propertiesTabs.TabPages.Add(new TabPage("Properties"));
-                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(enumerationListItem));
-                return;
-            }
-            EnumerationList enumerationList = (EnumerationList)tag;
-            info.Text = $"Enumeration List : {enumerationList.Name}";
-            propertiesTabs.TabPages.Add(new TabPage("Properties"));
-            propertiesTabs.TabPages.Add(new TabPage($"Items ({enumerationList.Items.Count})"));
-            propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(enumerationList));
-
-            ListView listView = new ListView();
-            listView.Font = propertiesTabs.Font;
-            listView.Dock = DockStyle.Fill;
-            listView.FullRowSelect = true;
-            listView.LabelEdit = true;
-            listView.GridLines = true;
-            listView.View = View.Details;
-            listView.Columns.Clear();
-            listView.Columns.Add("Id", 300, HorizontalAlignment.Left);
-            listView.Columns.Add("Name", 300, HorizontalAlignment.Left);
-            listView.Columns.Add("Description", 300, HorizontalAlignment.Left);
-
-            foreach (EnumerationListItem item in enumerationList.Items)
-            {
-                string[] items = { $"{item.Id}", $"{item.Name}", $"{item.Description}" };
-                listView.Items.Add(new ListViewItem(items));
-            }
-
-            propertiesTabs.TabPages[1].Controls.Add(listView);
-        }
         private void DisableButtons(object sender, EventArgs e)
         {
             this.btnAdd.Enabled = false;
@@ -175,9 +46,6 @@ namespace ClassLibraryTreeView
         }
         private void ViewProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
         {
-            propertiesTabs.TabPages.Clear();
-            info.Text = "";
-
             this.btnAdd.Enabled = true;
             this.btnDelete.Enabled = true;
 
@@ -188,57 +56,35 @@ namespace ClassLibraryTreeView
 
             SelectedTreeNode = eventArgs.Node;
 
+            PropertiesView propertiesView = new PropertiesView();
+            TabPage tabPage = new TabPage(SelectedTreeNode.Text);
+            tabPage.Controls.Add(propertiesView);
+            tabControl.TabPages.Add(tabPage);
+            tabControl.SelectedTab = tabPage;
+
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("attributes"))
             {
-                IAttribute attribute = (IAttribute)eventArgs.Node.Tag;
-                info.Text = $"Attribute : {attribute.Name}";
-                propertiesTabs.TabPages.Add(new TabPage("Properties"));
-                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(attribute));
-
-                if (attribute.ApplicableClasses == null)
-                {
-                    propertiesTabs.TabPages.Add(new TabPage($"Applicable classes (0)"));
-                }
-                else
-                {
-                    propertiesTabs.TabPages.Add(new TabPage($"Applicable classes ({attribute.ApplicableClasses.Values.Count})"));
-                }
-                propertiesTabs.TabPages[1].Controls.Add(new PropertiesListView(attribute.ApplicableClasses));
+                propertiesView.ViewAttributeProperties((IAttribute)eventArgs.Node.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("classes"))
             {
-                IClass cmClass = (IClass)eventArgs.Node.Tag;
-                info.Text = $"Class : {cmClass.Name}";
-
-                // Add properties
-
-                propertiesTabs.TabPages.Add(new TabPage("Properties"));
-                propertiesTabs.TabPages[0].Controls.Add(new PropertiesListView(cmClass));
-
-                // Add permissible attributes
-
-                Dictionary<string, IAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
-                propertiesTabs.TabPages.Add(new TabPage($"Permissible Attributes ({permissibleAttributes.Values.Count})"));
-                propertiesTabs.TabPages[1].Controls.Add(new PropertiesListView(permissibleAttributes)); 
-
-
-                // propertiesTabs.TabPages[2].Controls.Add(listView); // add permissible grid
+                propertiesView.ViewClassProperties((IClass)eventArgs.Node.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("enumerations"))
             {
-                ViewEnumerationProperties(eventArgs.Node.Tag);
+                propertiesView.ViewEnumerationProperties(eventArgs.Node.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("taxonomies"))
             {
-                ViewTaxonomyProperties(eventArgs.Node.Tag);
+                propertiesView.ViewTaxonomyProperties(eventArgs.Node.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("measures"))
             {
-                ViewMeasureProperties(sender, eventArgs);
+                propertiesView.ViewMeasureProperties(sender, eventArgs);
             }
         }
         private async void ExportPermissibleGrid(object sender, EventArgs e)
@@ -263,9 +109,8 @@ namespace ClassLibraryTreeView
         {
             if (model.OpenFile())
             {
-                info.Text = "";
-                treeTabs.TabPages.Clear();
-                propertiesTabs.TabPages.Clear();
+                tabControl.TabPages.Clear();
+
                 modelName.Text = $"{model.ModelName}";
 
                 treeTabs.TabPages.Add(new TabPage("Classes"));
@@ -346,7 +191,8 @@ namespace ClassLibraryTreeView
             TabPage page = new TabPage($"Class Attributes");
             AttributesGrid classAttributesGrid = new AttributesGrid(model);
             page.Controls.Add(classAttributesGrid);
-            propertiesTabs.TabPages.Add(page);
+            tabControl.TabPages.Add(page);
+            tabControl.SelectedTab = page;
 
             /*
             try

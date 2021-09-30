@@ -103,6 +103,9 @@
     <Compile Include="Forms\FilterForm.Designer.cs">
       <DependentUpon>FilterForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="Forms\PropertiesView.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Forms\SearchingForm.cs">
       <SubType>Form</SubType>
     </Compile>

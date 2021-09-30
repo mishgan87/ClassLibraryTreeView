@@ -58,7 +58,6 @@ namespace ClassLibraryTreeView.Forms
             // 
             // listViewResult
             // 
-            this.listViewResult.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listViewResult.FullRowSelect = true;
             this.listViewResult.GridLines = true;
             this.listViewResult.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -66,7 +65,7 @@ namespace ClassLibraryTreeView.Forms
             this.listViewResult.Location = new System.Drawing.Point(0, 0);
             this.listViewResult.Margin = new System.Windows.Forms.Padding(2);
             this.listViewResult.Name = "listViewResult";
-            this.listViewResult.Size = new System.Drawing.Size(851, 519);
+            this.listViewResult.Size = new System.Drawing.Size(404, 254);
             this.listViewResult.TabIndex = 1;
             this.listViewResult.UseCompatibleStateImageBehavior = false;
             this.listViewResult.View = System.Windows.Forms.View.Details;
@@ -81,7 +80,7 @@ namespace ClassLibraryTreeView.Forms
             this.searchString});
             this.searchPanel.Location = new System.Drawing.Point(0, 0);
             this.searchPanel.Name = "searchPanel";
-            this.searchPanel.Size = new System.Drawing.Size(851, 38);
+            this.searchPanel.Size = new System.Drawing.Size(621, 38);
             this.searchPanel.TabIndex = 17;
             this.searchPanel.Text = "toolStrip1";
             // 
@@ -208,7 +207,6 @@ namespace ClassLibraryTreeView.Forms
             // 
             // splitContainer1
             // 
-            this.splitContainer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer1.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitContainer1.IsSplitterFixed = true;
             this.splitContainer1.Location = new System.Drawing.Point(0, 0);
@@ -222,7 +220,7 @@ namespace ClassLibraryTreeView.Forms
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.listViewResult);
-            this.splitContainer1.Size = new System.Drawing.Size(851, 561);
+            this.splitContainer1.Size = new System.Drawing.Size(621, 306);
             this.splitContainer1.SplitterDistance = 38;
             this.splitContainer1.TabIndex = 18;
             // 
