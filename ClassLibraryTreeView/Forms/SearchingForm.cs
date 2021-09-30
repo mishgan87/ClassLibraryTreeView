@@ -22,38 +22,116 @@ namespace ClassLibraryTreeView.Forms
             listViewResult.Columns.Add("ID", 300, HorizontalAlignment.Left);
             listViewResult.Columns.Add("Name", 300, HorizontalAlignment.Left);
         }
+        private static int SetBit(int data, int bitValue, int position)
+        {
+            var mask = 0b00000001;
+            mask = mask << position;
+
+            if (bitValue == 1)
+            {
+                return data | mask;
+            }
+            else
+            {
+                return data & ~mask;
+            }
+        }
+        private int GetFilter()
+        {
+            int filter = 0;
+
+            if (searchId.Checked)
+            {
+                filter = SetBit(filter, 1, 0);
+            }
+
+            if (searchName.Checked)
+            {
+                filter = SetBit(filter, 1, 1);
+            }
+
+            if (matchCase.Checked)
+            {
+                filter = SetBit(filter, 1, 2);
+            }
+
+            if (searchClasses.Checked)
+            {
+                filter = SetBit(filter, 1, 3);
+            }
+
+            if (searchAttributes.Checked)
+            {
+                filter = SetBit(filter, 1, 4);
+            }
+
+            if (searchTaxonomies.Checked)
+            {
+                filter = SetBit(filter, 1, 5);
+            }
+
+            if (searchEnumerations.Checked)
+            {
+                filter = SetBit(filter, 1, 6);
+            }
+
+            if (searchMeasureUnits.Checked)
+            {
+                filter = SetBit(filter, 1, 7);
+            }
+
+            if (searchMeasureClasses.Checked)
+            {
+                filter = SetBit(filter, 1, 8);
+            }
+
+            return filter;
+        }
         private void BtnSearch_Click(object sender, EventArgs e)
         {
             listViewResult.Items.Clear();
             string text = searchString.Text;
-            int filter = 0;
+            int filter = GetFilter();
 
             List<KeyValuePair<string, object>> results = CMSearcher.SearchText(text, model, filter);
+
+            Action <ListView, IIdentifiable, Color> AddObject = (listView, element, color) =>
+            {
+                ListViewItem listViewItem = new ListViewItem(new string[] { $"{element.Id}", $"{element.Name}" });
+                listViewItem.Tag = element;
+                listViewItem.BackColor = color;
+                listView.Items.Add(listViewItem);
+            };
 
             if (results.Count > 0)
             {
                 foreach (KeyValuePair<string, object> result in results)
                 {
                     string type = result.Key;
-                    ListViewItem listViewItem = null;
 
                     if (type.Equals("class"))
                     {
                         IClass cmClass = (IClass)result.Value;
-                        listViewItem = new ListViewItem(new string[] { $"{cmClass.Id}", $"{cmClass.Name}" });
-                        listViewItem.Tag = cmClass;
-                        listViewItem.BackColor = Color.Yellow;
+                        AddObject(listViewResult, cmClass, Color.Yellow);
                     }
 
                     if (type.Equals("attribute"))
                     {
                         IAttribute attribute = (IAttribute)result.Value;
-                        listViewItem = new ListViewItem(new string[] { $"{attribute.Id}", $"{attribute.Name}" });
-                        listViewItem.Tag = attribute;
-                        listViewItem.BackColor = Color.Green;
+                        AddObject(listViewResult, attribute, Color.Green);
                     }
 
-                    listViewResult.Items.Add(listViewItem);
+                    if (type.Equals("taxonomy"))
+                    {
+                        Taxonomy taxonomy = (Taxonomy)result.Value;
+                        AddObject(listViewResult, taxonomy, Color.Orange);
+                    }
+
+                    if (type.Equals("taxonomynode"))
+                    {
+                        TaxonomyNode taxonomyNode = (TaxonomyNode)result.Value;
+                        AddObject(listViewResult, taxonomyNode, Color.Aquamarine);
+                    }
                 }
             }
         }

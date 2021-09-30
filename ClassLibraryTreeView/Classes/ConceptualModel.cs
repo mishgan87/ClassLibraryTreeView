@@ -47,6 +47,13 @@ namespace ClassLibraryTreeView
         public int MaxDepth { get; set; }
         public string FullPathXml { get; set; }
         public string ModelName { get; set; }
+        public Dictionary<string, Taxonomy> Taxonomies
+        {
+            get
+            {
+                return taxonomies;
+            }
+        }
         public Dictionary<string, IClass> Functionals
         {
             get

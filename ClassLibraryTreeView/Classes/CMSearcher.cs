@@ -9,6 +9,13 @@ namespace ClassLibraryTreeView.Classes
 {
     class CMSearcher
     {
+        // private static int GetBit(int data, int position)
+        private static bool GetBit(int data, int position)
+        {
+            var mask = 0b00000001;
+            data = data >> position;
+            return ((data & mask) == 1);
+        }
         /// <summary>
         /// Search text in conceptual model elements names and ids
         /// </summary>
@@ -28,14 +35,15 @@ namespace ClassLibraryTreeView.Classes
         {
             List<KeyValuePair<string, object>> objects = new List<KeyValuePair<string, object>>();
 
-            bool searchId = true;
-            bool searchName = true;
-            bool searchClass = true;
-            bool searchAttribute = true;
-            // bool searchTaxonomy = true;
-            // bool searchEnumeration = true;
-            // bool searchMeasureUnit = true;
-            // bool searchMeasureClass = true;
+            bool searchId = GetBit(filter, 0);
+            bool searchName = GetBit(filter, 1);
+            bool matchCase = GetBit(filter, 2);
+            bool searchClass = GetBit(filter, 3);
+            bool searchAttribute = GetBit(filter, 4);
+            bool searchTaxonomy = GetBit(filter, 5);
+            bool searchEnumeration = GetBit(filter, 6);
+            bool searchMeasureUnit = GetBit(filter, 7);
+            bool searchMeasureClass = GetBit(filter, 8);
 
             if (searchClass)
             {
@@ -62,6 +70,26 @@ namespace ClassLibraryTreeView.Classes
                             || (attribute.Name.Contains(text) && searchName))
                         {
                             objects.Add(new KeyValuePair<string, object>($"attribute", attribute));
+                        }
+                    }
+                }
+            }
+
+            if (searchTaxonomy)
+            {
+                foreach (Taxonomy taxonomy in model.Taxonomies.Values)
+                {
+                    if ((taxonomy.Id.Contains(text) && searchId)
+                        || (taxonomy.Name.Contains(text) && searchName))
+                    {
+                        objects.Add(new KeyValuePair<string, object>($"taxonomy", taxonomy));
+                    }
+                    foreach (TaxonomyNode node in taxonomy.Nodes)
+                    {
+                        if ((node.Id.Contains(text) && searchId)
+                        || (node.Name.Contains(text) && searchName))
+                        {
+                            objects.Add(new KeyValuePair<string, object>($"taxonomynode", node));
                         }
                     }
                 }
