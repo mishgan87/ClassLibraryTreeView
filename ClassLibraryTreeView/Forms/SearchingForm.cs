@@ -132,6 +132,30 @@ namespace ClassLibraryTreeView.Forms
                         TaxonomyNode taxonomyNode = (TaxonomyNode)result.Value;
                         AddObject(listViewResult, taxonomyNode, Color.Aquamarine);
                     }
+
+                    if (type.Equals("enumeration"))
+                    {
+                        EnumerationList enumeration = (EnumerationList)result.Value;
+                        AddObject(listViewResult, enumeration, Color.CadetBlue);
+                    }
+
+                    if (type.Equals("enumerationitem"))
+                    {
+                        EnumerationListItem enumerationListItem = (EnumerationListItem)result.Value;
+                        AddObject(listViewResult, enumerationListItem, Color.LightSkyBlue);
+                    }
+
+                    if (type.Equals("measureunit"))
+                    {
+                        MeasureUnit measureUnit = (MeasureUnit)result.Value;
+                        AddObject(listViewResult, measureUnit, Color.LightGreen);
+                    }
+
+                    if (type.Equals("measureclass"))
+                    {
+                        MeasureClass measureClass = (MeasureClass)result.Value;
+                        AddObject(listViewResult, measureClass, Color.SpringGreen);
+                    }
                 }
             }
         }

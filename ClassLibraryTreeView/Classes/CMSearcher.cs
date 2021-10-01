@@ -95,6 +95,50 @@ namespace ClassLibraryTreeView.Classes
                 }
             }
 
+            if (searchEnumeration)
+            {
+                foreach (EnumerationList enumeration in model.Enumerations.Values)
+                {
+                    if ((enumeration.Id.Contains(text) && searchId)
+                        || (enumeration.Name.Contains(text) && searchName))
+                    {
+                        objects.Add(new KeyValuePair<string, object>($"enumeration", enumeration));
+                    }
+                    foreach (EnumerationListItem item in enumeration.Items)
+                    {
+                        if ((item.Id.Contains(text) && searchId)
+                        || (item.Name.Contains(text) && searchName))
+                        {
+                            objects.Add(new KeyValuePair<string, object>($"enumerationitem", item));
+                        }
+                    }
+                }
+            }
+
+            if (searchMeasureUnit)
+            {
+                foreach (MeasureUnit measureUnit in model.MeasureUnits.Values)
+                {
+                    if ((measureUnit.Id.Contains(text) && searchId)
+                        || (measureUnit.Name.Contains(text) && searchName))
+                    {
+                        objects.Add(new KeyValuePair<string, object>($"measureunit", measureUnit));
+                    }
+                }
+            }
+
+            if (searchMeasureClass)
+            {
+                foreach (MeasureClass measureClass in model.MeasureClasses.Values)
+                {
+                    if ((measureClass.Id.Contains(text) && searchId)
+                        || (measureClass.Name.Contains(text) && searchName))
+                    {
+                        objects.Add(new KeyValuePair<string, object>($"measureclass", measureClass));
+                    }
+                }
+            }
+
             return objects;
         }
     }
