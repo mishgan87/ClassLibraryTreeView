@@ -1,7 +1,7 @@
 ﻿namespace ClassLibraryTreeView.Classes
 {
     // Физический класс
-    class PhysicalClass : IClass
+    class PhysicalClass : CMClass
     {
         public PhysicalClass() : base()
         {

@@ -80,6 +80,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Classes\CMContainer.cs" />
     <Compile Include="Controls\AttributesGrid.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -113,8 +114,8 @@
     <Compile Include="Forms\SearchingForm.Designer.cs">
       <DependentUpon>SearchingForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Interfaces\IAttribute.cs" />
-    <Compile Include="Classes\IClass.cs" />
+    <Compile Include="Classes\CMAttribute.cs" />
+    <Compile Include="Classes\CMClass.cs" />
     <Compile Include="Interfaces\IIdentifiable.cs" />
     <Compile Include="Classes\PhysicalClass.cs" />
     <Compile Include="Classes\MeasureUnit.cs" />

@@ -1,11 +1,11 @@
-﻿using ClassLibraryTreeView.Classes;
+﻿using ClassLibraryTreeView.Interfaces;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace ClassLibraryTreeView.Interfaces
+namespace ClassLibraryTreeView.Classes
 {
     // Базовый класс для атрибутов
-    public class IAttribute : IIdentifiable
+    public class CMAttribute : IIdentifiable
     {
         // Interface members
         public string Id { get; set; }
@@ -29,17 +29,17 @@ namespace ClassLibraryTreeView.Interfaces
         public string Concept { get; set; }
         public string Discipline { get; set; }
         public bool IsUoMRequired { get; set; }
-        public IClass CameFrom { get; set; }
-        public Dictionary<string, IClass> ApplicableClasses { get; set; }
-        public IAttribute()
+        public CMClass CameFrom { get; set; }
+        public Dictionary<string, CMClass> ApplicableClasses { get; set; }
+        public CMAttribute()
         {
             Init();
         }
-        public IAttribute(IAttribute source)
+        public CMAttribute(CMAttribute source)
         {
             Clone(source);
         }
-        public IAttribute(XElement source)
+        public CMAttribute(XElement source)
         {
             Clone(source);
         }
@@ -55,7 +55,7 @@ namespace ClassLibraryTreeView.Interfaces
                 return false;
             }
 
-            IAttribute someAttribute = (IAttribute)source;
+            CMAttribute someAttribute = (CMAttribute)source;
 
             if (!ClassOfMeasure.Equals(someAttribute.ClassOfMeasure)
                 || !DataType.Equals(someAttribute.DataType)
@@ -83,7 +83,7 @@ namespace ClassLibraryTreeView.Interfaces
             SortOrder = source.SortOrder;
             Aspect = new List<string>(source.Aspect);
 
-            IAttribute someAttribute = (IAttribute)source;
+            CMAttribute someAttribute = (CMAttribute)source;
 
             ClassOfMeasure = someAttribute.ClassOfMeasure;
             DataType = someAttribute.DataType;
@@ -249,7 +249,7 @@ namespace ClassLibraryTreeView.Interfaces
             CameFrom = null;
             ApplicableClasses = null;
         }
-        public void AddApplicableClass(IClass cmClass)
+        public void AddApplicableClass(CMClass cmClass)
         {
             if (this.ApplicableClasses == null)
             {

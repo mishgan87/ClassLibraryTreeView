@@ -1,7 +1,7 @@
 ﻿namespace ClassLibraryTreeView.Classes
 {
     // Функциональный класс
-    class FunctionalClass : IClass
+    class FunctionalClass : CMClass
     {
         public FunctionalClass() : base()
         {

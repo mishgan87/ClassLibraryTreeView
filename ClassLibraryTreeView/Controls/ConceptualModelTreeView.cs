@@ -111,7 +111,7 @@ namespace ClassLibraryTreeView.Classes
         {
             this.Nodes.Remove(this.SelectedNode);
         }
-        private TreeNode NewClassNode(IClass cmClass)
+        private TreeNode NewClassNode(CMClass cmClass)
         {
             TreeNode treeNode = new TreeNode();
             treeNode.Text = cmClass.Name;
@@ -126,11 +126,11 @@ namespace ClassLibraryTreeView.Classes
             }
             return treeNode;
         }
-        private void AddClassChildren(IClass cmClass, TreeNode treeNode)
+        private void AddClassChildren(CMClass cmClass, TreeNode treeNode)
         {
             if (cmClass.Children.Count > 0)
             {
-                foreach (IClass child in cmClass.Children.Values)
+                foreach (CMClass child in cmClass.Children.Values)
                 {
                     TreeNode childNode = NewClassNode(child);
                     AddClassChildren(child, childNode);
@@ -140,11 +140,11 @@ namespace ClassLibraryTreeView.Classes
         }
         public void AddAttributes(ConceptualModel model)
         {
-            Dictionary<string, Dictionary<string, IAttribute>> attributes = model.attributes;
+            Dictionary<string, Dictionary<string, CMAttribute>> attributes = model.attributes;
             foreach (string group in attributes.Keys)
             {
                 TreeNode groupNode = new TreeNode(group);
-                foreach (IAttribute attribute in attributes[group].Values)
+                foreach (CMAttribute attribute in attributes[group].Values)
                 {
                     TreeNode treeNode = new TreeNode();
                     treeNode.Text = attribute.Name;
@@ -161,12 +161,12 @@ namespace ClassLibraryTreeView.Classes
                 this.AddClassMap(model.classes[classKey], classKey);
             }
         }
-        private void AddClassMap(Dictionary<string, IClass> map, string xtype)
+        private void AddClassMap(Dictionary<string, CMClass> map, string xtype)
         {
             if (map.Count > 0)
             {
                 TreeNode rootNode = new TreeNode(xtype);
-                foreach (IClass cmClass in map.Values)
+                foreach (CMClass cmClass in map.Values)
                 {
                     if (cmClass.Extends.Equals(""))
                     {

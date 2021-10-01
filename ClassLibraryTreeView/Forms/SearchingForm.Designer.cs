@@ -34,7 +34,6 @@ namespace ClassLibraryTreeView.Forms
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SearchingForm));
             this.listViewResult = new System.Windows.Forms.ListView();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.searchString = new System.Windows.Forms.TextBox();
             this.searchWhatBox = new System.Windows.Forms.GroupBox();
             this.matchCase = new System.Windows.Forms.CheckBox();
             this.searchName = new System.Windows.Forms.CheckBox();
@@ -48,6 +47,7 @@ namespace ClassLibraryTreeView.Forms
             this.searchClasses = new System.Windows.Forms.CheckBox();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.btnSearch = new System.Windows.Forms.Button();
+            this.searchString = new System.Windows.Forms.TextBox();
             this.searchWhatBox.SuspendLayout();
             this.searchInBox.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
@@ -71,23 +71,16 @@ namespace ClassLibraryTreeView.Forms
             this.listViewResult.UseCompatibleStateImageBehavior = false;
             this.listViewResult.View = System.Windows.Forms.View.Details;
             // 
-            // searchString
-            // 
-            this.searchString.Dock = System.Windows.Forms.DockStyle.Top;
-            this.searchString.Location = new System.Drawing.Point(0, 234);
-            this.searchString.Name = "searchString";
-            this.searchString.Size = new System.Drawing.Size(246, 23);
-            this.searchString.TabIndex = 19;
-            // 
             // searchWhatBox
             // 
+            this.searchWhatBox.Controls.Add(this.searchString);
             this.searchWhatBox.Controls.Add(this.matchCase);
             this.searchWhatBox.Controls.Add(this.searchName);
             this.searchWhatBox.Controls.Add(this.searchId);
             this.searchWhatBox.Dock = System.Windows.Forms.DockStyle.Top;
             this.searchWhatBox.Location = new System.Drawing.Point(0, 0);
             this.searchWhatBox.Name = "searchWhatBox";
-            this.searchWhatBox.Size = new System.Drawing.Size(246, 90);
+            this.searchWhatBox.Size = new System.Drawing.Size(246, 109);
             this.searchWhatBox.TabIndex = 20;
             this.searchWhatBox.TabStop = false;
             this.searchWhatBox.Text = "Search what";
@@ -137,7 +130,7 @@ namespace ClassLibraryTreeView.Forms
             this.searchInBox.Controls.Add(this.searchAttributes);
             this.searchInBox.Controls.Add(this.searchClasses);
             this.searchInBox.Dock = System.Windows.Forms.DockStyle.Top;
-            this.searchInBox.Location = new System.Drawing.Point(0, 90);
+            this.searchInBox.Location = new System.Drawing.Point(0, 109);
             this.searchInBox.Name = "searchInBox";
             this.searchInBox.RightToLeft = System.Windows.Forms.RightToLeft.No;
             this.searchInBox.Size = new System.Drawing.Size(246, 144);
@@ -226,7 +219,6 @@ namespace ClassLibraryTreeView.Forms
             // splitContainer2.Panel1
             // 
             this.splitContainer2.Panel1.Controls.Add(this.btnSearch);
-            this.splitContainer2.Panel1.Controls.Add(this.searchString);
             this.splitContainer2.Panel1.Controls.Add(this.searchInBox);
             this.splitContainer2.Panel1.Controls.Add(this.searchWhatBox);
             // 
@@ -240,13 +232,21 @@ namespace ClassLibraryTreeView.Forms
             // btnSearch
             // 
             this.btnSearch.Dock = System.Windows.Forms.DockStyle.Top;
-            this.btnSearch.Location = new System.Drawing.Point(0, 257);
+            this.btnSearch.Location = new System.Drawing.Point(0, 253);
             this.btnSearch.Name = "btnSearch";
             this.btnSearch.Size = new System.Drawing.Size(246, 47);
             this.btnSearch.TabIndex = 23;
             this.btnSearch.Text = "Search";
             this.btnSearch.UseVisualStyleBackColor = true;
             this.btnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
+            // 
+            // searchString
+            // 
+            this.searchString.Dock = System.Windows.Forms.DockStyle.Top;
+            this.searchString.Location = new System.Drawing.Point(3, 79);
+            this.searchString.Name = "searchString";
+            this.searchString.Size = new System.Drawing.Size(240, 23);
+            this.searchString.TabIndex = 20;
             // 
             // SearchingForm
             // 
@@ -261,9 +261,9 @@ namespace ClassLibraryTreeView.Forms
             this.Name = "SearchingForm";
             this.Text = "Search";
             this.searchWhatBox.ResumeLayout(false);
+            this.searchWhatBox.PerformLayout();
             this.searchInBox.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
-            this.splitContainer2.Panel1.PerformLayout();
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
@@ -274,7 +274,6 @@ namespace ClassLibraryTreeView.Forms
         #endregion
         private System.Windows.Forms.ListView listViewResult;
         private System.ComponentModel.BackgroundWorker backgroundWorker1;
-        private TextBox searchString;
         private GroupBox searchWhatBox;
         private CheckBox matchCase;
         private CheckBox searchName;
@@ -288,5 +287,6 @@ namespace ClassLibraryTreeView.Forms
         private CheckBox searchClasses;
         private SplitContainer splitContainer2;
         private Button btnSearch;
+        private TextBox searchString;
     }
 }

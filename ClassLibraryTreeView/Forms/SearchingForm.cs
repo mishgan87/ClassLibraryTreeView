@@ -111,13 +111,13 @@ namespace ClassLibraryTreeView.Forms
 
                     if (type.Equals("class"))
                     {
-                        IClass cmClass = (IClass)result.Value;
+                        CMClass cmClass = (CMClass)result.Value;
                         AddObject(listViewResult, cmClass, Color.Yellow);
                     }
 
                     if (type.Equals("attribute"))
                     {
-                        IAttribute attribute = (IAttribute)result.Value;
+                        CMAttribute attribute = (CMAttribute)result.Value;
                         AddObject(listViewResult, attribute, Color.Green);
                     }
 

@@ -21,12 +21,12 @@ namespace ClassLibraryTreeView.Classes
         {
             Init();
         }
-        public PropertiesListView(Dictionary<string, IClass> applicableClasses)
+        public PropertiesListView(Dictionary<string, CMClass> applicableClasses)
         {
             Init();
             ViewApplicableClasses(applicableClasses);
         }
-        public PropertiesListView(Dictionary<string, IAttribute> permissibleAttributes)
+        public PropertiesListView(Dictionary<string, CMAttribute> permissibleAttributes)
         {
             Init();
             ViewPermissibleAttributes(permissibleAttributes);
@@ -163,7 +163,7 @@ namespace ClassLibraryTreeView.Classes
             comboBoxProperty.BringToFront();
             comboBoxProperty.Focus();
         }
-        public void ViewApplicableClasses(Dictionary<string, IClass> applicableClasses)
+        public void ViewApplicableClasses(Dictionary<string, CMClass> applicableClasses)
         {
             this.Items.Clear();
 
@@ -178,7 +178,7 @@ namespace ClassLibraryTreeView.Classes
                 this.Columns.Add($"{name.Key}", 150, HorizontalAlignment.Left);
             }
 
-            foreach (IClass cmClass in applicableClasses.Values)
+            foreach (CMClass cmClass in applicableClasses.Values)
             {
                 List<string> items = new List<string>();
                 KeyValuePair<string, string>[] properties = cmClass.Attributes();
@@ -213,7 +213,7 @@ namespace ClassLibraryTreeView.Classes
                 this.Items.Add(item);
             }
         }
-        public void ViewPermissibleAttributes(Dictionary<string, IAttribute> permissibleAttributes)
+        public void ViewPermissibleAttributes(Dictionary<string, CMAttribute> permissibleAttributes)
         {
             this.Items.Clear();
 
@@ -228,7 +228,7 @@ namespace ClassLibraryTreeView.Classes
                 this.Columns.Add($"{name.Key}", 150, HorizontalAlignment.Left);
             }
 
-            foreach (IAttribute attribute in permissibleAttributes.Values)
+            foreach (CMAttribute attribute in permissibleAttributes.Values)
             {
                 KeyValuePair<string, string>[] properties = attribute.Attributes();
                 List<string> items = new List<string>();

@@ -47,9 +47,9 @@ namespace ClassLibraryTreeView.Classes
 
             if (searchClass)
             {
-                foreach (Dictionary<string, IClass> map in model.classes.Values)
+                foreach (Dictionary<string, CMClass> map in model.classes.Values)
                 {
-                    foreach (IClass cmClass in map.Values)
+                    foreach (CMClass cmClass in map.Values)
                     {
                         if ((cmClass.Id.Contains(text) && searchId)
                             || (cmClass.Name.Contains(text) && searchName))
@@ -62,9 +62,9 @@ namespace ClassLibraryTreeView.Classes
 
             if (searchAttribute)
             {
-                foreach (Dictionary<string, IAttribute> map in model.attributes.Values)
+                foreach (Dictionary<string, CMAttribute> map in model.attributes.Values)
                 {
-                    foreach (IAttribute attribute in map.Values)
+                    foreach (CMAttribute attribute in map.Values)
                     {
                         if ((attribute.Id.Contains(text) && searchId)
                             || (attribute.Name.Contains(text) && searchName))

@@ -64,12 +64,12 @@ namespace ClassLibraryTreeView
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("attributes"))
             {
-                propertiesView.ViewAttributeProperties((IAttribute)eventArgs.Node.Tag);
+                propertiesView.ViewAttributeProperties((CMAttribute)eventArgs.Node.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("classes"))
             {
-                propertiesView.ViewClassProperties((IClass)eventArgs.Node.Tag);
+                propertiesView.ViewClassProperties((CMClass)eventArgs.Node.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("enumerations"))

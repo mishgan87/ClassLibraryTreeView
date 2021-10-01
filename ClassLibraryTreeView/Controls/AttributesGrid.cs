@@ -12,25 +12,38 @@ namespace ClassLibraryTreeView.Classes
 {
     class AttributesGrid : DataGridView
     {
-        int filterMode = -1;
-        ConceptualModel model = null;
-        List<string>[] itemsLists = null;
-        public AttributesGrid(ConceptualModel modelReference) : base()
+        int columnIndex = -1;
+        List<string>[] items = null;
+        public AttributesGrid(ConceptualModel model) : base()
         {
             this.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.Dock = DockStyle.Fill;
             this.ColumnAdded += new DataGridViewColumnEventHandler(this.ColumnAddedAdvance);
             this.CellMouseClick += new DataGridViewCellMouseEventHandler(this.OnHeaderMouseClick);
 
-            model = modelReference;
+            items = new List<string>[4];
 
-            itemsLists = new List<string>[4];
             for (int index = 0; index < 4; index++)
             {
-                itemsLists[index] = new List<string>();
+                items[index] = new List<string>();
             }
 
-            FillGridViewByDefault(true);
+            foreach (string classMapKey in model.classes.Keys)
+            {
+                var map = model.classes[classMapKey];
+                foreach (CMClass cmClass in map.Values)
+                {
+                    foreach (CMAttribute attribute in cmClass.PermissibleAttributes.Values)
+                    {
+                        items[0].Add(cmClass.Id);
+                        items[1].Add(cmClass.Name);
+                        items[2].Add(attribute.Id);
+                        items[3].Add(attribute.Name);
+                    }
+                }
+            }
+
+            ApplyFilter(this, new List<string>());
         }
         private DataTable NewDataTable()
         {
@@ -45,147 +58,35 @@ namespace ClassLibraryTreeView.Classes
         {
             if (eventArgs.Button == MouseButtons.Left && eventArgs.RowIndex == -1)
             {
-                int columnIndex = eventArgs.ColumnIndex;
-                filterMode = columnIndex;
+                columnIndex = eventArgs.ColumnIndex;
                 if (columnIndex >= 0)
                 {
-                    FilterForm filterForm = new FilterForm(this.Columns[columnIndex].HeaderText, itemsLists[columnIndex]);
-                    filterForm.ItemsChecked += new EventHandler<List<string>>(this.GetFilter);
+                    // List<string> list = items[columnIndex].Distinct().ToList();
+                    List<string> list = new HashSet<string>(items[columnIndex]).ToList();
+                    FilterForm filterForm = new FilterForm(this.Columns[columnIndex].HeaderText, list);
+                    filterForm.ItemsChecked += new EventHandler<List<string>>(this.ApplyFilter);
                     filterForm.Show();
                 }
                 else
                 {
-                    FillGridViewByDefault(true);
+                    ApplyFilter(this, new List<string>());
                 }
             }
         }
-        private void GetFilter(object sender, List<string> filter)
-        {
-            if (filterMode == 0)
-            {
-                Print(model.GetClassesWithId(filter));
-            }
-
-            if (filterMode == 1)
-            {
-                Print(model.GetClassesWithName(filter));
-            }
-
-            if (filterMode == 2)
-            {
-                PrintSingleAttributeId(model.GetClassesWithAttributeId(filter), filter);
-            }
-
-            if (filterMode == 3)
-            {
-                PrintSingleAttributeName(model.GetClassesWithAttributeName(filter), filter);
-            }
-        }
-        private void FillGridViewByDefault(bool isInit)
-        {
-            filterMode = -1;
-            DataTable table = NewDataTable();
-            foreach (string classMapKey in model.classes.Keys)
-            {
-                var map = model.classes[classMapKey];
-                foreach (IClass cmClass in map.Values)
-                {
-                    string classId = cmClass.Id;
-                    string className = cmClass.Name;
-
-                    if (isInit)
-                    {
-                        if (!itemsLists[0].Contains(classId))
-                        {
-                            itemsLists[0].Add(classId);
-                        }
-                        if (!itemsLists[1].Contains(className))
-                        {
-                            itemsLists[1].Add(className);
-                        }
-                    }
-
-                    foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
-                    {
-                        string attributeId = attribute.Id;
-                        string attributeName = attribute.Name;
-
-                        table.Rows.Add(new string[] { classId, className, attributeId, attributeName });
-
-                        if (isInit)
-                        {
-                            if (!itemsLists[2].Contains(attributeId))
-                            {
-                                itemsLists[2].Add(attributeId);
-                            }
-                            if (!itemsLists[3].Contains(attributeName))
-                            {
-                                itemsLists[3].Add(attributeName);
-                            }
-                        }
-                    }
-                }
-            }
-            this.DataSource = table;
-        }
-        private void Print(List<IClass> classList)
+        private void ApplyFilter(object sender, List<string> filter)
         {
             DataTable table = NewDataTable();
-            foreach (IClass cmClass in classList)
+            for (int row = 0; row < items[0].Count; row++)
             {
-                string classId = cmClass.Id;
-                string className = cmClass.Name;
-
-                foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
+                if (filter.Count == 0 || filter.Contains(items[columnIndex][row]))
                 {
-                    string attributeId = attribute.Id;
-                    string attributeName = attribute.Name;
-                    table.Rows.Add(new string[] { classId, className, attributeId, attributeName });
+                    table.Rows.Add(new string[] { items[0][row], items[1][row], items[2][row], items[3][row] });
                 }
             }
-
-            this.DataSource = table;
-        }
-        private void PrintSingleAttributeId(List<IClass> classList, List<string> filter)
-        {
-            DataTable table = NewDataTable();
-            foreach (IClass cmClass in classList)
-            {
-                string classId = cmClass.Id;
-                string className = cmClass.Name;
-                foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
-                {
-                    if (filter.Contains(attribute.Id))
-                    {
-                        table.Rows.Add(new string[] { classId, className, attribute.Id, attribute.Name });
-                    }
-                }
-            }
-
-            this.DataSource = table;
-        }
-        private void PrintSingleAttributeName(List<IClass> classList, List<string> filter)
-        {
-            DataTable table = NewDataTable();
-            foreach (IClass cmClass in classList)
-            {
-                string classId = cmClass.Id;
-                string className = cmClass.Name;
-
-                foreach (IAttribute attribute in cmClass.PermissibleAttributes.Values)
-                {
-                    if (filter.Contains(attribute.Name))
-                    {
-                        table.Rows.Add(new string[] { classId, className, attribute.Id, attribute.Name });
-                    }
-                }
-            }
-
             this.DataSource = table;
         }
         private void ColumnAddedAdvance(object sender, DataGridViewColumnEventArgs e)
         {
-            // e.Column.SortMode = DataGridViewColumnSortMode.NotSortable;
             e.Column.SortMode = DataGridViewColumnSortMode.Programmatic;
         }
     }

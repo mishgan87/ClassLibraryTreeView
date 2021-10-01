@@ -4,17 +4,17 @@ using System.Xml.Linq;
 
 namespace ClassLibraryTreeView.Classes
 {
-    public class IClass : IIdentifiable
+    public class CMClass : IIdentifiable
     {
-        public IClass()
+        public CMClass()
         {
             Init();
         }
-        public IClass(IClass source)
+        public CMClass(CMClass source)
         {
             Clone(source);
         }
-        public IClass(XElement source)
+        public CMClass(XElement source)
         {
             Clone(source);
         }
@@ -87,7 +87,7 @@ namespace ClassLibraryTreeView.Classes
                 {
                     foreach (XElement attribute in child.Elements())
                     {
-                        IAttribute permissibleAttribute = new IAttribute(attribute);
+                        CMAttribute permissibleAttribute = new CMAttribute(attribute);
                         // PermissibleAttributes.Add(permissibleAttribute);
                         PermissibleAttributes.Add(permissibleAttribute.Id, permissibleAttribute);
                     }
@@ -109,10 +109,10 @@ namespace ClassLibraryTreeView.Classes
             LifeCycleType = "";
             NamingTemplates = new List<string>();
             // PermissibleAttributes = new List<IAttribute>();
-            PermissibleAttributes = new Dictionary<string, IAttribute>();
+            PermissibleAttributes = new Dictionary<string, CMAttribute>();
             Xtype = "";
             Parent = null;
-            Children = new Dictionary<string, IClass>();
+            Children = new Dictionary<string, CMClass>();
         }
         public KeyValuePair<string, string>[] Attributes()
         {
@@ -170,7 +170,7 @@ namespace ClassLibraryTreeView.Classes
                 return false;
             }
 
-            IClass someClass = (IClass)source;
+            CMClass someClass = (CMClass)source;
 
             if ((!IsAbstract.Equals(someClass.IsAbstract))
                  || (!Extends.Equals(someClass.Extends))
@@ -195,7 +195,7 @@ namespace ClassLibraryTreeView.Classes
             SortOrder = source.SortOrder;
             Aspect = new List<string>(source.Aspect);
 
-            IClass someClass = (IClass)source;
+            CMClass someClass = (CMClass)source;
 
             IsAbstract = someClass.IsAbstract;
             Extends = someClass.Extends;
@@ -203,12 +203,12 @@ namespace ClassLibraryTreeView.Classes
             LifeCycleType = someClass.LifeCycleType;
             NamingTemplates = new List<string>(someClass.NamingTemplates);
             // PermissibleAttributes = new List<IAttribute>(someClass.PermissibleAttributes);
-            PermissibleAttributes = new Dictionary<string, IAttribute>(someClass.PermissibleAttributes);
+            PermissibleAttributes = new Dictionary<string, CMAttribute>(someClass.PermissibleAttributes);
             Xtype = someClass.Xtype;
             Parent = someClass.Parent;
-            Children = new Dictionary<string, IClass>(someClass.Children);
+            Children = new Dictionary<string, CMClass>(someClass.Children);
         }
-        public IClass GetChildById(IClass cmClass)
+        public CMClass GetChildById(CMClass cmClass)
         {
             if (Children.ContainsKey(cmClass.Id))
             {
@@ -216,9 +216,9 @@ namespace ClassLibraryTreeView.Classes
             }
             return null;
         }
-        public IClass GetChildByName(IClass cmClass)
+        public CMClass GetChildByName(CMClass cmClass)
         {
-            foreach (IClass child in Children.Values)
+            foreach (CMClass child in Children.Values)
             {
                 if(child.Name.Equals(cmClass.Name))
                 {
@@ -227,7 +227,7 @@ namespace ClassLibraryTreeView.Classes
             }
             return null;
         }
-        public bool ContainsChild(IClass cmClass) => Children.ContainsValue(cmClass);
+        public bool ContainsChild(CMClass cmClass) => Children.ContainsValue(cmClass);
         public string PermissibleAttributePresence(string id)
         {
             if (PermissibleAttributes.ContainsKey(id))
@@ -246,7 +246,7 @@ namespace ClassLibraryTreeView.Classes
             get
             {
                 int depth = 0;
-                IClass parent = this.Parent;
+                CMClass parent = this.Parent;
                 while (parent != null)
                 {
                     depth++;
@@ -270,9 +270,9 @@ namespace ClassLibraryTreeView.Classes
         public string LifeCycleType { get; set; }
         public List<string> NamingTemplates { get; set; }
         // public List<IAttribute> PermissibleAttributes { get; set; }
-        public Dictionary<string, IAttribute> PermissibleAttributes { get; set; }
+        public Dictionary<string, CMAttribute> PermissibleAttributes { get; set; }
         public string Xtype { get; set; }
-        public IClass Parent { get; set; }
-        public Dictionary<string, IClass> Children { get; set; }
+        public CMClass Parent { get; set; }
+        public Dictionary<string, CMClass> Children { get; set; }
     }
 }

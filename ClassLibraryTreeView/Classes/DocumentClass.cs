@@ -1,7 +1,7 @@
 ﻿namespace ClassLibraryTreeView.Classes
 {
     // Класс документа
-    public class DocumentClass : IClass
+    public class DocumentClass : CMClass
     {
         public DocumentClass()
         {

@@ -17,12 +17,12 @@ namespace ClassLibraryTreeView.Forms
         {
             Init();
         }
-        public PropertiesView(IAttribute attribute)
+        public PropertiesView(CMAttribute attribute)
         {
             Init();
             ViewAttributeProperties(attribute);
         }
-        public PropertiesView(IClass cmClass)
+        public PropertiesView(CMClass cmClass)
         {
             Init();
             ViewClassProperties(cmClass);
@@ -43,7 +43,7 @@ namespace ClassLibraryTreeView.Forms
             this.FixedPanel = FixedPanel.Panel1;
             this.Orientation = Orientation.Horizontal;
         }
-        public void ViewAttributeProperties(IAttribute attribute)
+        public void ViewAttributeProperties(CMAttribute attribute)
         {
             label.Text = $"Attribute : {attribute.Name}";
             tabControl.TabPages.Clear();
@@ -60,7 +60,7 @@ namespace ClassLibraryTreeView.Forms
             }
             tabControl.TabPages[1].Controls.Add(new PropertiesListView(attribute.ApplicableClasses));
         }
-        public void ViewClassProperties(IClass cmClass)
+        public void ViewClassProperties(CMClass cmClass)
         {
             label.Text = $"Class : {cmClass.Name}";
             tabControl.TabPages.Clear();
@@ -71,7 +71,7 @@ namespace ClassLibraryTreeView.Forms
 
             // Add permissible attributes
 
-            Dictionary<string, IAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
+            Dictionary<string, CMAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
             tabControl.TabPages.Add(new TabPage($"Permissible Attributes ({permissibleAttributes.Values.Count})"));
             tabControl.TabPages[1].Controls.Add(new PropertiesListView(permissibleAttributes));
 
