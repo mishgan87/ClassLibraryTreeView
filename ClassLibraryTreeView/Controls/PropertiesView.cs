@@ -159,23 +159,23 @@ namespace ClassLibraryTreeView.Forms
             }
 
         }
-        public void ViewMeasureProperties(object sender, TreeNodeMouseClickEventArgs e)
+        public void ViewMeasureProperties(TreeNode selectedNode)
         {
             tabControl.TabPages.Clear();
-            if (e.Node.Tag != null)
+            if (selectedNode.Tag != null)
             {
-                if (e.Node.Parent != null)
+                if (selectedNode.Parent != null)
                 {
-                    if (e.Node.Parent.Text.ToLower().Contains("units"))
+                    if (selectedNode.Parent.Text.ToLower().Contains("units"))
                     {
-                        MeasureUnit measureUnit = (MeasureUnit)e.Node.Tag;
+                        MeasureUnit measureUnit = (MeasureUnit)selectedNode.Tag;
                         label.Text = $"Measure Unit : {measureUnit.Name}";
                         tabControl.TabPages.Add(new TabPage("Properties"));
                         tabControl.TabPages[0].Controls.Add(new PropertiesListView(measureUnit));
                     }
-                    if (e.Node.Parent.Text.ToLower().Contains("classes"))
+                    if (selectedNode.Parent.Text.ToLower().Contains("classes"))
                     {
-                        MeasureClass measureClass = (MeasureClass)e.Node.Tag;
+                        MeasureClass measureClass = (MeasureClass)selectedNode.Tag;
                         label.Text = $"Measure Class : {measureClass.Name}";
                         tabControl.TabPages.Add(new TabPage("Properties"));
                         tabControl.TabPages[0].Controls.Add(new PropertiesListView(measureClass));

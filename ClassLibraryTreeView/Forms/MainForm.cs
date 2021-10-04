@@ -44,17 +44,18 @@ namespace ClassLibraryTreeView
             this.btnAdd.Enabled = false;
             this.btnDelete.Enabled = false;
         }
-        private void ViewProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
+        // private void ViewProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
+        private void ViewProperties(object sender, TreeNode selectedNode)
         {
             this.btnAdd.Enabled = true;
             this.btnDelete.Enabled = true;
 
-            if (eventArgs.Node.Tag == null)
+            if (selectedNode.Tag == null)
             {
                 return;
             }
 
-            SelectedTreeNode = eventArgs.Node;
+            SelectedTreeNode = selectedNode;
 
             PropertiesView propertiesView = new PropertiesView();
             TabPage tabPage = new TabPage(SelectedTreeNode.Text);
@@ -64,27 +65,27 @@ namespace ClassLibraryTreeView
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("attributes"))
             {
-                propertiesView.ViewAttributeProperties((CMAttribute)eventArgs.Node.Tag);
+                propertiesView.ViewAttributeProperties((CMAttribute)selectedNode.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("classes"))
             {
-                propertiesView.ViewClassProperties((CMClass)eventArgs.Node.Tag);
+                propertiesView.ViewClassProperties((CMClass)selectedNode.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("enumerations"))
             {
-                propertiesView.ViewEnumerationProperties(eventArgs.Node.Tag);
+                propertiesView.ViewEnumerationProperties(selectedNode.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("taxonomies"))
             {
-                propertiesView.ViewTaxonomyProperties(eventArgs.Node.Tag);
+                propertiesView.ViewTaxonomyProperties(selectedNode.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("measures"))
             {
-                propertiesView.ViewMeasureProperties(sender, eventArgs);
+                propertiesView.ViewMeasureProperties(selectedNode);
             }
         }
         private async void ExportPermissibleGrid(object sender, EventArgs e)
@@ -123,7 +124,7 @@ namespace ClassLibraryTreeView
                 for(int index = 0; index < treeTabs.TabPages.Count; index++)
                 {
                     ConceptualModelTreeView treeView = new ConceptualModelTreeView(model, index);
-                    treeView.NodeClicked += new TreeNodeMouseClickEventHandler(this.ViewProperties);
+                    treeView.NodeClicked += new EventHandler<TreeNode>(this.ViewProperties);
                     treeTabs.TabPages[index].Controls.Add(treeView);
                 }
 

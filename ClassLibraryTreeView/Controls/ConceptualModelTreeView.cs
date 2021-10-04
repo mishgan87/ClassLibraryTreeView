@@ -13,7 +13,7 @@ namespace ClassLibraryTreeView.Classes
     {
         private ConceptualModel model = null;
         private int mode = -1;
-        public event TreeNodeMouseClickEventHandler NodeClicked;
+        public event EventHandler<TreeNode> NodeClicked;
         public ConceptualModelTreeView() : base()
         {
         }
@@ -26,8 +26,7 @@ namespace ClassLibraryTreeView.Classes
         {
             mode = viewMode;
             model = conceptualModel;
-
-            NodeMouseDoubleClick += new TreeNodeMouseClickEventHandler(this.ShowContextMenu);
+            // NodeMouseHover
 
             this.LabelEdit = true;
             this.Dock = DockStyle.Fill;
@@ -58,18 +57,18 @@ namespace ClassLibraryTreeView.Classes
                 AddMeasures(model);
             }
         }
-        private void ShowContextMenu(object sender, TreeNodeMouseClickEventArgs eventArgs)
+        protected override void OnNodeMouseClick(TreeNodeMouseClickEventArgs eventArgs)
         {
-            if (eventArgs.Button == MouseButtons.Left)
-            {
-                this.NodeClicked?.Invoke(this, eventArgs);
-            }
-            
             if (eventArgs.Button == MouseButtons.Right)
             {
                 this.SelectedNode = eventArgs.Node;
 
                 System.Windows.Forms.ContextMenuStrip menu = new System.Windows.Forms.ContextMenuStrip();
+
+                IIdentifiable nodeObject = (IIdentifiable)this.SelectedNode.Tag;
+                
+                ToolStripItem itemName = menu.Items.Add($"{nodeObject.Id} : {nodeObject.Name}");
+
                 ToolStripItem itemEdit = menu.Items.Add("Edit");
                 itemEdit.Image = global::ClassLibraryTreeView.Properties.Resources.edit;
                 itemEdit.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
@@ -85,7 +84,21 @@ namespace ClassLibraryTreeView.Classes
                 itemRemove.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
                 itemRemove.Click += new EventHandler(this.RemoveItem);
 
-                menu.Show((System.Windows.Forms.Control)sender, new Point(eventArgs.X, eventArgs.Y));
+                // menu.Show((System.Windows.Forms.Control)sender, new Point(eventArgs.X, eventArgs.Y));
+                menu.Show((System.Windows.Forms.Control)this, new Point(eventArgs.X, eventArgs.Y));
+            }
+        }
+        protected override void OnAfterExpand(TreeViewEventArgs e)
+        {
+            base.OnAfterExpand(e);
+            this.SelectedNode = e.Node;
+        }
+        protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs eventArgs)
+        {
+            if (eventArgs.Button == MouseButtons.Left)
+            {
+
+                this.NodeClicked?.Invoke(this, this.SelectedNode);
             }
         }
         private void EditItem(object sender, EventArgs e)

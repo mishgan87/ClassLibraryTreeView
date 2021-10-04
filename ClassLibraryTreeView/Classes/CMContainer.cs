@@ -1,15 +1,18 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
+using ClassLibraryTreeView.Interfaces;
+using ClassLibraryTreeView.Classes;
 
 namespace ClassLibraryTreeView
 {
-    public class CMContainer<T> : IEnumerable<T>
+    public class CMContainer<T> : IEnumerable<T> where T : class, IIdentifiable, new()
     {
         protected Dictionary<string, T> dict = new Dictionary<string, T>();
         public virtual bool IsEmpty => dict.Count == 0;
         public List<T> Items() => dict.Values.ToList();
         public T Item(string id) => dict[id];
+        
         public bool AddItem(string key, T item)
         {
             if (dict.ContainsKey(key))

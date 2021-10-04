@@ -3,6 +3,7 @@ using ClassLibraryTreeView.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,15 +14,13 @@ namespace ClassLibraryTreeView.Classes
     class AttributesGrid : DataGridView
     {
         int columnIndex = -1;
-        List<string>[] items = null;
+        List<string>[] items = new List<string>[4];
         public AttributesGrid(ConceptualModel model) : base()
         {
-            this.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.Dock = DockStyle.Fill;
+            this.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.ColumnAdded += new DataGridViewColumnEventHandler(this.ColumnAddedAdvance);
             this.CellMouseClick += new DataGridViewCellMouseEventHandler(this.OnHeaderMouseClick);
-
-            items = new List<string>[4];
 
             for (int index = 0; index < 4; index++)
             {
@@ -35,6 +34,7 @@ namespace ClassLibraryTreeView.Classes
                 {
                     foreach (CMAttribute attribute in cmClass.PermissibleAttributes.Values)
                     {
+                        // items.Add(new string[] { cmClass.Id , cmClass.Name, attribute.Id, attribute.Name });
                         items[0].Add(cmClass.Id);
                         items[1].Add(cmClass.Name);
                         items[2].Add(attribute.Id);
@@ -44,15 +44,6 @@ namespace ClassLibraryTreeView.Classes
             }
 
             ApplyFilter(this, new List<string>());
-        }
-        private DataTable NewDataTable()
-        {
-            DataTable table = new DataTable();
-            table.Columns.Add($"Class ID");
-            table.Columns.Add($"Class Name");
-            table.Columns.Add($"Attribute ID");
-            table.Columns.Add($"Attribute Name");
-            return table;
         }
         private void OnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs eventArgs)
         {
@@ -75,7 +66,11 @@ namespace ClassLibraryTreeView.Classes
         }
         private void ApplyFilter(object sender, List<string> filter)
         {
-            DataTable table = NewDataTable();
+            DataTable table = new DataTable();
+            table.Columns.Add($"Class ID");
+            table.Columns.Add($"Class Name");
+            table.Columns.Add($"Attribute ID");
+            table.Columns.Add($"Attribute Name");
             for (int row = 0; row < items[0].Count; row++)
             {
                 if (filter.Count == 0 || filter.Contains(items[columnIndex][row]))

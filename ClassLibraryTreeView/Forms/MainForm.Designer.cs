@@ -85,9 +85,10 @@ namespace ClassLibraryTreeView
             this.btnSearch.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnSearch.Enabled = false;
             this.btnSearch.Image = global::ClassLibraryTreeView.Properties.Resources.search;
-            this.btnSearch.Location = new System.Drawing.Point(0, 420);
+            this.btnSearch.Location = new System.Drawing.Point(0, 516);
+            this.btnSearch.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnSearch.Name = "btnSearch";
-            this.btnSearch.Size = new System.Drawing.Size(81, 70);
+            this.btnSearch.Size = new System.Drawing.Size(81, 86);
             this.btnSearch.TabIndex = 9;
             this.btnSearch.UseVisualStyleBackColor = true;
             this.btnSearch.Click += new System.EventHandler(this.BtnSearch_Click);
@@ -97,9 +98,10 @@ namespace ClassLibraryTreeView
             this.btnReport.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnReport.Enabled = false;
             this.btnReport.Image = global::ClassLibraryTreeView.Properties.Resources.enumerations;
-            this.btnReport.Location = new System.Drawing.Point(0, 490);
+            this.btnReport.Location = new System.Drawing.Point(0, 602);
+            this.btnReport.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnReport.Name = "btnReport";
-            this.btnReport.Size = new System.Drawing.Size(81, 70);
+            this.btnReport.Size = new System.Drawing.Size(81, 86);
             this.btnReport.TabIndex = 8;
             this.btnReport.UseVisualStyleBackColor = true;
             this.btnReport.Click += new System.EventHandler(this.BtnReport_Click);
@@ -108,9 +110,9 @@ namespace ClassLibraryTreeView
             // 
             this.progressBar.Dock = System.Windows.Forms.DockStyle.Top;
             this.progressBar.Location = new System.Drawing.Point(0, 0);
-            this.progressBar.Margin = new System.Windows.Forms.Padding(2);
+            this.progressBar.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(1411, 41);
+            this.progressBar.Size = new System.Drawing.Size(1881, 50);
             this.progressBar.TabIndex = 7;
             this.progressBar.Visible = false;
             // 
@@ -119,8 +121,9 @@ namespace ClassLibraryTreeView
             this.modelName.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelName.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.modelName.Location = new System.Drawing.Point(0, 0);
+            this.modelName.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.modelName.Name = "modelName";
-            this.modelName.Size = new System.Drawing.Size(1411, 59);
+            this.modelName.Size = new System.Drawing.Size(1881, 59);
             this.modelName.TabIndex = 6;
             this.modelName.Text = "Conceptual model";
             this.modelName.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
@@ -130,9 +133,10 @@ namespace ClassLibraryTreeView
             this.btnUndo.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnUndo.Enabled = false;
             this.btnUndo.Image = ((System.Drawing.Image)(resources.GetObject("btnUndo.Image")));
-            this.btnUndo.Location = new System.Drawing.Point(0, 280);
+            this.btnUndo.Location = new System.Drawing.Point(0, 344);
+            this.btnUndo.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnUndo.Name = "btnUndo";
-            this.btnUndo.Size = new System.Drawing.Size(81, 70);
+            this.btnUndo.Size = new System.Drawing.Size(81, 86);
             this.btnUndo.TabIndex = 5;
             this.btnUndo.UseVisualStyleBackColor = true;
             // 
@@ -141,9 +145,10 @@ namespace ClassLibraryTreeView
             this.btnDelete.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnDelete.Enabled = false;
             this.btnDelete.Image = ((System.Drawing.Image)(resources.GetObject("btnDelete.Image")));
-            this.btnDelete.Location = new System.Drawing.Point(0, 210);
+            this.btnDelete.Location = new System.Drawing.Point(0, 258);
+            this.btnDelete.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(81, 70);
+            this.btnDelete.Size = new System.Drawing.Size(81, 86);
             this.btnDelete.TabIndex = 1;
             this.btnDelete.UseVisualStyleBackColor = true;
             this.btnDelete.Click += new System.EventHandler(this.BtnDelete_Click);
@@ -153,9 +158,10 @@ namespace ClassLibraryTreeView
             this.btnAdd.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnAdd.Enabled = false;
             this.btnAdd.Image = ((System.Drawing.Image)(resources.GetObject("btnAdd.Image")));
-            this.btnAdd.Location = new System.Drawing.Point(0, 140);
+            this.btnAdd.Location = new System.Drawing.Point(0, 172);
+            this.btnAdd.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(81, 70);
+            this.btnAdd.Size = new System.Drawing.Size(81, 86);
             this.btnAdd.TabIndex = 5;
             this.btnAdd.UseVisualStyleBackColor = true;
             this.btnAdd.Click += new System.EventHandler(this.BtnAdd_Click);
@@ -165,9 +171,10 @@ namespace ClassLibraryTreeView
             this.btnSave.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnSave.Enabled = false;
             this.btnSave.Image = ((System.Drawing.Image)(resources.GetObject("btnSave.Image")));
-            this.btnSave.Location = new System.Drawing.Point(0, 70);
+            this.btnSave.Location = new System.Drawing.Point(0, 86);
+            this.btnSave.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnSave.Name = "btnSave";
-            this.btnSave.Size = new System.Drawing.Size(81, 70);
+            this.btnSave.Size = new System.Drawing.Size(81, 86);
             this.btnSave.TabIndex = 4;
             this.btnSave.UseVisualStyleBackColor = true;
             // 
@@ -176,9 +183,10 @@ namespace ClassLibraryTreeView
             this.btnExportPermissibleGrid.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnExportPermissibleGrid.Enabled = false;
             this.btnExportPermissibleGrid.Image = ((System.Drawing.Image)(resources.GetObject("btnExportPermissibleGrid.Image")));
-            this.btnExportPermissibleGrid.Location = new System.Drawing.Point(0, 350);
+            this.btnExportPermissibleGrid.Location = new System.Drawing.Point(0, 430);
+            this.btnExportPermissibleGrid.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnExportPermissibleGrid.Name = "btnExportPermissibleGrid";
-            this.btnExportPermissibleGrid.Size = new System.Drawing.Size(81, 70);
+            this.btnExportPermissibleGrid.Size = new System.Drawing.Size(81, 86);
             this.btnExportPermissibleGrid.TabIndex = 3;
             this.btnExportPermissibleGrid.UseVisualStyleBackColor = true;
             this.btnExportPermissibleGrid.Click += new System.EventHandler(this.BtnExportPermissibleGrid_Click);
@@ -188,8 +196,9 @@ namespace ClassLibraryTreeView
             this.btnOpenFile.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnOpenFile.Image = ((System.Drawing.Image)(resources.GetObject("btnOpenFile.Image")));
             this.btnOpenFile.Location = new System.Drawing.Point(0, 0);
+            this.btnOpenFile.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.btnOpenFile.Name = "btnOpenFile";
-            this.btnOpenFile.Size = new System.Drawing.Size(81, 70);
+            this.btnOpenFile.Size = new System.Drawing.Size(81, 86);
             this.btnOpenFile.TabIndex = 0;
             this.btnOpenFile.UseVisualStyleBackColor = true;
             this.btnOpenFile.Click += new System.EventHandler(this.BtnOpenFile_Click);
@@ -197,11 +206,12 @@ namespace ClassLibraryTreeView
             // treeTabs
             // 
             this.treeTabs.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.treeTabs.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.treeTabs.Font = new System.Drawing.Font("Consolas", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.treeTabs.Location = new System.Drawing.Point(0, 0);
+            this.treeTabs.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.treeTabs.Name = "treeTabs";
             this.treeTabs.SelectedIndex = 0;
-            this.treeTabs.Size = new System.Drawing.Size(442, 646);
+            this.treeTabs.Size = new System.Drawing.Size(598, 809);
             this.treeTabs.TabIndex = 11;
             // 
             // tabControl
@@ -209,9 +219,10 @@ namespace ClassLibraryTreeView
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.tabControl.Location = new System.Drawing.Point(0, 0);
+            this.tabControl.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(880, 646);
+            this.tabControl.Size = new System.Drawing.Size(1192, 809);
             this.tabControl.TabIndex = 12;
             // 
             // layoutMenu
@@ -220,6 +231,7 @@ namespace ClassLibraryTreeView
             this.layoutMenu.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.layoutMenu.IsSplitterFixed = true;
             this.layoutMenu.Location = new System.Drawing.Point(0, 0);
+            this.layoutMenu.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.layoutMenu.Name = "layoutMenu";
             // 
             // layoutMenu.Panel1
@@ -236,14 +248,16 @@ namespace ClassLibraryTreeView
             // layoutMenu.Panel2
             // 
             this.layoutMenu.Panel2.Controls.Add(this.layoutWorkplace);
-            this.layoutMenu.Size = new System.Drawing.Size(1411, 646);
+            this.layoutMenu.Size = new System.Drawing.Size(1881, 809);
             this.layoutMenu.SplitterDistance = 81;
+            this.layoutMenu.SplitterWidth = 5;
             this.layoutMenu.TabIndex = 13;
             // 
             // layoutWorkplace
             // 
             this.layoutWorkplace.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutWorkplace.Location = new System.Drawing.Point(0, 0);
+            this.layoutWorkplace.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.layoutWorkplace.Name = "layoutWorkplace";
             // 
             // layoutWorkplace.Panel1
@@ -253,8 +267,9 @@ namespace ClassLibraryTreeView
             // layoutWorkplace.Panel2
             // 
             this.layoutWorkplace.Panel2.Controls.Add(this.tabControl);
-            this.layoutWorkplace.Size = new System.Drawing.Size(1326, 646);
-            this.layoutWorkplace.SplitterDistance = 442;
+            this.layoutWorkplace.Size = new System.Drawing.Size(1795, 809);
+            this.layoutWorkplace.SplitterDistance = 598;
+            this.layoutWorkplace.SplitterWidth = 5;
             this.layoutWorkplace.TabIndex = 14;
             // 
             // layoutMain
@@ -262,7 +277,8 @@ namespace ClassLibraryTreeView
             this.layoutMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.layoutMain.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.layoutMain.IsSplitterFixed = true;
-            this.layoutMain.Location = new System.Drawing.Point(0, 41);
+            this.layoutMain.Location = new System.Drawing.Point(0, 50);
+            this.layoutMain.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.layoutMain.Name = "layoutMain";
             this.layoutMain.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -273,18 +289,20 @@ namespace ClassLibraryTreeView
             // layoutMain.Panel2
             // 
             this.layoutMain.Panel2.Controls.Add(this.layoutMenu);
-            this.layoutMain.Size = new System.Drawing.Size(1411, 709);
+            this.layoutMain.Size = new System.Drawing.Size(1881, 873);
             this.layoutMain.SplitterDistance = 59;
+            this.layoutMain.SplitterWidth = 5;
             this.layoutMain.TabIndex = 14;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1411, 750);
+            this.ClientSize = new System.Drawing.Size(1881, 923);
             this.Controls.Add(this.layoutMain);
             this.Controls.Add(this.progressBar);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "MainForm";
             this.Text = "CMViewer";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;

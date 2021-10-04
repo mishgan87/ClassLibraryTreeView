@@ -21,6 +21,7 @@ namespace ClassLibraryTreeView.Forms
             model = modelReference;
             listViewResult.Columns.Add("ID", 300, HorizontalAlignment.Left);
             listViewResult.Columns.Add("Name", 300, HorizontalAlignment.Left);
+            listViewResult.Columns.Add("Type", 300, HorizontalAlignment.Left);
         }
         private static int SetBit(int data, int bitValue, int position)
         {
@@ -95,9 +96,9 @@ namespace ClassLibraryTreeView.Forms
 
             List<KeyValuePair<string, object>> results = CMSearcher.SearchText(text, model, filter);
 
-            Action <ListView, IIdentifiable, Color> AddObject = (listView, element, color) =>
+            Action <ListView, IIdentifiable, string, Color> AddObject = (listView, element, type, color) =>
             {
-                ListViewItem listViewItem = new ListViewItem(new string[] { $"{element.Id}", $"{element.Name}" });
+                ListViewItem listViewItem = new ListViewItem(new string[] { $"{element.Id}", $"{element.Name}", $"{type}" });
                 listViewItem.Tag = element;
                 listViewItem.BackColor = color;
                 listView.Items.Add(listViewItem);
@@ -112,49 +113,49 @@ namespace ClassLibraryTreeView.Forms
                     if (type.Equals("class"))
                     {
                         CMClass cmClass = (CMClass)result.Value;
-                        AddObject(listViewResult, cmClass, Color.Yellow);
+                        AddObject(listViewResult, cmClass, $"Class", Color.Yellow);
                     }
 
                     if (type.Equals("attribute"))
                     {
                         CMAttribute attribute = (CMAttribute)result.Value;
-                        AddObject(listViewResult, attribute, Color.Green);
+                        AddObject(listViewResult, attribute, $"Attribute", Color.Green);
                     }
 
                     if (type.Equals("taxonomy"))
                     {
                         Taxonomy taxonomy = (Taxonomy)result.Value;
-                        AddObject(listViewResult, taxonomy, Color.Orange);
+                        AddObject(listViewResult, taxonomy, $"Taxonomy", Color.Orange);
                     }
 
                     if (type.Equals("taxonomynode"))
                     {
                         TaxonomyNode taxonomyNode = (TaxonomyNode)result.Value;
-                        AddObject(listViewResult, taxonomyNode, Color.Aquamarine);
+                        AddObject(listViewResult, taxonomyNode, $"Taxonomy Node", Color.Aquamarine);
                     }
 
                     if (type.Equals("enumeration"))
                     {
                         EnumerationList enumeration = (EnumerationList)result.Value;
-                        AddObject(listViewResult, enumeration, Color.CadetBlue);
+                        AddObject(listViewResult, enumeration, $"Enumeration", Color.CadetBlue);
                     }
 
                     if (type.Equals("enumerationitem"))
                     {
                         EnumerationListItem enumerationListItem = (EnumerationListItem)result.Value;
-                        AddObject(listViewResult, enumerationListItem, Color.LightSkyBlue);
+                        AddObject(listViewResult, enumerationListItem, $"Enumeration Item", Color.LightSkyBlue);
                     }
 
                     if (type.Equals("measureunit"))
                     {
                         MeasureUnit measureUnit = (MeasureUnit)result.Value;
-                        AddObject(listViewResult, measureUnit, Color.LightGreen);
+                        AddObject(listViewResult, measureUnit, $"Measure Unit", Color.LightGreen);
                     }
 
                     if (type.Equals("measureclass"))
                     {
                         MeasureClass measureClass = (MeasureClass)result.Value;
-                        AddObject(listViewResult, measureClass, Color.SpringGreen);
+                        AddObject(listViewResult, measureClass, $"Measure Class", Color.SpringGreen);
                     }
                 }
             }

@@ -20,10 +20,6 @@ namespace ClassLibraryTreeView.Forms
         public FilterForm(string text, List<string> items)
         {
             InitializeComponent();
-            Fill(text, items);
-        }
-        public void Fill(string text, List<string> items)
-        {
             this.Text = text;
             listView.Items.Clear();
             foreach (string item in items)
