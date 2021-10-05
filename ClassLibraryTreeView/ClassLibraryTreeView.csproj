@@ -199,6 +199,7 @@
     <None Include="Icons\apply.ico" />
     <None Include="Icons\cancel.ico" />
     <None Include="Icons\reset.ico" />
+    <None Include="Icons\close.ico" />
     <Content Include="viewer.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

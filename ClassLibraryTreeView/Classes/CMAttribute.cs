@@ -98,7 +98,7 @@ namespace ClassLibraryTreeView.Classes
             Discipline = someAttribute.Discipline;
             IsUoMRequired = someAttribute.IsUoMRequired;
         }
-        public KeyValuePair<string, string>[] Attributes()
+        public List<KeyValuePair<string, string>> AttributesList()
         {
             List<KeyValuePair<string, string>> result = new List<KeyValuePair<string, string>>();
 
@@ -145,7 +145,11 @@ namespace ClassLibraryTreeView.Classes
             result.Add(new KeyValuePair<string, string>("Discipline", Discipline));
             result.Add(new KeyValuePair<string, string>("IsUoMRequired", IsUoMRequired.ToString()));
 
-            return result.ToArray();
+            return result;
+        }
+        public KeyValuePair<string, string>[] Attributes()
+        {
+            return AttributesList().ToArray();
         }
         public void Clone(XElement source)
         {
@@ -253,7 +257,7 @@ namespace ClassLibraryTreeView.Classes
         {
             if (this.ApplicableClasses == null)
             {
-                return;
+                this.ApplicableClasses = new Dictionary<string, CMClass>();
             }
             if (!this.ApplicableClasses.ContainsKey(cmClass.Id))
             {

@@ -27,6 +27,20 @@ namespace ClassLibraryTreeView.Classes
                 items[index] = new List<string>();
             }
 
+            Dictionary<string, CMClass> map = model.Physicals;
+            foreach (CMClass cmClass in map.Values)
+            {
+                foreach (CMAttribute attribute in cmClass.PermissibleAttributes.Values)
+                {
+                    // items.Add(new string[] { cmClass.Id , cmClass.Name, attribute.Id, attribute.Name });
+                    items[0].Add(cmClass.Id);
+                    items[1].Add(cmClass.Name);
+                    items[2].Add(attribute.Id);
+                    items[3].Add(attribute.Name);
+                }
+            }
+
+            /*
             foreach (string classMapKey in model.classes.Keys)
             {
                 var map = model.classes[classMapKey];
@@ -42,7 +56,7 @@ namespace ClassLibraryTreeView.Classes
                     }
                 }
             }
-
+            */
             ApplyFilter(this, new List<string>());
         }
         private void OnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs eventArgs)

@@ -222,7 +222,10 @@ namespace ClassLibraryTreeView.Classes
                 return;
             }
 
-            KeyValuePair<string, string>[] names = permissibleAttributes.Values.First().Attributes();
+            // KeyValuePair<string, string>[] names = permissibleAttributes.Values.First().Attributes();
+            List<KeyValuePair<string, string>> names = permissibleAttributes.Values.First().AttributesList();
+            names.Insert(0, new KeyValuePair<string, string>("Came From", ""));
+
             foreach (KeyValuePair<string, string> name in names)
             {
                 this.Columns.Add($"{name.Key}", 150, HorizontalAlignment.Left);
@@ -232,6 +235,14 @@ namespace ClassLibraryTreeView.Classes
             {
                 KeyValuePair<string, string>[] properties = attribute.Attributes();
                 List<string> items = new List<string>();
+                if (attribute.CameFrom != null)
+                {
+                    items.Add($"{attribute.CameFrom.Name} : {attribute.CameFrom.Xtype}");
+                }
+                else
+                {
+                    items.Add("");
+                }
                 foreach (KeyValuePair<string, string> property in properties)
                 {
                     items.Add(property.Value);

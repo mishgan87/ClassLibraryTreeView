@@ -243,14 +243,11 @@ namespace ClassLibraryTreeView
                                 CMAttribute attribute = GetAttribute(cmClassAttribute.Id);
                                 if (attribute != null)
                                 {
-                                    if (attribute.ApplicableClasses == null)
-                                    {
-                                        attribute.ApplicableClasses = new Dictionary<string, CMClass>();
-                                    }
-                                    if (!attribute.ApplicableClasses.ContainsKey(cmClass.Id))
-                                    {
-                                        attribute.ApplicableClasses.Add(cmClass.Id, cmClass);
-                                    }
+                                    attribute.AddApplicableClass(cmClass);
+                                }
+                                if (cmClassAttribute != null)
+                                {
+                                    cmClassAttribute.AddApplicableClass(cmClass);
                                 }
                                 if (cmClassAttribute.Name.Equals(""))
                                 {
@@ -286,12 +283,23 @@ namespace ClassLibraryTreeView
                                     if (!cmClass.PermissibleAttributes.ContainsKey(parentAttribute.Id))
                                     {
                                         CMAttribute newAttribute = new CMAttribute(parentAttribute);
-                                        newAttribute.CameFrom = cmClass.Parent;
+                                        if (parentAttribute.CameFrom != null)
+                                        {
+                                            newAttribute.CameFrom = parentAttribute.CameFrom;
+                                        }
+                                        else
+                                        {
+                                            newAttribute.CameFrom = cmClass.Parent;
+                                        }
                                         cmClass.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
                                         CMAttribute attribute = GetAttributeById(newAttribute.Id);
                                         if (attribute != null)
                                         {
                                             attribute.AddApplicableClass(cmClass);
+                                        }
+                                        if (newAttribute != null)
+                                        {
+                                            newAttribute.AddApplicableClass(cmClass);
                                         }
                                     }
                                 }
@@ -358,26 +366,39 @@ namespace ClassLibraryTreeView
 
             Action<CMClass, CMClass> MergeAttributes = (cmClassSource, cmClassRecipient) =>
             {
-                if (cmClassSource.PermissibleAttributes.Count > 0)
+                if (cmClassSource.PermissibleAttributes.Count == 0)
                 {
-                    foreach (CMAttribute cmClassSourceAttribute in cmClassSource.PermissibleAttributes.Values)
+                    return;
+                }
+
+                foreach (CMAttribute cmClassSourceAttribute in cmClassSource.PermissibleAttributes.Values)
+                {
+                    if (!cmClassRecipient.PermissibleAttributes.ContainsKey(cmClassSourceAttribute.Id))
                     {
-                        if (!cmClassRecipient.PermissibleAttributes.ContainsKey(cmClassSourceAttribute.Id))
+                        CMAttribute newAttribute = new CMAttribute(cmClassSourceAttribute);
+                        if (cmClassSourceAttribute.CameFrom != null)
                         {
-                            CMAttribute newAttribute = new CMAttribute(cmClassSourceAttribute);
+                            newAttribute.CameFrom = cmClassSourceAttribute.CameFrom;
+                        }
+                        else
+                        {
                             newAttribute.CameFrom = cmClassSource;
-                            cmClassRecipient.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
-                            CMAttribute attribute = GetAttributeById(newAttribute.Id);
-                            if (attribute != null)
-                            {
-                                attribute.AddApplicableClass(cmClassRecipient);
-                            }
+                        }
+                        cmClassRecipient.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
+                        CMAttribute attribute = GetAttributeById(newAttribute.Id);
+                        if (attribute != null)
+                        {
+                            attribute.AddApplicableClass(cmClassRecipient);
+                        }
+                        if (newAttribute != null)
+                        {
+                            newAttribute.AddApplicableClass(cmClassRecipient);
                         }
                     }
                 }
             };
 
-            // merge permissible attributes of root functional and physical classes
+            // merge permissible attributes of roots functional and physical classes
 
             foreach (CMClass physicalClass in classes["physicals"].Values)
             {
@@ -414,6 +435,24 @@ namespace ClassLibraryTreeView
                                     MergeAttributes(functionalClass, physicalClassChild);
                                 }
                             }
+                        }
+
+                        CMClass functionalClassParent = functionalClass.Parent;
+                        while (functionalClassParent != null)
+                        {
+                            MergeAttributes(functionalClassParent, physicalClass);
+
+                            MergeAttributes(functionalClass, physicalClass);
+
+                            if (physicalClass.Children.Count > 0)
+                            {
+                                foreach (CMClass physicalClassChild in physicalClass.Children.Values)
+                                {
+                                    MergeAttributes(functionalClassParent, physicalClassChild);
+                                }
+                            }
+
+                            functionalClassParent = functionalClassParent.Parent;
                         }
                     }
                 }

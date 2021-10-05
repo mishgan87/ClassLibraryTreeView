@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -21,6 +23,8 @@ namespace ClassLibraryTreeView
             model = new ConceptualModel();
             model.ExportProgress += new EventHandler<int>(this.SetExportProgress);
 
+            this.tabControl.Padding = new Point(20, 0);
+            tabControl.MouseClick += new MouseEventHandler(this.OnTabControlMouseClick);
             treeTabs.LostFocus += new EventHandler(this.DisableButtons);
         }
         private void SetExportProgress(object sender, int progressValue)
@@ -43,6 +47,28 @@ namespace ClassLibraryTreeView
         {
             this.btnAdd.Enabled = false;
             this.btnDelete.Enabled = false;
+        }
+        private void OnTabControlMouseClick(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+            {
+                for (var i = 0; i < this.tabControl.TabPages.Count; i++)
+                {
+                    var tabRect = this.tabControl.GetTabRect(i);
+                    tabRect.Inflate(-2, -2);
+                    var closeImage = Properties.Resources.close;
+                    var imageRect = new Rectangle(
+                        (tabRect.Right - closeImage.Width),
+                        tabRect.Top + (tabRect.Height - closeImage.Height) / 2,
+                        closeImage.Width,
+                        closeImage.Height);
+                    if (imageRect.Contains(e.Location))
+                    {
+                        this.tabControl.TabPages.RemoveAt(i);
+                        break;
+                    }
+                }
+            }
         }
         // private void ViewProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
         private void ViewProperties(object sender, TreeNode selectedNode)
@@ -214,6 +240,21 @@ namespace ClassLibraryTreeView
         {
             SearchingForm searchForm = new SearchingForm(model);
             searchForm.Show();
+        }
+
+        private void TabControl_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            var tabPage = this.tabControl.TabPages[e.Index];
+            var tabRect = this.tabControl.GetTabRect(e.Index);
+            // tabRect.Inflate(-2, -2);
+
+            var closeImage = Properties.Resources.close;
+            e.Graphics.DrawImage(closeImage, (tabRect.Right - closeImage.Width),
+                tabRect.Top + (tabRect.Height - closeImage.Height) / 2);
+            TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font,
+                tabRect, tabPage.ForeColor, TextFormatFlags.Left);
+
+            
         }
     }
 }

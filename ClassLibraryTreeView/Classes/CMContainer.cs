@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections;
 using ClassLibraryTreeView.Interfaces;
 using ClassLibraryTreeView.Classes;
+using System;
 
 namespace ClassLibraryTreeView
 {
@@ -12,7 +13,12 @@ namespace ClassLibraryTreeView
         public virtual bool IsEmpty => dict.Count == 0;
         public List<T> Items() => dict.Values.ToList();
         public T Item(string id) => dict[id];
-        
+        public static object CreateCollection(Type collectionType, Type itemType)
+        {
+            var closedType = collectionType.MakeGenericType(itemType);
+            // dict = (Dictionary<string, T>)Activator.CreateInstance(closedType);
+            return Activator.CreateInstance(closedType);
+        }
         public bool AddItem(string key, T item)
         {
             if (dict.ContainsKey(key))
