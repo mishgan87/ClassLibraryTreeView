@@ -22,8 +22,6 @@ namespace ClassLibraryTreeView
             InitializeComponent();
             model = new ConceptualModel();
             model.ExportProgress += new EventHandler<int>(this.SetExportProgress);
-
-            this.tabControl.Padding = new Point(20, 0);
             tabControl.MouseClick += new MouseEventHandler(this.OnTabControlMouseClick);
             treeTabs.LostFocus += new EventHandler(this.DisableButtons);
         }
@@ -246,13 +244,13 @@ namespace ClassLibraryTreeView
         {
             var tabPage = this.tabControl.TabPages[e.Index];
             var tabRect = this.tabControl.GetTabRect(e.Index);
-            // tabRect.Inflate(-2, -2);
+            tabRect.Inflate(-2, -2);
 
             var closeImage = Properties.Resources.close;
             e.Graphics.DrawImage(closeImage, (tabRect.Right - closeImage.Width),
                 tabRect.Top + (tabRect.Height - closeImage.Height) / 2);
             TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font,
-                tabRect, tabPage.ForeColor, TextFormatFlags.Left);
+                tabRect, tabPage.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
 
             
         }

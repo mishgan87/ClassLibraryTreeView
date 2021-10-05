@@ -118,9 +118,12 @@ namespace ClassLibraryTreeView
             this.tabControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tabControl.DrawMode = System.Windows.Forms.TabDrawMode.OwnerDrawFixed;
             this.tabControl.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.tabControl.ItemSize = new System.Drawing.Size(0, 30);
             this.tabControl.Location = new System.Drawing.Point(0, 0);
             this.tabControl.Margin = new System.Windows.Forms.Padding(4);
+            this.tabControl.Multiline = true;
             this.tabControl.Name = "tabControl";
+            this.tabControl.Padding = new System.Drawing.Point(20, 3);
             this.tabControl.SelectedIndex = 0;
             this.tabControl.Size = new System.Drawing.Size(640, 629);
             this.tabControl.TabIndex = 12;

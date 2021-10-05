@@ -228,7 +228,7 @@ namespace ClassLibraryTreeView.Classes
 
             foreach (KeyValuePair<string, string> name in names)
             {
-                this.Columns.Add($"{name.Key}", 150, HorizontalAlignment.Left);
+                this.Columns.Add($"{name.Key}", 200, HorizontalAlignment.Left);
             }
 
             foreach (CMAttribute attribute in permissibleAttributes.Values)

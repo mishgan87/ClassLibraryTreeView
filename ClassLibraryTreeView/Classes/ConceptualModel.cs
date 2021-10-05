@@ -437,12 +437,26 @@ namespace ClassLibraryTreeView
                             }
                         }
 
+                        CMClass physicalClassParent = physicalClass.Parent;
+                        while (physicalClassParent != null)
+                        {
+                            MergeAttributes(physicalClassParent, physicalClass);
+
+                            if (physicalClass.Children.Count > 0)
+                            {
+                                foreach (CMClass physicalClassChild in physicalClass.Children.Values)
+                                {
+                                    MergeAttributes(physicalClassParent, physicalClassChild);
+                                }
+                            }
+
+                            physicalClassParent = physicalClassParent.Parent;
+                        }
+
                         CMClass functionalClassParent = functionalClass.Parent;
                         while (functionalClassParent != null)
                         {
                             MergeAttributes(functionalClassParent, physicalClass);
-
-                            MergeAttributes(functionalClass, physicalClass);
 
                             if (physicalClass.Children.Count > 0)
                             {
