@@ -50,40 +50,16 @@ namespace ClassLibraryTreeView.Classes
                     items[4].Add(cameFromId);
                 }
             }
-
-            /*
-            foreach (string classMapKey in model.classes.Keys)
-            {
-                var map = model.classes[classMapKey];
-                foreach (CMClass cmClass in map.Values)
-                {
-                    foreach (CMAttribute attribute in cmClass.PermissibleAttributes.Values)
-                    {
-                        // items.Add(new string[] { cmClass.Id , cmClass.Name, attribute.Id, attribute.Name });
-                        string cameFromId = "";
-                        if (attribute.CameFrom != null)
-                        {
-                            cameFromId = attribute.CameFrom.Id;
-                        }
-                        items[0].Add(cmClass.Id);
-                        items[1].Add(cmClass.Name);
-                        items[2].Add(attribute.Id);
-                        items[3].Add(attribute.Name);
-                        items[4].Add(cameFromId);
-                    }
-                }
-            }
-            */
             ApplyFilter(this, new List<string>());
         }
 
         private void RowPrePaintAnvance(object sender, DataGridViewRowPrePaintEventArgs e)
         {
             int index = e.RowIndex;
-            string item = items[4][index];
-            if (!item.Equals(""))
+            object item = this.Rows[index].Cells[4].Value;
+            if (item != null)
             {
-                CMClass cmClass = model.GetClass(item);
+                CMClass cmClass = model.GetClass(item.ToString());
                 if (cmClass != null)
                 {
                     Color rowBackColor = Color.Aquamarine; // default row color (functionals)
@@ -92,7 +68,7 @@ namespace ClassLibraryTreeView.Classes
                         rowBackColor = Color.LightBlue;
                     }
                     this.Rows[index].DefaultCellStyle.BackColor = rowBackColor;
-                    // this.Rows[index].Cells[4].Style.BackColor = Color.LightBlue;
+                    // this.Rows[index].Cells[4].Style.BackColor = rowBackColor;
                 }
             }
         }
