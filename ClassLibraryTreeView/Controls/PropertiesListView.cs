@@ -259,7 +259,14 @@ namespace ClassLibraryTreeView.Classes
                 item.Tag = attribute;
                 if (attribute.CameFrom != null)
                 {
-                    item.BackColor = Color.Yellow;
+                    if (attribute.CameFrom.Xtype.ToLower().Equals("functionals"))
+                    {
+                        item.BackColor = Color.Aquamarine;
+                    }
+                    if (attribute.CameFrom.Xtype.ToLower().Equals("physicals"))
+                    {
+                        item.BackColor = Color.LightBlue;
+                    }
                 }
                 this.Items.Add(item);
 

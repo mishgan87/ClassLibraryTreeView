@@ -165,7 +165,7 @@ namespace ClassLibraryTreeView.Controls
             this.selectAll.Name = "selectAll";
             this.selectAll.Size = new System.Drawing.Size(420, 19);
             this.selectAll.TabIndex = 5;
-            this.selectAll.Text = "Unselect All";
+            this.selectAll.Text = "Select All";
             this.selectAll.UseVisualStyleBackColor = true;
             this.selectAll.CheckedChanged += new EventHandler(this.SelectAllSearchIn);
             // 
@@ -306,7 +306,6 @@ namespace ClassLibraryTreeView.Controls
                 this.searchEnumerations.Checked = true;
                 this.searchMeasureUnits.Checked = true;
                 this.searchMeasureClasses.Checked = true;
-                this.selectAll.Text = "Unselect All";
             }
             else
             {
@@ -316,7 +315,6 @@ namespace ClassLibraryTreeView.Controls
                 this.searchEnumerations.Checked = false;
                 this.searchMeasureUnits.Checked = false;
                 this.searchMeasureClasses.Checked = false;
-                this.selectAll.Text = "Select All";
             }
         }
 
