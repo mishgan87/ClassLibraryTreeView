@@ -267,6 +267,40 @@ namespace ClassLibraryTreeView
         }
         private void SetClassesInheritance()
         {
+            Action<CMClass, CMClass> MergeAttributes = (cmClassSource, cmClassRecipient) =>
+            {
+                if (cmClassSource.PermissibleAttributes.Count == 0)
+                {
+                    return;
+                }
+
+                foreach (CMAttribute cmClassSourceAttribute in cmClassSource.PermissibleAttributes.Values)
+                {
+                    if (!cmClassRecipient.PermissibleAttributes.ContainsKey(cmClassSourceAttribute.Id))
+                    {
+                        CMAttribute newAttribute = new CMAttribute(cmClassSourceAttribute);
+                        if (cmClassSourceAttribute.CameFrom != null)
+                        {
+                            newAttribute.CameFrom = cmClassSourceAttribute.CameFrom;
+                        }
+                        else
+                        {
+                            newAttribute.CameFrom = cmClassSource;
+                        }
+                        cmClassRecipient.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
+                        CMAttribute attribute = GetAttributeById(newAttribute.Id);
+                        if (attribute != null)
+                        {
+                            attribute.AddApplicableClass(cmClassRecipient);
+                        }
+                        if (newAttribute != null)
+                        {
+                            newAttribute.AddApplicableClass(cmClassRecipient);
+                        }
+                    }
+                }
+            };
+
             foreach (Dictionary<string, CMClass> map in classes.Values)
             {
                 if (map.Count > 0)
@@ -276,34 +310,7 @@ namespace ClassLibraryTreeView
                         if (!cmClass.Extends.Equals(""))
                         {
                             cmClass.Parent = map[cmClass.Extends];
-                            if (cmClass.Parent.PermissibleAttributes.Count > 0)
-                            {
-                                foreach (CMAttribute parentAttribute in cmClass.Parent.PermissibleAttributes.Values)
-                                {
-                                    if (!cmClass.PermissibleAttributes.ContainsKey(parentAttribute.Id))
-                                    {
-                                        CMAttribute newAttribute = new CMAttribute(parentAttribute);
-                                        if (parentAttribute.CameFrom != null)
-                                        {
-                                            newAttribute.CameFrom = parentAttribute.CameFrom;
-                                        }
-                                        else
-                                        {
-                                            newAttribute.CameFrom = cmClass.Parent;
-                                        }
-                                        cmClass.PermissibleAttributes.Add(newAttribute.Id, newAttribute);
-                                        CMAttribute attribute = GetAttributeById(newAttribute.Id);
-                                        if (attribute != null)
-                                        {
-                                            attribute.AddApplicableClass(cmClass);
-                                        }
-                                        if (newAttribute != null)
-                                        {
-                                            newAttribute.AddApplicableClass(cmClass);
-                                        }
-                                    }
-                                }
-                            }
+                            MergeAttributes(cmClass.Parent, cmClass);
                             map[cmClass.Extends].Children.Add(cmClass.Id, cmClass);
                         }
                     }

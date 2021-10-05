@@ -31,7 +31,17 @@ namespace ClassLibraryTreeView.Classes
                 items[index] = new List<string>();
             }
 
-            Dictionary<string, CMClass> map = model.Physicals;
+            Dictionary<string, CMClass> map = null;
+            if (model.Physicals != null)
+            {
+                map = model.Physicals;
+            }
+            else
+            {
+                map = model.Functionals;
+            }
+
+             
             foreach (CMClass cmClass in map.Values)
             {
                 foreach (CMAttribute attribute in cmClass.PermissibleAttributes.Values)
