@@ -14,15 +14,19 @@ namespace ClassLibraryTreeView.Classes
     class AttributesGrid : DataGridView
     {
         int columnIndex = -1;
-        List<string>[] items = new List<string>[4];
-        public AttributesGrid(ConceptualModel model) : base()
+        List<string>[] items = new List<string>[5];
+        ConceptualModel model = null;
+        public AttributesGrid(ConceptualModel modelReference) : base()
         {
             this.Dock = DockStyle.Fill;
             this.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
             this.ColumnAdded += new DataGridViewColumnEventHandler(this.ColumnAddedAdvance);
+            this.RowPrePaint += new DataGridViewRowPrePaintEventHandler(this.RowPrePaintAnvance);
             this.CellMouseClick += new DataGridViewCellMouseEventHandler(this.OnHeaderMouseClick);
 
-            for (int index = 0; index < 4; index++)
+            model = modelReference;
+
+            for (int index = 0; index < 5; index++)
             {
                 items[index] = new List<string>();
             }
@@ -33,10 +37,17 @@ namespace ClassLibraryTreeView.Classes
                 foreach (CMAttribute attribute in cmClass.PermissibleAttributes.Values)
                 {
                     // items.Add(new string[] { cmClass.Id , cmClass.Name, attribute.Id, attribute.Name });
+                    string cameFromId = "";
+                    if (attribute.CameFrom != null)
+                    {
+                        cameFromId = attribute.CameFrom.Id;
+                    }
+                    
                     items[0].Add(cmClass.Id);
                     items[1].Add(cmClass.Name);
                     items[2].Add(attribute.Id);
                     items[3].Add(attribute.Name);
+                    items[4].Add(cameFromId);
                 }
             }
 
@@ -49,15 +60,41 @@ namespace ClassLibraryTreeView.Classes
                     foreach (CMAttribute attribute in cmClass.PermissibleAttributes.Values)
                     {
                         // items.Add(new string[] { cmClass.Id , cmClass.Name, attribute.Id, attribute.Name });
+                        string cameFromId = "";
+                        if (attribute.CameFrom != null)
+                        {
+                            cameFromId = attribute.CameFrom.Id;
+                        }
                         items[0].Add(cmClass.Id);
                         items[1].Add(cmClass.Name);
                         items[2].Add(attribute.Id);
                         items[3].Add(attribute.Name);
+                        items[4].Add(cameFromId);
                     }
                 }
             }
             */
             ApplyFilter(this, new List<string>());
+        }
+
+        private void RowPrePaintAnvance(object sender, DataGridViewRowPrePaintEventArgs e)
+        {
+            int index = e.RowIndex;
+            string item = items[4][index];
+            if (!item.Equals(""))
+            {
+                CMClass cmClass = model.GetClass(item);
+                if (cmClass != null)
+                {
+                    Color rowBackColor = Color.Aquamarine; // default row color (functionals)
+                    if (cmClass.Xtype.ToLower().Equals("physicals"))
+                    {
+                        rowBackColor = Color.LightBlue;
+                    }
+                    this.Rows[index].DefaultCellStyle.BackColor = rowBackColor;
+                    // this.Rows[index].Cells[4].Style.BackColor = Color.LightBlue;
+                }
+            }
         }
         private void OnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs eventArgs)
         {
@@ -85,11 +122,12 @@ namespace ClassLibraryTreeView.Classes
             table.Columns.Add($"Class Name");
             table.Columns.Add($"Attribute ID");
             table.Columns.Add($"Attribute Name");
+            table.Columns.Add($"Came From");
             for (int row = 0; row < items[0].Count; row++)
             {
                 if (filter.Count == 0 || filter.Contains(items[columnIndex][row]))
                 {
-                    table.Rows.Add(new string[] { items[0][row], items[1][row], items[2][row], items[3][row] });
+                    table.Rows.Add(new string[] { items[0][row], items[1][row], items[2][row], items[3][row], items[4][row] });
                 }
             }
             this.DataSource = table;
