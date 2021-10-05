@@ -99,6 +99,9 @@
     <Compile Include="Classes\DocumentClass.cs" />
     <Compile Include="Classes\FunctionalClass.cs" />
     <Compile Include="Classes\EnumerationList.cs" />
+    <Compile Include="Controls\SearchPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="Forms\FilterForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -107,12 +110,6 @@
     </Compile>
     <Compile Include="Controls\PropertiesView.cs">
       <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Forms\SearchingForm.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Forms\SearchingForm.Designer.cs">
-      <DependentUpon>SearchingForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Classes\CMAttribute.cs" />
     <Compile Include="Classes\CMClass.cs" />
@@ -131,9 +128,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Forms\FilterForm.resx">
       <DependentUpon>FilterForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Forms\SearchingForm.resx">
-      <DependentUpon>SearchingForm.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

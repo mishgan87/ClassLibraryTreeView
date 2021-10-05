@@ -1,4 +1,5 @@
 ﻿using ClassLibraryTreeView.Classes;
+using ClassLibraryTreeView.Controls;
 using ClassLibraryTreeView.Forms;
 using ClassLibraryTreeView.Interfaces;
 using System;
@@ -236,8 +237,11 @@ namespace ClassLibraryTreeView
 
         private void BtnSearch_Click(object sender, EventArgs e)
         {
-            SearchingForm searchForm = new SearchingForm(model);
-            searchForm.Show();
+            TabPage page = new TabPage($"Search");
+            SearchPanel searchPanel = new SearchPanel(model);
+            page.Controls.Add(searchPanel);
+            tabControl.TabPages.Add(page);
+            tabControl.SelectedTab = page;
         }
 
         private void TabControl_DrawItem(object sender, DrawItemEventArgs e)
