@@ -115,7 +115,7 @@ namespace ClassLibraryTreeView
         }
         private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
-            layoutMenu.Panel1.Enabled = false;
+            layoutWorkplace.Panel1.Enabled = false;
             progressBar.Value = 0;
             progressBar.Visible = true;
 
@@ -127,7 +127,7 @@ namespace ClassLibraryTreeView
             // string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10);
             // MessageBox.Show($"Export done for {elapsedTime}");
 
-            layoutMenu.Panel1.Enabled = true;
+            layoutWorkplace.Panel1.Enabled = true;
             progressBar.Visible = false;
         }
 
@@ -210,7 +210,7 @@ namespace ClassLibraryTreeView
         // private async void BtnReport_Click(object sender, EventArgs e)
         private void BtnReport_Click(object sender, EventArgs e)
         {
-            layoutMenu.Panel1.Enabled = false;
+            layoutWorkplace.Panel1.Enabled = false;
             progressBar.Value = 0;
             progressBar.Visible = true;
 
@@ -231,7 +231,7 @@ namespace ClassLibraryTreeView
                 MessageBox.Show(ex.Message);
             }
             */
-            layoutMenu.Panel1.Enabled = true;
+            layoutWorkplace.Panel1.Enabled = true;
             progressBar.Visible = false;
         }
 
@@ -253,10 +253,23 @@ namespace ClassLibraryTreeView
             var closeImage = Properties.Resources.close;
             e.Graphics.DrawImage(closeImage, (tabRect.Right - closeImage.Width),
                 tabRect.Top + (tabRect.Height - closeImage.Height) / 2);
+
             TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font,
                 tabRect, tabPage.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
+        }
 
-            
+        private void TreeTabs_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            var tabPage = this.treeTabs.TabPages[e.Index];
+            var tabRect = this.treeTabs.GetTabRect(e.Index);
+            tabRect.Inflate(-2, -2);
+            /*
+            var closeImage = Properties.Resources.close;
+            e.Graphics.DrawImage(closeImage, (tabRect.Right - closeImage.Width),
+                tabRect.Top + (tabRect.Height - closeImage.Height) / 2);
+            */
+            TextRenderer.DrawText(e.Graphics, tabPage.Text, tabPage.Font,
+                tabRect, tabPage.ForeColor, TextFormatFlags.VerticalCenter | TextFormatFlags.Left);
         }
     }
 }
