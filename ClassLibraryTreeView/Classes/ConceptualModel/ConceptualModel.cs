@@ -580,34 +580,28 @@ namespace ClassLibraryTreeView
             }
             return $"{name}{row + 1}";
         }
-        private void WriteClassAttributes(IXLWorksheet worksheet, KeyValuePair<int, string[]> rowPair, int classesCount)
-        {
-            int row = rowPair.Key;
-            string[] values = rowPair.Value;
-            CellStyle style = CellStyle.Class;
-            if (row % 2 == 0)
-            {
-                // style = CellStyle.ClassId;
-            }
-
-            for (int col = 0; col < values.Length; col++)
-            {
-                SetCell(worksheet.Cell(CellName(row, col)), style, values[col]);
-            }
-
-            int progress = (row * 100) / classesCount;
-            this.ExportProgress?.Invoke(this, progress);
-        }
         private void WriteClass(IXLWorksheet worksheet, KeyValuePair<int, CMClass> classRow, Queue<string> mergedRanges, int classesCount, int maxDepth)
         {
             int row = classRow.Key;
             CMClass cmClass = classRow.Value;
             int classDepth = cmClass.Depth;
             int count = maxDepth + AttributesCount + 2;
+            
+            CellStyleFactory cellStyleFactory = new CellStyleFactory();
 
-            SetCell(worksheet.Cell(CellName(row, maxDepth + 2)), CellStyle.ClassId, cmClass.Id); // set class id cell
-            SetCell(worksheet.Cell(CellName(row, classDepth)), CellStyle.Class, cmClass.Name); // set class name cell
-            SetCell(worksheet.Cell(CellName(row, maxDepth + 1)), CellStyle.Discipline, ""); // set class discipline cell
+            Action<IXLCell, Classes.CellStyle.CellStyle, string> SetCellValue = (cellReference, cellStyle, cellValue) =>
+           {
+               cellReference.Style = cellStyleFactory.CreateCellStyle(cellStyle);
+               cellReference.Value = cellValue;
+           };
+
+            // SetCell(worksheet.Cell(CellName(row, maxDepth + 2)), CellStyle.ClassId, cmClass.Id); // set class id cell
+            // SetCell(worksheet.Cell(CellName(row, classDepth)), CellStyle.Class, cmClass.Name); // set class name cell
+            // SetCell(worksheet.Cell(CellName(row, maxDepth + 1)), CellStyle.Discipline, ""); // set class discipline cell
+
+            SetCellValue(worksheet.Cell(CellName(row, maxDepth + 2)), CellStyle.ClassId, cmClass.Id); // set class id cell
+            SetCellValue(worksheet.Cell(CellName(row, classDepth)), CellStyle.Class, cmClass.Name); // set class name cell
+            SetCellValue(worksheet.Cell(CellName(row, maxDepth + 1)), CellStyle.Discipline, ""); // set class discipline cell
 
             if (maxDepth != classDepth) // merge subclass cells
             {
@@ -619,27 +613,34 @@ namespace ClassLibraryTreeView
             {
                 foreach (CMAttribute attribute in attributes[group].Values)
                 {
-                    SetCell(worksheet.Cell($"{CellName(row, col)}"), CellStyle.Attribute, $"{attribute.Id} : {attribute.Name}");
+                    // SetCell(worksheet.Cell($"{CellName(row, col)}"), CellStyle.Attribute, $"{attribute.Id} : {attribute.Name}");
+                    SetCellValue(worksheet.Cell($"{CellName(row, col)}"), CellStyle.Attribute, $"{attribute.Id} : {attribute.Name}");
                     string presence = cmClass.PermissibleAttributePresence(attribute.Id);
                     switch (presence)
                     {
                         case "":
-                            SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceNonApplicable, presence);
+                            // SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceNonApplicable, presence);
+                            SetCellValue(worksheet.Cell(CellName(row, col)), CellStyle.PresenceNonApplicable, presence);
                             break;
                         case "X":
-                            SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceUnselect, presence);
+                            // SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceUnselect, presence);
+                            SetCellValue(worksheet.Cell(CellName(row, col)), CellStyle.PresenceUnselect, presence);
                             break;
                         case "O":
-                            SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceOptional, presence);
+                            // SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceOptional, presence);
+                            SetCellValue(worksheet.Cell(CellName(row, col)), CellStyle.PresenceOptional, presence);
                             break;
                         case "P":
-                            SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresencePreffered, presence);
+                            // SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresencePreffered, presence);
+                            SetCellValue(worksheet.Cell(CellName(row, col)), CellStyle.PresencePreffered, presence);
                             break;
                         case "R":
-                            SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceRequired, presence);
+                            // SetCell(worksheet.Cell(CellName(row, col)), CellStyle.PresenceRequired, presence);
+                            SetCellValue(worksheet.Cell(CellName(row, col)), CellStyle.PresenceRequired, presence);
                             break;
                         default:
-                            SetCell(worksheet.Cell(CellName(row, col)), CellStyle.Default, presence);
+                            // SetCell(worksheet.Cell(CellName(row, col)), CellStyle.Default, presence);
+                            SetCellValue(worksheet.Cell(CellName(row, col)), CellStyle.Default, presence);
                             break;
                     }
                     col++;
@@ -669,64 +670,35 @@ namespace ClassLibraryTreeView
             }
             return row;
         }
-        public void ExportClassAttributes()
+        private void PrintNonRecursive(TreeNode treeNode)
         {
-            int row = 1;
-            List<KeyValuePair<int, string[]>> rows = new List<KeyValuePair<int, string[]>>();
+            if (treeNode != null)
+            {
+                //Using a queue to store and process each node in the TreeView
+                Queue<TreeNode> staging = new Queue<TreeNode>();
+                staging.Enqueue(treeNode);
 
-            Dictionary<string, CMClass> map = null;
-            if (Physicals != null)
-            {
-                map = Physicals;
-            }
-            else
-            {
-                if (Functionals != null)
+                while (staging.Count > 0)
                 {
-                    map = Functionals;
+                    treeNode = staging.Dequeue();
+
+                    // Print the node.  
+                    System.Diagnostics.Debug.WriteLine(treeNode.Text);
+                    MessageBox.Show(treeNode.Text);
+
+                    foreach (TreeNode node in treeNode.Nodes)
+                    {
+                        staging.Enqueue(node);
+                    }
                 }
             }
-
-            if (map == null)
+        }
+        private void CallNonRecursive(TreeView treeView)
+        {
+            // Print each node.
+            foreach (TreeNode treeNode in treeView.Nodes)
             {
-                return;
-            }
-
-            foreach (CMClass cmClass in map.Values)
-            {
-                row = AddClassAttributes(cmClass, rows, row);
-            }
-
-            using (XLWorkbook workbook = new XLWorkbook())
-            {
-                IXLWorksheet worksheet = workbook.Worksheets.Add($"MergedClassAttributes");
-
-                SetCell(worksheet.Cell(CellName(0, 0)), Classes.CellStyle.CellStyle.Header, $"Class ID");
-                SetCell(worksheet.Cell(CellName(0, 1)), Classes.CellStyle.CellStyle.Header, $"Class Name");
-                SetCell(worksheet.Cell(CellName(0, 2)), Classes.CellStyle.CellStyle.Header, $"Attribute ID");
-                SetCell(worksheet.Cell(CellName(0, 3)), Classes.CellStyle.CellStyle.Header, $"Attribute Name");
-
-                foreach (var classRow in rows)
-                {
-                    WriteClassAttributes(worksheet, classRow, rows.Count);
-                }
-
-                for (int col = 1; col < 5; col++)
-                {
-                    worksheet.Column(col).AdjustToContents();
-                }
-
-                string filename = FullPathXml;
-                filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
-                filename += "_ClassAttributes.xlsx";
-                try
-                {
-                    workbook.SaveAs(filename);
-                }
-                catch(Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
+                PrintNonRecursive(treeNode);
             }
         }
         private int AddClassChildren(CMClass cmClass, ConcurrentDictionary<int, CMClass> classRows, int rowIndex)
@@ -767,6 +739,14 @@ namespace ClassLibraryTreeView
 
                 int count = maxDepth + AttributesCount + 2;
 
+                CellStyleFactory cellStyleFactory = new CellStyleFactory();
+
+                Action<IXLCell, IXLStyle, string> SetCellValue = (cellReference, cellStyle, cellValue) =>
+                {
+                   cellReference.Style = cellStyle;
+                   cellReference.Value = cellValue;
+                };
+
                 // define classes attributes rows
 
                 Dictionary<string, CMClass> map = null;
@@ -805,13 +785,17 @@ namespace ClassLibraryTreeView
 
                 // write header
 
-                SetCell(worksheet.Cell(CellName(2, 0)), CellStyle.Header, $"Classes ({map.Count})"); // set classes count header cell
-                SetCell(worksheet.Cell(CellName(2, maxDepth + 1)), CellStyle.Header, $"Discipline"); // set class discipline header cell
-                SetCell(worksheet.Cell(CellName(2, maxDepth + 2)), CellStyle.Header, $"Class ID"); // set class id header cell
+                IXLStyle headerCellStyle = cellStyleFactory.CreateCellStyle(CellStyle.Header);
+                SetCellValue(worksheet.Cell(CellName(2, 0)), headerCellStyle, $"Classes ({map.Count})"); // set classes count header cell
+                SetCellValue(worksheet.Cell(CellName(2, maxDepth + 1)), headerCellStyle, $"Discipline"); // set class discipline header cell
+                SetCellValue(worksheet.Cell(CellName(2, maxDepth + 2)), headerCellStyle, $"Class ID"); // set class id header cell
 
                 Queue<string> mergedRanges = new Queue<string>();
                 mergedRanges.Enqueue($"{CellName(0, 0)}:{CellName(1, maxDepth + 2)}");
                 mergedRanges.Enqueue($"{CellName(2, 0)}:{CellName(2, maxDepth)}");
+
+                IXLStyle attributesGroupCellStyle = cellStyleFactory.CreateCellStyle(CellStyle.AttributesGroup);
+                IXLStyle attributeCellStyle = cellStyleFactory.CreateCellStyle(CellStyle.Attribute);
 
                 string mergedCell = "";
                 int col = maxDepth + 3;
@@ -819,11 +803,11 @@ namespace ClassLibraryTreeView
                 {
                     mergedCell = $"{CellName(0, col)}";
                     IXLCell cell = worksheet.Cell($"{CellName(0, col)}");
-                    SetCell(cell, CellStyle.AttributesGroup, group);
+                    SetCellValue(cell, attributesGroupCellStyle, group);
                     foreach (CMAttribute attribute in attributes[group].Values)
                     {
                         cell = worksheet.Cell($"{CellName(1, col)}");
-                        SetCell(cell, CellStyle.Attribute, $"{attribute.Id} : {attribute.Name}");
+                        SetCellValue(cell, attributeCellStyle, $"{attribute.Id} : {attribute.Name}");
                         col++;
                     }
                     mergedRanges.Enqueue($"{mergedCell}:{CellName(0, col - 1)}");

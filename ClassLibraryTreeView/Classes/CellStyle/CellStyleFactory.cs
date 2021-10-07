@@ -24,6 +24,54 @@ namespace ClassLibraryTreeView.Classes.CellStyle
         {
 
         }
+        public IXLStyle CreateCellStyleForClass()
+        {
+            return new CellStyleForClass();
+        }
+        public IXLStyle CreateCellStyleForClassId()
+        {
+            return new CellStyleForClassId();
+        }
+        public IXLStyle CreateCellStyleForAttribute()
+        {
+            return new CellStyleForAttribute();
+        }
+        public IXLStyle CreateCellStyleForAttributesGroup()
+        {
+            return new CellStyleForAttributesGroup();
+        }
+        public IXLStyle CreateCellStyleForDiscipline()
+        {
+            return new CellStyleForDiscipline();
+        }
+        public IXLStyle CreateCellStyleForHeader()
+        {
+            return new CellStyleForHeader();
+        }
+        public IXLStyle CreateCellStyleForPresenceUnselect()
+        {
+            return new CellStyleForPresenceUnselect();
+        }
+        public IXLStyle CreateCellStyleForPresenceNonApplicable()
+        {
+            return new CellStyleForPresenceNonApplicable();
+        }
+        public IXLStyle CreateCellStyleForPresenceOptional()
+        {
+            return new CellStyleForPresenceOptional();
+        }
+        public IXLStyle CreateCellStyleForPresencePreffered()
+        {
+            return new CellStyleForPresencePreffered();
+        }
+        public IXLStyle CreateCellStyleForPresenceRequired()
+        {
+            return new CellStyleForPresenceRequired();
+        }
+        public IXLStyle CreateCellStyleDeafult()
+        {
+            return new CellStyleDefault();
+        }
         public IXLStyle CreateCellStyle(CellStyle cellStyle)
         {
             switch (cellStyle)

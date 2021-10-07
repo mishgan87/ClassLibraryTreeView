@@ -89,6 +89,7 @@
     <Compile Include="Classes\CellStyle\CellStyleProtection.cs" />
     <Compile Include="Classes\CMElements\CMContainer.cs" />
     <Compile Include="Classes\CellStyle\DefaultCellStyle.cs" />
+    <Compile Include="Classes\ConceptualModel\ConceptualModelExcelExporter.cs" />
     <Compile Include="Controls\AttributesGrid.cs">
       <SubType>Component</SubType>
     </Compile>

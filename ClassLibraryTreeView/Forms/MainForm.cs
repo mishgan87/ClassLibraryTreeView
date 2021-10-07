@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-
+using static ClassLibraryTreeView.ConceptualModel;
 
 namespace ClassLibraryTreeView
 {
@@ -207,10 +207,9 @@ namespace ClassLibraryTreeView
             }
         }
 
-        // private async void BtnReport_Click(object sender, EventArgs e)
-        private void BtnReport_Click(object sender, EventArgs e)
+        private async void BtnReport_Click(object sender, EventArgs e)
         {
-            layoutWorkplace.Panel1.Enabled = false;
+            layoutMain.Panel1.Enabled = false;
             progressBar.Value = 0;
             progressBar.Visible = true;
 
@@ -221,17 +220,19 @@ namespace ClassLibraryTreeView
             tabControl.TabPages.Add(page);
             tabControl.SelectedTab = page;
 
-            /*
+            ConceptualModelExcelExporter exporter = new ConceptualModelExcelExporter();
+            exporter.ExportProgress += new EventHandler<int>(this.SetExportProgress);
+            
             try
             {
-                await Task.Run(() => model.ExportClassAttributes());
+                await Task.Run(() => exporter.ExportClassAttributes(model));
             }
             catch(Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
-            */
-            layoutWorkplace.Panel1.Enabled = true;
+            
+            layoutMain.Panel1.Enabled = true;
             progressBar.Visible = false;
         }
 

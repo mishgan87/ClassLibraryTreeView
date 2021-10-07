@@ -9,8 +9,8 @@ namespace ClassLibraryTreeView.Classes.CellStyle
             Horizontal = XLAlignmentHorizontalValues.Center;
             Vertical = XLAlignmentVerticalValues.Center;
             Indent = 0;
-            JustifyLastLine = true;
-            ReadingOrder = XLAlignmentReadingOrderValues.LeftToRight;
+            JustifyLastLine = false;
+            ReadingOrder = XLAlignmentReadingOrderValues.ContextDependent;
             RelativeIndent = 0;
             ShrinkToFit = true;
             TextRotation = 0;
