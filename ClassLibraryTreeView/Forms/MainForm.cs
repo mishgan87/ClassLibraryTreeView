@@ -22,7 +22,6 @@ namespace ClassLibraryTreeView
         {
             InitializeComponent();
             model = new ConceptualModel();
-            model.ExportProgress += new EventHandler<int>(this.SetExportProgress);
             tabControl.MouseClick += new MouseEventHandler(this.OnTabControlMouseClick);
             treeTabs.LostFocus += new EventHandler(this.DisableButtons);
         }
@@ -115,19 +114,22 @@ namespace ClassLibraryTreeView
         }
         private async void ExportPermissibleGrid(object sender, EventArgs e)
         {
-            layoutWorkplace.Panel1.Enabled = false;
+            layoutMain.Panel1.Enabled = false;
             progressBar.Value = 0;
             progressBar.Visible = true;
 
+            ConceptualModelExcelExporter exporter = new ConceptualModelExcelExporter();
+            exporter.ExportProgress += new EventHandler<int>(this.SetExportProgress);
+
             // Stopwatch stopWatch = new Stopwatch();
             // stopWatch.Start();
-            await Task.Run(() => model.ExportPermissibleGrid());
+            await Task.Run(() => exporter.ExportPermissibleGrid(model));
             // stopWatch.Stop();
             // TimeSpan timeSpan = stopWatch.Elapsed;
             // string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10);
             // MessageBox.Show($"Export done for {elapsedTime}");
 
-            layoutWorkplace.Panel1.Enabled = true;
+            layoutMain.Panel1.Enabled = true;
             progressBar.Visible = false;
         }
 
@@ -213,7 +215,6 @@ namespace ClassLibraryTreeView
             progressBar.Value = 0;
             progressBar.Visible = true;
 
-            // model.ExportClassAttributes();
             TabPage page = new TabPage($"Class Attributes");
             AttributesGrid classAttributesGrid = new AttributesGrid(model);
             page.Controls.Add(classAttributesGrid);

@@ -48,6 +48,24 @@ namespace ClassLibraryTreeView.Classes.CellStyle
         {
             return new CellStyleForHeader();
         }
+        public IXLStyle CreateCellStyleForAttributePresence(string presence)
+        {
+            switch (presence)
+            {
+                case "":
+                    return CreateCellStyleForPresenceNonApplicable();
+                case "X":
+                    return CreateCellStyleForPresenceUnselect();
+                case "O":
+                    return CreateCellStyleForPresenceOptional();
+                case "P":
+                    return CreateCellStyleForPresencePreffered();
+                case "R":
+                    return CreateCellStyleForPresenceRequired();
+                default:
+                    return CreateCellStyleDeafult();
+            }
+        }
         public IXLStyle CreateCellStyleForPresenceUnselect()
         {
             return new CellStyleForPresenceUnselect();
