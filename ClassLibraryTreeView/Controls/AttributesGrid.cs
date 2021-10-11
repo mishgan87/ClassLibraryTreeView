@@ -31,15 +31,7 @@ namespace ClassLibraryTreeView.Classes
                 items[index] = new List<string>();
             }
 
-            Dictionary<string, CMClass> map = null;
-            if (model.Physicals != null)
-            {
-                map = model.Physicals;
-            }
-            else
-            {
-                map = model.Functionals;
-            }
+            Dictionary<string, CMClass> map = model.MergedClasses;
 
              
             foreach (CMClass cmClass in map.Values)

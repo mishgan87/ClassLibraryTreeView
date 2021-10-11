@@ -168,23 +168,7 @@ namespace ClassLibraryTreeView
 
                     // define classes attributes rows
 
-                    Dictionary<string, CMClass> map = null;
-                    if (model.Physicals != null)
-                    {
-                        map = model.Physicals;
-                    }
-                    else
-                    {
-                        if (model.Functionals != null)
-                        {
-                            map = model.Functionals;
-                        }
-                    }
-
-                    if (map == null)
-                    {
-                        return null;
-                    }
+                    Dictionary<string, CMClass> map = model.MergedClasses;
 
                     // fill dictionary of pairs <row number, conceptual model class>
                     ConcurrentDictionary<int, CMClass> classRows = new ConcurrentDictionary<int, CMClass>();
@@ -318,91 +302,78 @@ namespace ClassLibraryTreeView
             }
             public void ExportClassAttributes(ConceptualModel model)
             {
-                Dictionary<string, CMClass> map = null;
-                if (model.Physicals != null)
+                Dictionary<string, CMClass> map = model.MergedClasses;
+
+                Action<IXLCell, IXLStyle, string> SetCellValue = (cellReference, cellStyle, cellValue) =>
                 {
-                    map = model.Physicals;
-                }
-                else
+                    cellReference.Style = cellStyle;
+                    cellReference.Value = cellValue;
+                };
+                int rowIndex = 1;
+                List<KeyValuePair<int, string[]>> rows = new List<KeyValuePair<int, string[]>>();
+
+                foreach (CMClass cmClass in map.Values)
                 {
-                    if (model.Functionals != null)
+                    Dictionary<string, CMAttribute> attributes = cmClass.PermissibleAttributes;
+                    if (attributes.Count > 0)
                     {
-                        map = model.Functionals;
+                        foreach (CMAttribute attribute in attributes.Values)
+                        {
+                            rows.Add(new KeyValuePair<int, string[]>(rowIndex,
+                                new string[] { cmClass.Id, cmClass.Name, attribute.Id, attribute.Name }));
+                            rowIndex++;
+                        }
                     }
                 }
 
-                if (map != null)
+                using (XLWorkbook workbook = new XLWorkbook())
                 {
-                    Action<IXLCell, IXLStyle, string> SetCellValue = (cellReference, cellStyle, cellValue) =>
-                    {
-                        cellReference.Style = cellStyle;
-                        cellReference.Value = cellValue;
-                    };
-                    int rowIndex = 1;
-                    List<KeyValuePair<int, string[]>> rows = new List<KeyValuePair<int, string[]>>();
+                    IXLWorksheet worksheet = workbook.Worksheets.Add($"MergedClassAttributes");
 
-                    foreach (CMClass cmClass in map.Values)
+                    // insert header
+
+                    IXLStyle headerCellStyle = cellStyleFactory.CreateCellStyleForHeader();
+
+                    SetCellValue(worksheet.Cell(CellName(0, 0)), headerCellStyle, $"Class ID");
+                    SetCellValue(worksheet.Cell(CellName(0, 1)), headerCellStyle, $"Class Name");
+                    SetCellValue(worksheet.Cell(CellName(0, 2)), headerCellStyle, $"Attribute ID");
+                    SetCellValue(worksheet.Cell(CellName(0, 3)), headerCellStyle, $"Attribute Name");
+
+                    // insert attributes
+
+                    IXLStyle classCellStyle = cellStyleFactory.CreateCellStyleForClass();
+
+                    foreach (KeyValuePair<int, string[]> row in rows)
                     {
-                        Dictionary<string, CMAttribute> attributes = cmClass.PermissibleAttributes;
-                        if (attributes.Count > 0)
+                        if (row.Key % 2 == 0)
                         {
-                            foreach (CMAttribute attribute in attributes.Values)
-                            {
-                                rows.Add(new KeyValuePair<int, string[]>(rowIndex, new string[] { cmClass.Id, cmClass.Name, attribute.Id, attribute.Name }));
-                                rowIndex++;
-                            }
+                            // style = CellStyle.ClassId;
                         }
+
+                        for (int col = 0; col < row.Value.Length; col++)
+                        {
+                            SetCellValue(worksheet.Cell(CellName(row.Key, col)), classCellStyle, row.Value[col]);
+                        }
+
+                        int progress = (row.Key * 100) / rows.Count;
+                        this.ExportProgress?.Invoke(this, progress);
                     }
 
-                    using (XLWorkbook workbook = new XLWorkbook())
+                    for (int col = 1; col < 5; col++)
                     {
-                        IXLWorksheet worksheet = workbook.Worksheets.Add($"MergedClassAttributes");
+                        worksheet.Column(col).AdjustToContents();
+                    }
 
-                        // insert header
-
-                        IXLStyle headerCellStyle = cellStyleFactory.CreateCellStyleForHeader();
-
-                        SetCellValue(worksheet.Cell(CellName(0, 0)), headerCellStyle, $"Class ID");
-                        SetCellValue(worksheet.Cell(CellName(0, 1)), headerCellStyle, $"Class Name");
-                        SetCellValue(worksheet.Cell(CellName(0, 2)), headerCellStyle, $"Attribute ID");
-                        SetCellValue(worksheet.Cell(CellName(0, 3)), headerCellStyle, $"Attribute Name");
-
-                        // insert attributes
-
-                        IXLStyle classCellStyle = cellStyleFactory.CreateCellStyleForClass();
-
-                        foreach (KeyValuePair<int, string[]> row in rows)
-                        {
-                            if (row.Key % 2 == 0)
-                            {
-                                // style = CellStyle.ClassId;
-                            }
-
-                            for (int col = 0; col < row.Value.Length; col++)
-                            {
-                                SetCellValue(worksheet.Cell(CellName(row.Key, col)), classCellStyle, row.Value[col]);
-                            }
-
-                            int progress = (row.Key * 100) / rows.Count;
-                            this.ExportProgress?.Invoke(this, progress);
-                        }
-
-                        for (int col = 1; col < 5; col++)
-                        {
-                            worksheet.Column(col).AdjustToContents();
-                        }
-
-                        string filename = model.FullPathXml;
-                        filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
-                        filename += "_ClassAttributes.xlsx";
-                        try
-                        {
-                            workbook.SaveAs(filename);
-                        }
-                        catch (Exception ex)
-                        {
-                            MessageBox.Show(ex.Message);
-                        }
+                    string filename = model.FullPathXml;
+                    filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
+                    filename += "_ClassAttributes.xlsx";
+                    try
+                    {
+                        workbook.SaveAs(filename);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
                     }
                 }
             }

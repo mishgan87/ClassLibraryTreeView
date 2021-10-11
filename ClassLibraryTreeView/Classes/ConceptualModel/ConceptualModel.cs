@@ -34,26 +34,38 @@ namespace ClassLibraryTreeView
         public Dictionary<string, EnumerationList> Enumerations => enumerations;
         public Dictionary<string, MeasureUnit> MeasureUnits => measureUnits;
         public Dictionary<string, MeasureClass> MeasureClasses => measureClasses;
+        public Dictionary<string, CMClass> MergedClasses
+        {
+            get
+            {
+                Dictionary<string, CMClass> map = Physicals;
+                if (map.Count == 0)
+                {
+                    map = Functionals;
+                }
+                return map;
+            }
+        }
         public Dictionary<string, CMClass> Functionals
         {
             get
             {
-                if (classes.ContainsKey("functionals"))
+                if (!classes.ContainsKey("functionals"))
                 {
-                    return classes["functionals"];
+                    classes.Add("functionals", new Dictionary<string, CMClass>());
                 }
-                return null;
+                return classes["functionals"];
             }
         }
         public Dictionary<string, CMClass> Physicals
         {
             get
             {
-                if (classes.ContainsKey("physicals"))
+                if (!classes.ContainsKey("physicals"))
                 {
-                    return classes["physicals"];
+                    classes.Add("physicals", new Dictionary<string, CMClass>());
                 }
-                return null;
+                return classes["physicals"];
             }
         }
 
