@@ -7,6 +7,8 @@ using ClassLibraryTreeView.Classes.CellStyle;
 using CellStyle = ClassLibraryTreeView.Classes.CellStyle.CellStyle;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using System.Data;
+using System.Linq;
 
 namespace ClassLibraryTreeView
 {
@@ -32,30 +34,55 @@ namespace ClassLibraryTreeView
                 }
                 return $"{name}{row + 1}";
             }
-            private int AddClassToClassRows(CMClass cmClass, ConcurrentDictionary<int, CMClass> classRows, int rowIndex)
+            private ConcurrentDictionary<int, CMClass> AddClassToClassRows(CMClass cmClassRoot, int startRowIndex)
             {
-                int index = rowIndex;
-                Queue<CMClass> staging = new Queue<CMClass>();
-                staging.Enqueue(cmClass);
+                ConcurrentDictionary<int, CMClass> classRows = new ConcurrentDictionary<int, CMClass>();
+                Queue<CMClass> queueOfClasses = new Queue<CMClass>();
+                List<CMClass> listOfClasses = new List<CMClass>();
+                queueOfClasses.Enqueue(cmClassRoot);
+                listOfClasses.Add(cmClassRoot);
 
-                while (staging.Count > 0)
+                Func<CMClass, List<CMClass>, int>FindIndex = (cmClass, cmList) =>
                 {
-                    cmClass = staging.Dequeue();
+                    int cmIndex = 0;
+                    foreach(CMClass cmItem in cmList)
+                    {
+                        if (cmItem.Name.Equals(cmClass.Name))
+                        {
+                            break;
+                        }
+                        cmIndex++;
+                    }
+                    return cmIndex;
+                };
 
+                while (queueOfClasses.Count > 0)
+                {
+                    CMClass cmClass = queueOfClasses.Dequeue();
+
+                    if (cmClass.Children.Count > 0)
+                    {
+                        int parentIndex = FindIndex(cmClass, listOfClasses) + 1;
+                        int addingIndex = 0;
+                        foreach (CMClass cmClassChild in cmClass.Children.Values)
+                        {
+                            queueOfClasses.Enqueue(cmClassChild);
+                            listOfClasses.Insert(parentIndex + addingIndex, cmClassChild);
+                            addingIndex++;
+                        }
+                    }
+                }
+
+                int index = startRowIndex;
+                foreach (CMClass cmClass in listOfClasses)
+                {
                     if (classRows.TryAdd(index, cmClass))
                     {
                         index++;
                     }
-
-                    if (cmClass.Children.Count > 0)
-                    {
-                        foreach (CMClass cmClassChild in cmClass.Children.Values)
-                        {
-                            staging.Enqueue(cmClassChild);
-                        }
-                    }
                 }
-                return index;
+
+                return classRows;
             }
             private void InsertClassIntoWorksheet(KeyValuePair<int, CMClass> classRow, IXLWorksheet worksheet, int classRowsCount, int maxDepth, ConceptualModel model, Queue<string> mergedRanges)
             {
@@ -98,6 +125,109 @@ namespace ClassLibraryTreeView
 
                 int progress = (classRow.Key * 100) / classRowsCount;
                 this.ExportProgress?.Invoke(this, progress);
+            }
+            public DataTable CreatePermissibleGrid(ConceptualModel model)
+            {
+                DataTable dataTable = new DataTable();
+
+                Dictionary<string, CMClass> map = null;
+                if (model.Physicals != null)
+                {
+                    map = model.Physicals;
+                }
+                else
+                {
+                    if (model.Functionals != null)
+                    {
+                        map = model.Functionals;
+                    }
+                }
+
+                if (map == null)
+                {
+                    return null;
+                }
+                // calculate maximum depth of model classes
+
+                int maxDepth = 0;
+                foreach (Dictionary<string, CMClass> classesMap in model.classes.Values)
+                {
+                    foreach (CMClass cmClass in classesMap.Values)
+                    {
+                        int depth = cmClass.Depth;
+                        if (depth > maxDepth)
+                        {
+                            maxDepth = depth;
+                        }
+                    }
+                }
+
+                int count = maxDepth + model.AttributesCount + 2;
+
+                int row = 3;
+
+                ConcurrentDictionary<int, CMClass> classRows = new ConcurrentDictionary<int, CMClass>(); // dictionary of pairs "row number - conceptual model class"
+
+                foreach (CMClass cmClass in map.Values) // fill dictionary of pairs <row number, conceptual model class>
+                {
+                    if (cmClass.Parent == null)
+                    {
+                        classRows = AddClassToClassRows(cmClass, row);
+                        break;
+                    }
+                }
+
+                for (int columnIndex = 0; columnIndex <= maxDepth; columnIndex++)
+                {
+                    dataTable.Columns.Add($"");
+                }
+                
+                /*foreach (string group in model.attributes.Keys)
+                {
+                    foreach (CMAttribute attribute in model.attributes[group].Values)
+                    {
+                        dataTable.Columns.Add($"{attribute.Id} : {attribute.Name}");
+                    }
+                }*/
+
+                foreach(var classRow in classRows)
+                {
+                    CMClass cmClass = classRow.Value;
+                    int classDepth = cmClass.Depth;
+                    string[] rowItems = new string[maxDepth + 1];
+
+                    for (int columnIndex = 0; columnIndex < classDepth; columnIndex++)
+                    {
+                        rowItems[columnIndex] = "";
+                    }
+
+                    rowItems[classDepth] = cmClass.Name;
+
+                    dataTable.Rows.Add(rowItems);
+                    /*
+                    if (maxDepth != classDepth) // merge subclass cells
+                    {
+                        mergedRanges.Enqueue($"{CellName(classRow.Key, classDepth)}:{CellName(classRow.Key, maxDepth)}");
+                    }
+
+                    int col = maxDepth + 3;
+                    foreach (string group in model.attributes.Keys)
+                    {
+                        foreach (CMAttribute attribute in model.attributes[group].Values)
+                        {
+                            // SetCellValue(worksheet.Cell($"{CellName(row, col)}"), attributeCellStyle, $"{attribute.Id} : {attribute.Name}");
+                            string presence = cmClass.PermissibleAttributePresence(attribute.Id);
+                            var cellStyle = cellStyleFactory.CreateCellStyleForAttributePresence(presence);
+                            SetCellValue(worksheet.Cell(CellName(classRow.Key, col)), cellStyle, presence);
+                            col++;
+                        }
+                    }
+                    */
+                    int progress = (classRow.Key * 100) / classRows.Count;
+                    this.ExportProgress?.Invoke(this, progress);
+                }
+
+                return dataTable;
             }
             public void ExportPermissibleGrid(ConceptualModel model)
             {
@@ -150,15 +280,15 @@ namespace ClassLibraryTreeView
                         return;
                     }
 
-                    int row = 3;
+                    // dictionary of pairs "row number - conceptual model class"
+                    ConcurrentDictionary<int, CMClass> classRows = new ConcurrentDictionary<int, CMClass>();
 
-                    ConcurrentDictionary<int, CMClass> classRows = new ConcurrentDictionary<int, CMClass>(); // dictionary of pairs "row number - conceptual model class"
-
-                    foreach (CMClass cmClass in map.Values) // fill dictionary of pairs <row number, conceptual model class>
+                    // fill dictionary of pairs <row number, conceptual model class>
+                    foreach (CMClass cmClass in map.Values)
                     {
                         if (cmClass.Parent == null)
                         {
-                            row = AddClassToClassRows(cmClass, classRows, row);
+                            classRows = AddClassToClassRows(cmClass, 3);
                         }
                     }
 
@@ -195,7 +325,8 @@ namespace ClassLibraryTreeView
                         mergedRanges.Enqueue($"{mergedCell}:{CellName(0, col - 1)}");
                     }
 
-                    Parallel.ForEach // write permissible grid
+                    // write permissible grid
+                    Parallel.ForEach
                     (
                         classRows,
                         new ParallelOptions()
@@ -208,7 +339,8 @@ namespace ClassLibraryTreeView
                         }
                     );
 
-                    foreach (string range in mergedRanges) // merging selected cells
+                    // merging selected cells
+                    foreach (string range in mergedRanges)
                     {
                         if (range != null)
                         {
@@ -216,7 +348,8 @@ namespace ClassLibraryTreeView
                         }
                     }
 
-                    for (col = 1; col <= worksheet.ColumnCount(); col++) // adjust columns width
+                    // adjust columns width
+                    for (col = 1; col <= worksheet.ColumnCount(); col++)
                     {
                         worksheet.Column(col).AdjustToContents();
                     }
@@ -226,8 +359,15 @@ namespace ClassLibraryTreeView
                     string filename = model.FullPathXml;
                     filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
                     filename += ".xlsx";
-
-                    workbook.SaveAs(filename);
+                    
+                    try
+                    {
+                        workbook.SaveAs(filename);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
                 }
             }
             public void ExportClassAttributes(ConceptualModel model)

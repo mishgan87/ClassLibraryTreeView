@@ -168,7 +168,19 @@ namespace ClassLibraryTreeView
 
         private void BtnExportPermissibleGrid_Click(object sender, EventArgs e)
         {
-            ExportPermissibleGrid(sender, e);
+            // ExportPermissibleGrid(sender, e);
+
+            ConceptualModelExcelExporter exporter = new ConceptualModelExcelExporter();
+
+            DataGridView permissibleGridView = new DataGridView();
+            permissibleGridView.Dock = DockStyle.Fill;
+            // permissibleGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            permissibleGridView.DataSource = exporter.CreatePermissibleGrid(model);
+
+            TabPage page = new TabPage($"Permissible Grid");
+            page.Controls.Add(permissibleGridView);
+            tabControl.TabPages.Add(page);
+            tabControl.SelectedTab = page;
         }
 
         private void BtnDelete_Click(object sender, EventArgs e)
