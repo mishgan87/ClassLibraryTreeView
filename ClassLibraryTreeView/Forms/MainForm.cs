@@ -112,18 +112,19 @@ namespace ClassLibraryTreeView
                 propertiesView.ViewMeasureProperties(selectedNode);
             }
         }
-        private async void ExportPermissibleGrid(object sender, EventArgs e)
+        private async void ExportPermissibleGrid()
         {
             layoutMain.Panel1.Enabled = false;
             progressBar.Value = 0;
             progressBar.Visible = true;
 
+            DataTable dataTable = new DataTable();
             ConceptualModelExcelExporter exporter = new ConceptualModelExcelExporter();
             exporter.ExportProgress += new EventHandler<int>(this.SetExportProgress);
 
             // Stopwatch stopWatch = new Stopwatch();
             // stopWatch.Start();
-            await Task.Run(() => exporter.ExportPermissibleGrid(model));
+            await Task.Run(() => dataTable = exporter.ExportPermissibleGrid(model));
             // stopWatch.Stop();
             // TimeSpan timeSpan = stopWatch.Elapsed;
             // string elapsedTime = String.Format("{0:00}:{1:00}:{2:00}.{3:00}", timeSpan.Hours, timeSpan.Minutes, timeSpan.Seconds, timeSpan.Milliseconds / 10);
@@ -131,6 +132,16 @@ namespace ClassLibraryTreeView
 
             layoutMain.Panel1.Enabled = true;
             progressBar.Visible = false;
+
+            DataGridView permissibleGridView = new DataGridView();
+            permissibleGridView.Dock = DockStyle.Fill;
+            permissibleGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
+            permissibleGridView.DataSource = dataTable;
+
+            TabPage page = new TabPage($"Permissible Grid");
+            page.Controls.Add(permissibleGridView);
+            tabControl.TabPages.Add(page);
+            tabControl.SelectedTab = page;
         }
 
         private void BtnOpenFile_Click(object sender, EventArgs e)
@@ -165,22 +176,9 @@ namespace ClassLibraryTreeView
                 this.btnSearch.Enabled = true;
             }
         }
-
         private void BtnExportPermissibleGrid_Click(object sender, EventArgs e)
         {
-            // ExportPermissibleGrid(sender, e);
-
-            ConceptualModelExcelExporter exporter = new ConceptualModelExcelExporter();
-
-            DataGridView permissibleGridView = new DataGridView();
-            permissibleGridView.Dock = DockStyle.Fill;
-            // permissibleGridView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.DisplayedCells;
-            permissibleGridView.DataSource = exporter.CreatePermissibleGrid(model);
-
-            TabPage page = new TabPage($"Permissible Grid");
-            page.Controls.Add(permissibleGridView);
-            tabControl.TabPages.Add(page);
-            tabControl.SelectedTab = page;
+            ExportPermissibleGrid();
         }
 
         private void BtnDelete_Click(object sender, EventArgs e)
