@@ -407,13 +407,13 @@ namespace ClassLibraryTreeView.Controls
 
                     if (type.Equals("class"))
                     {
-                        CMClass cmClass = (CMClass)result.Value;
+                        ConceptualModelClass cmClass = (ConceptualModelClass)result.Value;
                         AddObject(listViewResult, cmClass, $"Class", Color.Yellow);
                     }
 
                     if (type.Equals("attribute"))
                     {
-                        CMAttribute attribute = (CMAttribute)result.Value;
+                        ConceptualModelAttribute attribute = (ConceptualModelAttribute)result.Value;
                         AddObject(listViewResult, attribute, $"Attribute", Color.Green);
                     }
 
@@ -431,13 +431,13 @@ namespace ClassLibraryTreeView.Controls
 
                     if (type.Equals("enumeration"))
                     {
-                        EnumerationList enumeration = (EnumerationList)result.Value;
+                        ConceptualModelEnumeration enumeration = (ConceptualModelEnumeration)result.Value;
                         AddObject(listViewResult, enumeration, $"Enumeration", Color.CadetBlue);
                     }
 
                     if (type.Equals("enumerationitem"))
                     {
-                        EnumerationListItem enumerationListItem = (EnumerationListItem)result.Value;
+                        ConceptualModelEnumerationItem enumerationListItem = (ConceptualModelEnumerationItem)result.Value;
                         AddObject(listViewResult, enumerationListItem, $"Enumeration Item", Color.LightSkyBlue);
                     }
 

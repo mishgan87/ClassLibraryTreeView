@@ -9,12 +9,13 @@ using System.Threading.Tasks;
 using System.Collections.Concurrent;
 using System.Data;
 using System.Linq;
+using ClassLibraryTreeView.Interfaces;
 
 namespace ClassLibraryTreeView
 {
     public partial class ConceptualModel
     {
-        public class ConceptualModelExcelExporter
+        public partial class ConceptualModelExcelExporter
         {
             public event EventHandler<int> ExportProgress;
             private CellStyleFactory cellStyleFactory = new CellStyleFactory();
@@ -34,18 +35,28 @@ namespace ClassLibraryTreeView
                 }
                 return $"{name}{row + 1}";
             }
-            private ConcurrentDictionary<int, CMClass> AddClassToClassRows(CMClass cmClassRoot, int startRowIndex)
+            private ConcurrentDictionary<int, ConceptualModelClass> AddClassToClassRows(Dictionary<string, ConceptualModelClass> map, int startRowIndex)
             {
-                ConcurrentDictionary<int, CMClass> classRows = new ConcurrentDictionary<int, CMClass>();
-                Queue<CMClass> queueOfClasses = new Queue<CMClass>();
-                List<CMClass> listOfClasses = new List<CMClass>();
+                ConceptualModelClass cmClassRoot = null;
+                foreach (ConceptualModelClass cmClass in map.Values)
+                {
+                    if (cmClass.Parent == null)
+                    {
+                        cmClassRoot = cmClass;
+                        break;
+                    }
+                }
+
+                ConcurrentDictionary<int, ConceptualModelClass> classRows = new ConcurrentDictionary<int, ConceptualModelClass>();
+                Queue<ConceptualModelClass> queueOfClasses = new Queue<ConceptualModelClass>();
+                List<ConceptualModelClass> listOfClasses = new List<ConceptualModelClass>();
                 queueOfClasses.Enqueue(cmClassRoot);
                 listOfClasses.Add(cmClassRoot);
 
-                Func<CMClass, List<CMClass>, int>FindIndex = (cmClass, cmList) =>
+                Func<ConceptualModelClass, List<ConceptualModelClass>, int>FindIndex = (cmClass, cmList) =>
                 {
                     int cmIndex = 0;
-                    foreach(CMClass cmItem in cmList)
+                    foreach(ConceptualModelClass cmItem in cmList)
                     {
                         if (cmItem.Name.Equals(cmClass.Name))
                         {
@@ -58,13 +69,13 @@ namespace ClassLibraryTreeView
 
                 while (queueOfClasses.Count > 0)
                 {
-                    CMClass cmClass = queueOfClasses.Dequeue();
+                    ConceptualModelClass cmClass = queueOfClasses.Dequeue();
 
                     if (cmClass.Children.Count > 0)
                     {
                         int parentIndex = FindIndex(cmClass, listOfClasses) + 1;
                         int addingIndex = 0;
-                        foreach (CMClass cmClassChild in cmClass.Children.Values)
+                        foreach (ConceptualModelClass cmClassChild in cmClass.Children.Values)
                         {
                             queueOfClasses.Enqueue(cmClassChild);
                             listOfClasses.Insert(parentIndex + addingIndex, cmClassChild);
@@ -74,7 +85,7 @@ namespace ClassLibraryTreeView
                 }
 
                 int index = startRowIndex;
-                foreach (CMClass cmClass in listOfClasses)
+                foreach (ConceptualModelClass cmClass in listOfClasses)
                 {
                     if (classRows.TryAdd(index, cmClass))
                     {
@@ -84,7 +95,7 @@ namespace ClassLibraryTreeView
 
                 return classRows;
             }
-            private void InsertClassIntoWorksheet(KeyValuePair<int, CMClass> classRow,
+            private void InsertClassIntoWorksheet(KeyValuePair<int, ConceptualModelClass> classRow,
                 IXLWorksheet worksheet,
                 int classRowsCount,
                 int maxDepth,
@@ -105,7 +116,7 @@ namespace ClassLibraryTreeView
                 IXLStyle classIdCellStyle = cellStyleFactory.CreateCellStyleForClassId();
                 IXLStyle disciplineCellStyle = cellStyleFactory.CreateCellStyleForDiscipline();
 
-                CMClass cmClass = classRow.Value;
+                ConceptualModelClass cmClass = classRow.Value;
                 int classDepth = cmClass.Depth;
 
                 SetCellValue(worksheet.Cell(CellName(classRow.Key, maxDepth + 2)), classIdCellStyle, cmClass.Id); // set class id cell
@@ -121,7 +132,7 @@ namespace ClassLibraryTreeView
                 int col = maxDepth + 3;
                 foreach (string group in model.attributes.Keys)
                 {
-                    foreach (CMAttribute attribute in model.attributes[group].Values)
+                    foreach (ConceptualModelAttribute attribute in model.attributes[group].Values)
                     {
                         // SetCellValue(worksheet.Cell($"{CellName(row, col)}"), attributeCellStyle, $"{attribute.Id} : {attribute.Name}");
                         string presence = cmClass.PermissibleAttributePresence(attribute.Id);
@@ -140,9 +151,9 @@ namespace ClassLibraryTreeView
                 // calculate maximum depth of model classes
 
                 int maxDepth = 0;
-                foreach (Dictionary<string, CMClass> map in model.classes.Values)
+                foreach (Dictionary<string, ConceptualModelClass> map in model.classes.Values)
                 {
-                    foreach (CMClass cmClass in map.Values)
+                    foreach (ConceptualModelClass cmClass in map.Values)
                     {
                         int depth = cmClass.Depth;
                         if (depth > maxDepth)
@@ -167,18 +178,10 @@ namespace ClassLibraryTreeView
                     };
 
                     // define classes attributes rows
-
-                    Dictionary<string, CMClass> map = model.MergedClasses;
+                    Dictionary<string, ConceptualModelClass> map = model.MergedClasses;
 
                     // fill dictionary of pairs <row number, conceptual model class>
-                    ConcurrentDictionary<int, CMClass> classRows = new ConcurrentDictionary<int, CMClass>();
-                    foreach (CMClass cmClass in map.Values)
-                    {
-                        if (cmClass.Parent == null)
-                        {
-                            classRows = AddClassToClassRows(cmClass, 3);
-                        }
-                    }
+                    ConcurrentDictionary<int, ConceptualModelClass> classRows = AddClassToClassRows(map, 3);
 
                     // define cell styles
                     IXLStyle headerCellStyle = cellStyleFactory.CreateCellStyle(CellStyle.Header);
@@ -210,7 +213,7 @@ namespace ClassLibraryTreeView
                         mergedCell = $"{CellName(0, col)}";
                         IXLCell cell = worksheet.Cell($"{CellName(0, col)}");
                         SetCellValue(cell, attributesGroupCellStyle, group);
-                        foreach (CMAttribute attribute in model.attributes[group].Values)
+                        foreach (ConceptualModelAttribute attribute in model.attributes[group].Values)
                         {
                             cell = worksheet.Cell($"{CellName(1, col)}");
                             SetCellValue(cell, attributeCellStyle, $"{attribute.Id} : {attribute.Name}");
@@ -255,7 +258,7 @@ namespace ClassLibraryTreeView
                     string filename = model.FullPathXml;
                     filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
                     filename += ".xlsx";
-                    
+
                     try
                     {
                         workbook.SaveAs(filename);
@@ -267,7 +270,7 @@ namespace ClassLibraryTreeView
 
                     foreach (var classRow in classRows)
                     {
-                        CMClass cmClass = classRow.Value;
+                        ConceptualModelClass cmClass = classRow.Value;
                         int classDepth = cmClass.Depth;
                         List<string> rowItems = new List<string>();
 
@@ -285,7 +288,7 @@ namespace ClassLibraryTreeView
 
                         foreach (string group in model.attributes.Keys)
                         {
-                            foreach (CMAttribute attribute in model.attributes[group].Values)
+                            foreach (ConceptualModelAttribute attribute in model.attributes[group].Values)
                             {
                                 string presence = cmClass.PermissibleAttributePresence(attribute.Id);
                                 // rowItems.Add($"{presence}");
@@ -302,7 +305,7 @@ namespace ClassLibraryTreeView
             }
             public void ExportClassAttributes(ConceptualModel model)
             {
-                Dictionary<string, CMClass> map = model.MergedClasses;
+                Dictionary<string, ConceptualModelClass> map = model.MergedClasses;
 
                 Action<IXLCell, IXLStyle, string> SetCellValue = (cellReference, cellStyle, cellValue) =>
                 {
@@ -311,13 +314,12 @@ namespace ClassLibraryTreeView
                 };
                 int rowIndex = 1;
                 List<KeyValuePair<int, string[]>> rows = new List<KeyValuePair<int, string[]>>();
-
-                foreach (CMClass cmClass in map.Values)
+                foreach (ConceptualModelClass cmClass in map.Values)
                 {
-                    Dictionary<string, CMAttribute> attributes = cmClass.PermissibleAttributes;
+                    Dictionary<string, ConceptualModelAttribute> attributes = cmClass.PermissibleAttributes;
                     if (attributes.Count > 0)
                     {
-                        foreach (CMAttribute attribute in attributes.Values)
+                        foreach (ConceptualModelAttribute attribute in attributes.Values)
                         {
                             rows.Add(new KeyValuePair<int, string[]>(rowIndex,
                                 new string[] { cmClass.Id, cmClass.Name, attribute.Id, attribute.Name }));
@@ -331,28 +333,27 @@ namespace ClassLibraryTreeView
                     IXLWorksheet worksheet = workbook.Worksheets.Add($"MergedClassAttributes");
 
                     // insert header
-
                     IXLStyle headerCellStyle = cellStyleFactory.CreateCellStyleForHeader();
-
                     SetCellValue(worksheet.Cell(CellName(0, 0)), headerCellStyle, $"Class ID");
                     SetCellValue(worksheet.Cell(CellName(0, 1)), headerCellStyle, $"Class Name");
                     SetCellValue(worksheet.Cell(CellName(0, 2)), headerCellStyle, $"Attribute ID");
                     SetCellValue(worksheet.Cell(CellName(0, 3)), headerCellStyle, $"Attribute Name");
 
                     // insert attributes
-
                     IXLStyle classCellStyle = cellStyleFactory.CreateCellStyleForClass();
+                    IXLStyle classDarkCellStyle = cellStyleFactory.CreateCellStyleForClassDark();
 
                     foreach (KeyValuePair<int, string[]> row in rows)
                     {
+                        IXLStyle cellStyle = classCellStyle;
                         if (row.Key % 2 == 0)
                         {
-                            // style = CellStyle.ClassId;
+                            cellStyle = classDarkCellStyle;
                         }
 
                         for (int col = 0; col < row.Value.Length; col++)
                         {
-                            SetCellValue(worksheet.Cell(CellName(row.Key, col)), classCellStyle, row.Value[col]);
+                            SetCellValue(worksheet.Cell(CellName(row.Key, col)), cellStyle, row.Value[col]);
                         }
 
                         int progress = (row.Key * 100) / rows.Count;

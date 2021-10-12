@@ -31,12 +31,12 @@ namespace ClassLibraryTreeView.Classes
                 items[index] = new List<string>();
             }
 
-            Dictionary<string, CMClass> map = model.MergedClasses;
+            Dictionary<string, ConceptualModelClass> map = model.MergedClasses;
 
              
-            foreach (CMClass cmClass in map.Values)
+            foreach (ConceptualModelClass cmClass in map.Values)
             {
-                foreach (CMAttribute attribute in cmClass.PermissibleAttributes.Values)
+                foreach (ConceptualModelAttribute attribute in cmClass.PermissibleAttributes.Values)
                 {
                     // items.Add(new string[] { cmClass.Id , cmClass.Name, attribute.Id, attribute.Name });
                     string cameFromId = "";
@@ -61,7 +61,7 @@ namespace ClassLibraryTreeView.Classes
             object item = this.Rows[index].Cells[4].Value;
             if (item != null)
             {
-                CMClass cmClass = model.GetClass(item.ToString());
+                ConceptualModelClass cmClass = model.GetClass(item.ToString());
                 if (cmClass != null)
                 {
                     Color rowBackColor = Color.Aquamarine; // default row color (functionals)

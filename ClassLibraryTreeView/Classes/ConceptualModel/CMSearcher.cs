@@ -47,14 +47,14 @@ namespace ClassLibraryTreeView.Classes
 
             if (searchClass)
             {
-                foreach (Dictionary<string, CMClass> map in model.classes.Values)
+                foreach (Dictionary<string, ConceptualModelClass> map in model.classes.Values)
                 {
-                    foreach (CMClass cmClass in map.Values)
+                    foreach (ConceptualModelClass ConceptualModelClass in map.Values)
                     {
-                        if ((cmClass.Id.Contains(text) && searchId)
-                            || (cmClass.Name.Contains(text) && searchName))
+                        if ((ConceptualModelClass.Id.Contains(text) && searchId)
+                            || (ConceptualModelClass.Name.Contains(text) && searchName))
                         {
-                            objects.Add(new KeyValuePair<string, object>($"class", cmClass));
+                            objects.Add(new KeyValuePair<string, object>($"class", ConceptualModelClass));
                         }
                     }
                 }
@@ -62,9 +62,9 @@ namespace ClassLibraryTreeView.Classes
 
             if (searchAttribute)
             {
-                foreach (Dictionary<string, CMAttribute> map in model.attributes.Values)
+                foreach (Dictionary<string, ConceptualModelAttribute> map in model.attributes.Values)
                 {
-                    foreach (CMAttribute attribute in map.Values)
+                    foreach (ConceptualModelAttribute attribute in map.Values)
                     {
                         if ((attribute.Id.Contains(text) && searchId)
                             || (attribute.Name.Contains(text) && searchName))
@@ -97,14 +97,14 @@ namespace ClassLibraryTreeView.Classes
 
             if (searchEnumeration)
             {
-                foreach (EnumerationList enumeration in model.Enumerations.Values)
+                foreach (ConceptualModelEnumeration enumeration in model.Enumerations.Values)
                 {
                     if ((enumeration.Id.Contains(text) && searchId)
                         || (enumeration.Name.Contains(text) && searchName))
                     {
                         objects.Add(new KeyValuePair<string, object>($"enumeration", enumeration));
                     }
-                    foreach (EnumerationListItem item in enumeration.Items)
+                    foreach (ConceptualModelEnumerationItem item in enumeration.Items)
                     {
                         if ((item.Id.Contains(text) && searchId)
                         || (item.Name.Contains(text) && searchName))

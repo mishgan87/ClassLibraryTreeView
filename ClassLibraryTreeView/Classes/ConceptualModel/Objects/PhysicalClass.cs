@@ -1,7 +1,7 @@
 ﻿namespace ClassLibraryTreeView.Classes
 {
     // Физический класс
-    class PhysicalClass : CMClass
+    class PhysicalClass : ConceptualModelClass
     {
         public PhysicalClass() : base()
         {

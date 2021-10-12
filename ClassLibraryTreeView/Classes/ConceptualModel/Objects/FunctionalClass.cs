@@ -3,14 +3,14 @@
 namespace ClassLibraryTreeView.Classes
 {
     // Функциональный класс
-    class FunctionalClass : CMClass
+    class FunctionalClass : ConceptualModelClass
     {
         public FunctionalClass() : base()
         {
             Discipline = "";
         }
 
-        public FunctionalClass(CMClass source) : base(source)
+        public FunctionalClass(ConceptualModelClass source) : base(source)
         {
         }
 

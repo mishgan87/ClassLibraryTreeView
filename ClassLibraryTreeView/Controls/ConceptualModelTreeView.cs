@@ -12,7 +12,6 @@ namespace ClassLibraryTreeView.Classes
     class ConceptualModelTreeView : TreeView
     {
         private ConceptualModel model = null;
-        private int mode = -1;
         public event EventHandler<TreeNode> NodeClicked;
         public ConceptualModelTreeView() : base()
         {
@@ -24,7 +23,7 @@ namespace ClassLibraryTreeView.Classes
         /// <param name="mode">0 - classes, 1 - attributes, 2 - enumerations, 3 - measure classes and units, 4 - taxonomies</param>
         public ConceptualModelTreeView(ConceptualModel conceptualModel, int viewMode) : base()
         {
-            mode = viewMode;
+            int mode = viewMode;
             model = conceptualModel;
             // NodeMouseHover
 
@@ -124,7 +123,7 @@ namespace ClassLibraryTreeView.Classes
         {
             this.Nodes.Remove(this.SelectedNode);
         }
-        private TreeNode NewClassNode(CMClass cmClass)
+        private TreeNode NewClassNode(ConceptualModelClass cmClass)
         {
             TreeNode treeNode = new TreeNode();
             treeNode.Text = cmClass.Name;
@@ -139,11 +138,11 @@ namespace ClassLibraryTreeView.Classes
             }
             return treeNode;
         }
-        private void AddClassChildren(CMClass cmClass, TreeNode treeNode)
+        private void AddClassChildren(ConceptualModelClass cmClass, TreeNode treeNode)
         {
             if (cmClass.Children.Count > 0)
             {
-                foreach (CMClass child in cmClass.Children.Values)
+                foreach (ConceptualModelClass child in cmClass.Children.Values)
                 {
                     TreeNode childNode = NewClassNode(child);
                     AddClassChildren(child, childNode);
@@ -153,11 +152,11 @@ namespace ClassLibraryTreeView.Classes
         }
         public void AddAttributes(ConceptualModel model)
         {
-            Dictionary<string, Dictionary<string, CMAttribute>> attributes = model.attributes;
+            Dictionary<string, Dictionary<string, ConceptualModelAttribute>> attributes = model.attributes;
             foreach (string group in attributes.Keys)
             {
                 TreeNode groupNode = new TreeNode(group);
-                foreach (CMAttribute attribute in attributes[group].Values)
+                foreach (ConceptualModelAttribute attribute in attributes[group].Values)
                 {
                     TreeNode treeNode = new TreeNode();
                     treeNode.Text = attribute.Name;
@@ -174,14 +173,15 @@ namespace ClassLibraryTreeView.Classes
                 this.AddClassMap(model.classes[classKey], classKey);
             }
         }
-        private void AddClassMap(Dictionary<string, CMClass> map, string xtype)
+        private void AddClassMap(Dictionary<string, ConceptualModelClass> map, string xtype)
         {
             if (map.Count > 0)
             {
                 TreeNode rootNode = new TreeNode(xtype);
-                foreach (CMClass cmClass in map.Values)
+                foreach (ConceptualModelClass cmClass in map.Values)
                 {
-                    if (cmClass.Extends.Equals(""))
+                    // if (cmClass.Extends.Equals("") || cmClass.Extends.ToLower().Equals("not found"))
+                    if (cmClass.Parent == null)
                     {
                         TreeNode newNode = NewClassNode(cmClass);
                         AddClassChildren(cmClass, newNode);
@@ -194,7 +194,7 @@ namespace ClassLibraryTreeView.Classes
         public void AddEnumerations(ConceptualModel model)
         {
             TreeNode rootNode = new TreeNode($"Enumerations");
-            Dictionary<string, EnumerationList> map = model.enumerations;
+            Dictionary<string, ConceptualModelEnumeration> map = model.enumerations;
             foreach (string key in map.Keys)
             {
                 TreeNode treeNode = new TreeNode(key);
@@ -202,7 +202,7 @@ namespace ClassLibraryTreeView.Classes
                 treeNode.Tag = map[key];
                 rootNode.Nodes.Add(treeNode);
 
-                foreach (EnumerationListItem item in map[key].Items)
+                foreach (ConceptualModelEnumerationItem item in map[key].Items)
                 {
                     TreeNode treeSubNode = new TreeNode();
                     treeSubNode.Text = item.Id;

@@ -17,12 +17,12 @@ namespace ClassLibraryTreeView.Forms
         {
             Init();
         }
-        public PropertiesView(CMAttribute attribute)
+        public PropertiesView(ConceptualModelAttribute attribute)
         {
             Init();
             ViewAttributeProperties(attribute);
         }
-        public PropertiesView(CMClass cmClass)
+        public PropertiesView(ConceptualModelClass cmClass)
         {
             Init();
             ViewClassProperties(cmClass);
@@ -43,7 +43,7 @@ namespace ClassLibraryTreeView.Forms
             this.FixedPanel = FixedPanel.Panel1;
             this.Orientation = Orientation.Horizontal;
         }
-        public void ViewAttributeProperties(CMAttribute attribute)
+        public void ViewAttributeProperties(ConceptualModelAttribute attribute)
         {
             label.Text = $"Attribute : {attribute.Name}";
             tabControl.TabPages.Clear();
@@ -60,7 +60,7 @@ namespace ClassLibraryTreeView.Forms
             }
             tabControl.TabPages[1].Controls.Add(new PropertiesListView(attribute.ApplicableClasses));
         }
-        public void ViewClassProperties(CMClass cmClass)
+        public void ViewClassProperties(ConceptualModelClass cmClass)
         {
             label.Text = $"Class : {cmClass.Name}";
             tabControl.TabPages.Clear();
@@ -71,7 +71,7 @@ namespace ClassLibraryTreeView.Forms
 
             // Add permissible attributes
 
-            Dictionary<string, CMAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
+            Dictionary<string, ConceptualModelAttribute> permissibleAttributes = cmClass.PermissibleAttributes;
             tabControl.TabPages.Add(new TabPage($"Permissible Attributes ({permissibleAttributes.Values.Count})"));
             tabControl.TabPages[1].Controls.Add(new PropertiesListView(permissibleAttributes));
 
@@ -80,15 +80,19 @@ namespace ClassLibraryTreeView.Forms
         public void ViewEnumerationProperties(object tag)
         {
             Type type = tag.GetType();
-            if (type.Name.ToLower().Equals("enumerationlistitem"))
+            if (tag is ConceptualModelEnumerationItem)
             {
-                EnumerationListItem enumerationListItem = (EnumerationListItem)tag;
+                ConceptualModelEnumerationItem enumerationListItem = (ConceptualModelEnumerationItem)tag;
                 label.Text = $"Enumeration List Item : {enumerationListItem.Name}";
                 tabControl.TabPages.Add(new TabPage("Properties"));
                 tabControl.TabPages[0].Controls.Add(new PropertiesListView(enumerationListItem));
                 return;
             }
-            EnumerationList enumerationList = (EnumerationList)tag;
+            if (!(tag is ConceptualModelEnumeration))
+            {
+                return;
+            }
+            ConceptualModelEnumeration enumerationList = (ConceptualModelEnumeration)tag;
             label.Text = $"Enumeration List : {enumerationList.Name}";
             tabControl.TabPages.Add(new TabPage("Properties"));
             tabControl.TabPages.Add(new TabPage($"Items ({enumerationList.Items.Count})"));
@@ -106,7 +110,7 @@ namespace ClassLibraryTreeView.Forms
             listView.Columns.Add("Name", 300, HorizontalAlignment.Left);
             listView.Columns.Add("Description", 300, HorizontalAlignment.Left);
 
-            foreach (EnumerationListItem item in enumerationList.Items)
+            foreach (ConceptualModelEnumerationItem item in enumerationList.Items)
             {
                 string[] items = { $"{item.Id}", $"{item.Name}", $"{item.Description}" };
                 listView.Items.Add(new ListViewItem(items));

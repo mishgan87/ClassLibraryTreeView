@@ -89,12 +89,12 @@ namespace ClassLibraryTreeView
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("attributes"))
             {
-                propertiesView.ViewAttributeProperties((CMAttribute)selectedNode.Tag);
+                propertiesView.ViewAttributeProperties((ConceptualModelAttribute)selectedNode.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("classes"))
             {
-                propertiesView.ViewClassProperties((CMClass)selectedNode.Tag);
+                propertiesView.ViewClassProperties((ConceptualModelClass)selectedNode.Tag);
             }
 
             if (this.treeTabs.SelectedTab.Text.ToLower().Equals("enumerations"))

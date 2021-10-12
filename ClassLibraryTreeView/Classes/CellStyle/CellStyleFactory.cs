@@ -28,6 +28,10 @@ namespace ClassLibraryTreeView.Classes.CellStyle
         {
             return new CellStyleForClass();
         }
+        public IXLStyle CreateCellStyleForClassDark()
+        {
+            return new CellStyleForClassDark();
+        }
         public IXLStyle CreateCellStyleForClassId()
         {
             return new CellStyleForClassId();
