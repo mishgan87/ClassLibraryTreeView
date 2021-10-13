@@ -12,7 +12,7 @@ namespace ClassLibraryTreeView
         public Dictionary<string, Dictionary<string, ConceptualModelClass>> classes = new Dictionary<string, Dictionary<string, ConceptualModelClass>>();
         public Dictionary<string, Dictionary<string, ConceptualModelAttribute>> attributes = new Dictionary<string, Dictionary<string, ConceptualModelAttribute>>();
 
-        public Dictionary<string, Taxonomy> taxonomies = new Dictionary<string, Taxonomy>();
+        public Dictionary<string, ConceptualModelTaxonomy> taxonomies = new Dictionary<string, ConceptualModelTaxonomy>();
         public Dictionary<string, MeasureUnit> measureUnits = new Dictionary<string, MeasureUnit>();
         public Dictionary<string, MeasureClass> measureClasses = new Dictionary<string, MeasureClass>();
         public Dictionary<string, ConceptualModelEnumeration> enumerations = new Dictionary<string, ConceptualModelEnumeration>();
@@ -20,7 +20,7 @@ namespace ClassLibraryTreeView
         public int AttributesCount { get; set; }
         public string FullPathXml { get; set; }
         public string ModelName { get; set; }
-        public Dictionary<string, Taxonomy> Taxonomies => taxonomies;
+        public Dictionary<string, ConceptualModelTaxonomy> Taxonomies => taxonomies;
         public Dictionary<string, ConceptualModelEnumeration> Enumerations => enumerations;
         public Dictionary<string, MeasureUnit> MeasureUnits => measureUnits;
         public Dictionary<string, MeasureClass> MeasureClasses => measureClasses;
@@ -68,7 +68,7 @@ namespace ClassLibraryTreeView
             classes = new Dictionary<string, Dictionary<string, ConceptualModelClass>>();
             attributes = new Dictionary<string, Dictionary<string, ConceptualModelAttribute>>();
 
-            taxonomies = new Dictionary<string, Taxonomy>();
+            taxonomies = new Dictionary<string, ConceptualModelTaxonomy>();
             measureClasses = new Dictionary<string, MeasureClass>();
             measureUnits = new Dictionary<string, MeasureUnit>();
             enumerations = new Dictionary<string, ConceptualModelEnumeration>();
@@ -155,7 +155,7 @@ namespace ClassLibraryTreeView
                 {
                     foreach (XElement child in element.Elements())
                     {
-                        Taxonomy taxonomy = new Taxonomy(child);
+                        ConceptualModelTaxonomy taxonomy = new ConceptualModelTaxonomy(child);
                         taxonomies.Add(taxonomy.Id, taxonomy);
                     }
                 }

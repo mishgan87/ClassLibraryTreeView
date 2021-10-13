@@ -389,7 +389,7 @@ namespace ClassLibraryTreeView.Controls
             string text = searchString.Text;
             int filter = GetFilter();
 
-            List<KeyValuePair<string, object>> results = CMSearcher.SearchText(text, model, filter);
+            List<KeyValuePair<string, object>> results = ConceptualModelSearcher.SearchText(text, model, filter);
 
             Action<ListView, IIdentifiable, string, Color> AddObject = (listView, element, type, color) =>
             {
@@ -419,14 +419,14 @@ namespace ClassLibraryTreeView.Controls
 
                     if (type.Equals("taxonomy"))
                     {
-                        Taxonomy taxonomy = (Taxonomy)result.Value;
-                        AddObject(listViewResult, taxonomy, $"Taxonomy", Color.Orange);
+                        ConceptualModelTaxonomy taxonomy = (ConceptualModelTaxonomy)result.Value;
+                        AddObject(listViewResult, taxonomy, $"ConceptualModelTaxonomy", Color.Orange);
                     }
 
                     if (type.Equals("taxonomynode"))
                     {
-                        TaxonomyNode taxonomyNode = (TaxonomyNode)result.Value;
-                        AddObject(listViewResult, taxonomyNode, $"Taxonomy Node", Color.Aquamarine);
+                        ConceptualModelTaxonomyNode taxonomyNode = (ConceptualModelTaxonomyNode)result.Value;
+                        AddObject(listViewResult, taxonomyNode, $"ConceptualModelTaxonomy Node", Color.Aquamarine);
                     }
 
                     if (type.Equals("enumeration"))

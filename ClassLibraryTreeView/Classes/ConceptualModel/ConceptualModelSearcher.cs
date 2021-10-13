@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ClassLibraryTreeView.Classes
 {
-    class CMSearcher
+    class ConceptualModelSearcher
     {
         // private static int GetBit(int data, int position)
         private static bool GetBit(int data, int position)
@@ -40,7 +40,7 @@ namespace ClassLibraryTreeView.Classes
             bool matchCase = GetBit(filter, 2);
             bool searchClass = GetBit(filter, 3);
             bool searchAttribute = GetBit(filter, 4);
-            bool searchTaxonomy = GetBit(filter, 5);
+            bool searchConceptualModelTaxonomy = GetBit(filter, 5);
             bool searchEnumeration = GetBit(filter, 6);
             bool searchMeasureUnit = GetBit(filter, 7);
             bool searchMeasureClass = GetBit(filter, 8);
@@ -75,16 +75,16 @@ namespace ClassLibraryTreeView.Classes
                 }
             }
 
-            if (searchTaxonomy)
+            if (searchConceptualModelTaxonomy)
             {
-                foreach (Taxonomy taxonomy in model.Taxonomies.Values)
+                foreach (ConceptualModelTaxonomy taxonomy in model.Taxonomies.Values)
                 {
                     if ((taxonomy.Id.Contains(text) && searchId)
                         || (taxonomy.Name.Contains(text) && searchName))
                     {
                         objects.Add(new KeyValuePair<string, object>($"taxonomy", taxonomy));
                     }
-                    foreach (TaxonomyNode node in taxonomy.Nodes)
+                    foreach (ConceptualModelTaxonomyNode node in taxonomy.Nodes)
                     {
                         if ((node.Id.Contains(text) && searchId)
                         || (node.Name.Contains(text) && searchName))

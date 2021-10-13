@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace ClassLibraryTreeView.Interfaces
+namespace ClassLibraryTreeView.Classes
 {
     public class TaxonomyNode : IIdentifiable
     {

@@ -73,6 +73,7 @@ namespace ClassLibraryTreeView
         {
             this.btnAdd.Enabled = true;
             this.btnDelete.Enabled = true;
+            object tag = selectedNode.Tag;
 
             if (selectedNode.Tag == null)
             {
@@ -87,27 +88,27 @@ namespace ClassLibraryTreeView
             tabControl.TabPages.Add(tabPage);
             tabControl.SelectedTab = tabPage;
 
-            if (this.treeTabs.SelectedTab.Text.ToLower().Equals("attributes"))
+            if (tag is ConceptualModelAttribute)
             {
                 propertiesView.ViewAttributeProperties((ConceptualModelAttribute)selectedNode.Tag);
             }
 
-            if (this.treeTabs.SelectedTab.Text.ToLower().Equals("classes"))
+            if (tag is ConceptualModelClass)
             {
                 propertiesView.ViewClassProperties((ConceptualModelClass)selectedNode.Tag);
             }
 
-            if (this.treeTabs.SelectedTab.Text.ToLower().Equals("enumerations"))
+            if (tag is ConceptualModelEnumeration || tag is ConceptualModelEnumerationItem)
             {
                 propertiesView.ViewEnumerationProperties(selectedNode.Tag);
             }
 
-            if (this.treeTabs.SelectedTab.Text.ToLower().Equals("taxonomies"))
+            if (tag is ConceptualModelTaxonomy || tag is ConceptualModelTaxonomyNode)
             {
-                propertiesView.ViewTaxonomyProperties(selectedNode.Tag);
+                propertiesView.ViewConceptualModelTaxonomyProperties(selectedNode.Tag);
             }
 
-            if (this.treeTabs.SelectedTab.Text.ToLower().Equals("measures"))
+            if (tag is MeasureClass || tag is MeasureUnit)
             {
                 propertiesView.ViewMeasureProperties(selectedNode);
             }

@@ -118,21 +118,20 @@ namespace ClassLibraryTreeView.Forms
 
             tabControl.TabPages[1].Controls.Add(listView);
         }
-        public void ViewTaxonomyProperties(object tag)
+        public void ViewConceptualModelTaxonomyProperties(object tag)
         {
-            Type type = tag.GetType();
-            if (type.Name.ToLower().Equals("taxonomy"))
+            if (tag is ConceptualModelTaxonomy)
             {
-                Taxonomy taxonomy = (Taxonomy)tag;
-                label.Text = $"Taxonomy : {taxonomy.Name}";
+                ConceptualModelTaxonomy taxonomy = (ConceptualModelTaxonomy)tag;
+                label.Text = $"ConceptualModelTaxonomy : {taxonomy.Name}";
                 tabControl.TabPages.Add(new TabPage("Properties"));
                 tabControl.TabPages[0].Controls.Add(new PropertiesListView(taxonomy));
             }
 
-            if (type.Name.ToLower().Equals("taxonomynode"))
+            if (tag is ConceptualModelTaxonomyNode)
             {
-                TaxonomyNode taxonomyNode = (TaxonomyNode)tag;
-                label.Text = $"Taxonomy Node : {taxonomyNode.Name}";
+                ConceptualModelTaxonomyNode taxonomyNode = (ConceptualModelTaxonomyNode)tag;
+                label.Text = $"ConceptualModelTaxonomy Node : {taxonomyNode.Name}";
                 tabControl.TabPages.Add(new TabPage("Properties"));
                 tabControl.TabPages.Add(new TabPage("Classes"));
                 tabControl.TabPages[0].Controls.Add(new PropertiesListView(taxonomyNode));

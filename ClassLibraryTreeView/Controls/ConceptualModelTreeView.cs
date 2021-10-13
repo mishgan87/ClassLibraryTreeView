@@ -65,13 +65,18 @@ namespace ClassLibraryTreeView.Classes
                 System.Windows.Forms.ContextMenuStrip menu = new System.Windows.Forms.ContextMenuStrip();
 
                 IIdentifiable nodeObject = (IIdentifiable)this.SelectedNode.Tag;
-                
-                ToolStripItem itemName = menu.Items.Add($"{nodeObject.Id} : {nodeObject.Name}");
 
-                ToolStripItem itemEdit = menu.Items.Add("Edit");
-                itemEdit.Image = global::ClassLibraryTreeView.Properties.Resources.edit;
-                itemEdit.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
-                itemEdit.Click += new EventHandler(this.EditItem);
+                if (nodeObject == null)
+                {
+                    return;
+                }
+                
+                // ToolStripItem itemName = menu.Items.Add($"{nodeObject.Id} : {nodeObject.Name}");
+
+                // ToolStripItem itemEdit = menu.Items.Add("Edit");
+                // itemEdit.Image = global::ClassLibraryTreeView.Properties.Resources.edit;
+                // itemEdit.ImageScaling = System.Windows.Forms.ToolStripItemImageScaling.None;
+                // itemEdit.Click += new EventHandler(this.EditItem);
 
                 ToolStripItem itemAdd = menu.Items.Add("Add");
                 itemAdd.Image = global::ClassLibraryTreeView.Properties.Resources.add;
@@ -240,7 +245,7 @@ namespace ClassLibraryTreeView.Classes
         public void AddTaxomies(ConceptualModel model)
         {
             TreeNode rootNode = new TreeNode($"Taxonomies");
-            Dictionary<string, Taxonomy> map = model.taxonomies;
+            Dictionary<string, ConceptualModelTaxonomy> map = model.taxonomies;
             foreach (string key in map.Keys)
             {
                 TreeNode treeNode = new TreeNode(key);
@@ -249,7 +254,7 @@ namespace ClassLibraryTreeView.Classes
 
                 if (map[key].Nodes.Count > 0)
                 {
-                    foreach (TaxonomyNode node in map[key].Nodes)
+                    foreach (ConceptualModelTaxonomyNode node in map[key].Nodes)
                     {
                         TreeNode treeSubNode = new TreeNode();
                         treeSubNode.Text = node.Name;

@@ -101,10 +101,12 @@
     <Compile Include="Classes\CellStyle\CellStyleProtection.cs" />
     <Compile Include="Classes\CellStyle\DefaultCellStyle.cs" />
     <Compile Include="Classes\ConceptualModel\ConceptualModelExcelExporter.cs" />
+    <Compile Include="Classes\ConceptualModel\Objects\ConceptualModelTaxonomy.cs" />
+    <Compile Include="Classes\ConceptualModel\Objects\ConceptualModelTaxonomyNode.cs" />
     <Compile Include="Controls\AttributesGrid.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Classes\ConceptualModel\CMSearcher.cs" />
+    <Compile Include="Classes\ConceptualModel\ConceptualModelSearcher.cs" />
     <Compile Include="Controls\ConceptualModelTreeView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -135,8 +137,6 @@
     <Compile Include="Interfaces\IIdentifiable.cs" />
     <Compile Include="Classes\ConceptualModel\Objects\PhysicalClass.cs" />
     <Compile Include="Classes\ConceptualModel\Objects\MeasureUnit.cs" />
-    <Compile Include="Classes\ConceptualModel\Objects\Taxonomy.cs" />
-    <Compile Include="Classes\ConceptualModel\Objects\TaxonomyNode.cs" />
     <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
