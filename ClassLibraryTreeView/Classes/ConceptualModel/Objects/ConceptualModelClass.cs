@@ -30,23 +30,6 @@ namespace ClassLibraryTreeView.Classes
             Parent = null;
             Children = new Dictionary<string, ConceptualModelClass>();
         }
-
-        public override KeyValuePair<string, string>[] Properties()
-        {
-            List<KeyValuePair<string, string>> attributes = new List<KeyValuePair<string, string>>();
-            attributes.AddRange(base.Properties());
-            attributes.Add(new KeyValuePair<string, string>($"IsAbstract", IsAbstract.ToString()));
-            attributes.Add(new KeyValuePair<string, string>($"Extends", Extends));
-            attributes.Add(new KeyValuePair<string, string>($"Concept", Concept));
-            attributes.Add(new KeyValuePair<string, string>($"LifeCycleType", LifeCycleType));
-            for (int index = 0; index < NamingTemplates.Count; index++)
-            {
-                attributes.Add(new KeyValuePair<string, string>($"NamingTemplate", NamingTemplates[index]));
-            }
-            attributes.Add(new KeyValuePair<string, string>($"Xtype", Xtype));
-            return attributes.ToArray();
-        }
-
         public override void Clone(IConceptualModelObject otherObject)
         {
             base.Clone(otherObject);

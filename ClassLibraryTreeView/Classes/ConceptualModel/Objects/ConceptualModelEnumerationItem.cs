@@ -21,11 +21,6 @@ namespace ClassLibraryTreeView.Classes
             Init();
             Clone(xElement);
         }
-        public override KeyValuePair<string, string>[] Properties()
-        {
-            return base.Properties();
-        }
-
         public override void Clone(IConceptualModelObject other)
         {
             base.Clone(other);

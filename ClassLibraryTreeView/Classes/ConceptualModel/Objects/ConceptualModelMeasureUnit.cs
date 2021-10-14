@@ -21,18 +21,6 @@ namespace ClassLibraryTreeView.Classes
         public ConceptualModelMeasureUnit(XElement xElement) : base(xElement)
         {
         }
-
-        public override KeyValuePair<string, string>[] Properties()
-        {
-            List<KeyValuePair<string, string>> attributes = new List<KeyValuePair<string, string>>();
-            attributes.AddRange(base.Properties());
-            attributes.Add(new KeyValuePair<string, string>($"Symbol", Symbol));
-            attributes.Add(new KeyValuePair<string, string>($"Standard", Standard));
-            attributes.Add(new KeyValuePair<string, string>($"Group", Group));
-            attributes.Add(new KeyValuePair<string, string>($"System", System));
-            return attributes.ToArray();
-        }
-
         public override void Clone(IConceptualModelObject other)
         {
             base.Clone(other);

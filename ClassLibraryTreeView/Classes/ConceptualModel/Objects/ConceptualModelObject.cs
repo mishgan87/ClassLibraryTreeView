@@ -32,9 +32,21 @@ namespace ClassLibraryTreeView.Classes
         {
             return ((idSearch && Id.Contains(text)) || (nameSearch && Name.Contains(text)));
         }
-        public virtual KeyValuePair<string, string>[] Properties()
+        public KeyValuePair<string, string>[] Properties()
         {
             List<KeyValuePair<string, string>> properties = new List<KeyValuePair<string, string>>();
+            Type objectType = Type.GetType(this.GetType().FullName);
+            PropertyInfo[] typeProperties = objectType.GetProperties();
+            foreach (PropertyInfo property in typeProperties)
+            {
+                string propertyType = property.PropertyType.FullName.ToLower();
+                if (!propertyType.Contains("collection"))
+                {
+                    properties.Add(new KeyValuePair<string, string>(property.Name, property.Name));
+                }
+
+            }
+            /*
             properties.Add(new KeyValuePair<string, string>($"Id", this.Id));
             properties.Add(new KeyValuePair<string, string>($"Name", this.Name));
             properties.Add(new KeyValuePair<string, string>($"Description", this.Description));
@@ -44,6 +56,7 @@ namespace ClassLibraryTreeView.Classes
             {
                 properties.Add(new KeyValuePair<string, string>($"Aspect", Aspect[aspectIndex]));
             }
+            */
             return properties.ToArray();
         }
 

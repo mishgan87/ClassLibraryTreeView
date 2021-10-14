@@ -53,11 +53,6 @@ namespace ClassLibraryTreeView.Classes
             Items = new List<ConceptualModelEnumerationItem>();
         }
 
-        public override KeyValuePair<string, string>[] Properties()
-        {
-            return base.Properties();
-        }
-
         public override string ToString()
         {
             return base.ToString();

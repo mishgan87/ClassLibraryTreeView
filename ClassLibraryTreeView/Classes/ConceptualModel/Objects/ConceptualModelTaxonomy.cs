@@ -26,14 +26,6 @@ namespace ClassLibraryTreeView.Classes
         public string Concept { get; set; }
         public List<ConceptualModelTaxonomyNode> Nodes { get; set; }
 
-        public override KeyValuePair<string, string>[] Properties()
-        {
-            List<KeyValuePair<string, string>> attributes = new List<KeyValuePair<string, string>>();
-            attributes.AddRange(base.Properties());
-            attributes.Add(new KeyValuePair<string, string>($"Concept", Concept));
-            return base.Properties();
-        }
-
         public override void Clone(IConceptualModelObject otherObject)
         {
             base.Clone(otherObject);

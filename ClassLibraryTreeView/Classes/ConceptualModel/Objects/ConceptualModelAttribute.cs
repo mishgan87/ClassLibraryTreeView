@@ -169,29 +169,6 @@ namespace ClassLibraryTreeView.Classes
                 this.ApplicableClasses.Add(cmClass.Id, cmClass);
             }
         }
-        public override KeyValuePair<string, string>[] Properties()
-        {
-            List<KeyValuePair<string, string>> attributes = new List<KeyValuePair<string, string>>();
-            attributes.AddRange(base.Properties());
-
-            attributes.Add(new KeyValuePair<string, string>($"ClassOfMeasure", this.ClassOfMeasure));
-            attributes.Add(new KeyValuePair<string, string>($"DataType", this.DataType));
-            attributes.Add(new KeyValuePair<string, string>($"Group", this.Group));
-            attributes.Add(new KeyValuePair<string, string>($"Presence", this.Presence));
-            attributes.Add(new KeyValuePair<string, string>($"ValidationType", this.ValidationType));
-            attributes.Add(new KeyValuePair<string, string>($"ValidationRule", this.ValidationRule));
-            attributes.Add(new KeyValuePair<string, string>($"MinOccurs", this.MinOccurs));
-            attributes.Add(new KeyValuePair<string, string>($"MaxOccurs", this.MaxOccurs));
-            for (int index = 0; index < this.MaturityLevels.Count; index++)
-            {
-                attributes.Add(new KeyValuePair<string, string>($"MaturityLevel", this.MaturityLevels[index]));
-            }
-            attributes.Add(new KeyValuePair<string, string>($"Concept", this.Concept));
-            attributes.Add(new KeyValuePair<string, string>($"Discipline", this.Discipline));
-            attributes.Add(new KeyValuePair<string, string>($"IsUomRequired", this.IsUoMRequired.ToString()));
-
-            return base.Properties();
-        }
         string ClassOfMeasure { get; set; } // measure class id
         public string DataType { get; set; }
         public string Group { get; set; }

@@ -78,14 +78,6 @@ namespace ClassLibraryTreeView.Classes
             Units = new List<ConceptualModelMeasureUnit>();
         }
 
-        public override KeyValuePair<string, string>[] Properties()
-        {
-            List<KeyValuePair<string, string>> attributes = new List<KeyValuePair<string, string>>();
-            attributes.AddRange(base.Properties());
-            attributes.Add(new KeyValuePair<string, string>($"Group", Group));
-            return attributes.ToArray();
-        }
-
         public override string ToString()
         {
             return base.ToString();
