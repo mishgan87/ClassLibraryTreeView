@@ -3,7 +3,7 @@ using System.Xml.Linq;
 
 namespace ClassLibraryTreeView.Interfaces
 {
-    public interface IIdentifiable
+    public interface IConceptualModelObject
     {
         string Id { get; set; }
         string Name { get; set; }
@@ -11,8 +11,9 @@ namespace ClassLibraryTreeView.Interfaces
         bool IsObsolete { get; set; }
         string SortOrder { get; set; }
         List<string> Aspect { get; set; }
-        KeyValuePair<string, string>[] Attributes();
-        void Clone(IIdentifiable other);
+        KeyValuePair<string, string>[] Properties();
+        // Dictionary<string, KeyValuePair<string, string>[]> Additionals();
+        void Clone(IConceptualModelObject other);
         void Clone(XElement xElement);
         void Init();
     }

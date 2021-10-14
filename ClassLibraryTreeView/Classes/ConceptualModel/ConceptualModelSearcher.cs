@@ -66,8 +66,7 @@ namespace ClassLibraryTreeView.Classes
                 {
                     foreach (ConceptualModelAttribute attribute in map.Values)
                     {
-                        if ((attribute.Id.Contains(text) && searchId)
-                            || (attribute.Name.Contains(text) && searchName))
+                        if (attribute.ContainsText(text, searchId, searchName))
                         {
                             objects.Add(new KeyValuePair<string, object>($"attribute", attribute));
                         }
@@ -77,17 +76,26 @@ namespace ClassLibraryTreeView.Classes
 
             if (searchConceptualModelTaxonomy)
             {
-                foreach (ConceptualModelTaxonomy taxonomy in model.Taxonomies.Values)
+                //IEnumerable<ConceptualModelTaxonomy> selectedTaxonomies = (IEnumerable<ConceptualModelTaxonomy>)model.Taxonomies.SelectMany(taxonomy => taxonomy.ContainsText(text, searchId, searchName));
+                /*
+                IEnumerable <ConceptualModelTaxonomy> selectedTaxonomies = model.Taxonomies.Select(taxonomy =>
                 {
-                    if ((taxonomy.Id.Contains(text) && searchId)
-                        || (taxonomy.Name.Contains(text) && searchName))
+                    if (taxonomy.ContainsText(text, searchId, searchName))
+                    {
+                        return taxonomy;
+                    }
+                    return null;
+                });
+                */
+                foreach (ConceptualModelTaxonomy taxonomy in model.Taxonomies)
+                {
+                    if (taxonomy.ContainsText(text, searchId, searchName))
                     {
                         objects.Add(new KeyValuePair<string, object>($"taxonomy", taxonomy));
                     }
                     foreach (ConceptualModelTaxonomyNode node in taxonomy.Nodes)
                     {
-                        if ((node.Id.Contains(text) && searchId)
-                        || (node.Name.Contains(text) && searchName))
+                        if (node.ContainsText(text, searchId, searchName))
                         {
                             objects.Add(new KeyValuePair<string, object>($"taxonomynode", node));
                         }
@@ -99,15 +107,13 @@ namespace ClassLibraryTreeView.Classes
             {
                 foreach (ConceptualModelEnumeration enumeration in model.Enumerations.Values)
                 {
-                    if ((enumeration.Id.Contains(text) && searchId)
-                        || (enumeration.Name.Contains(text) && searchName))
+                    if (enumeration.ContainsText(text, searchId, searchName))
                     {
                         objects.Add(new KeyValuePair<string, object>($"enumeration", enumeration));
                     }
                     foreach (ConceptualModelEnumerationItem item in enumeration.Items)
                     {
-                        if ((item.Id.Contains(text) && searchId)
-                        || (item.Name.Contains(text) && searchName))
+                        if (item.ContainsText(text, searchId, searchName))
                         {
                             objects.Add(new KeyValuePair<string, object>($"enumerationitem", item));
                         }
@@ -117,10 +123,9 @@ namespace ClassLibraryTreeView.Classes
 
             if (searchMeasureUnit)
             {
-                foreach (MeasureUnit measureUnit in model.MeasureUnits.Values)
+                foreach (ConceptualModelMeasureUnit measureUnit in model.measureUnits.Values)
                 {
-                    if ((measureUnit.Id.Contains(text) && searchId)
-                        || (measureUnit.Name.Contains(text) && searchName))
+                    if (measureUnit.ContainsText(text, searchId, searchName))
                     {
                         objects.Add(new KeyValuePair<string, object>($"measureunit", measureUnit));
                     }
@@ -129,10 +134,9 @@ namespace ClassLibraryTreeView.Classes
 
             if (searchMeasureClass)
             {
-                foreach (MeasureClass measureClass in model.MeasureClasses.Values)
+                foreach (ConceptualModelMeasureClass measureClass in model.MeasureClasses.Values)
                 {
-                    if ((measureClass.Id.Contains(text) && searchId)
-                        || (measureClass.Name.Contains(text) && searchName))
+                    if (measureClass.ContainsText(text, searchId, searchName))
                     {
                         objects.Add(new KeyValuePair<string, object>($"measureclass", measureClass));
                     }

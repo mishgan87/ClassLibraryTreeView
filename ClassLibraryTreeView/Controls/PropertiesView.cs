@@ -3,6 +3,7 @@ using ClassLibraryTreeView.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,6 +17,23 @@ namespace ClassLibraryTreeView.Forms
         public PropertiesView()
         {
             Init();
+        }
+        public PropertiesView(Object cmObject)
+        {
+            Init();
+
+            IConceptualModelObject obj = (IConceptualModelObject)cmObject;
+            KeyValuePair<string, string>[] properties = obj.Properties();
+
+            label.Text = $"{cmObject.GetType().Name}";
+            tabControl.TabPages.Clear();
+            if (properties.Length > 0)
+            {
+                TabPage tabPage = new TabPage("Properties");
+                tabPage.Controls.Add(new PropertiesListView(properties));
+                tabControl.TabPages.Add(tabPage);
+            }
+
         }
         public PropertiesView(ConceptualModelAttribute attribute)
         {
@@ -171,14 +189,14 @@ namespace ClassLibraryTreeView.Forms
                 {
                     if (selectedNode.Parent.Text.ToLower().Contains("units"))
                     {
-                        MeasureUnit measureUnit = (MeasureUnit)selectedNode.Tag;
+                        ConceptualModelMeasureUnit measureUnit = (ConceptualModelMeasureUnit)selectedNode.Tag;
                         label.Text = $"Measure Unit : {measureUnit.Name}";
                         tabControl.TabPages.Add(new TabPage("Properties"));
                         tabControl.TabPages[0].Controls.Add(new PropertiesListView(measureUnit));
                     }
                     if (selectedNode.Parent.Text.ToLower().Contains("classes"))
                     {
-                        MeasureClass measureClass = (MeasureClass)selectedNode.Tag;
+                        ConceptualModelMeasureClass measureClass = (ConceptualModelMeasureClass)selectedNode.Tag;
                         label.Text = $"Measure Class : {measureClass.Name}";
                         tabControl.TabPages.Add(new TabPage("Properties"));
                         tabControl.TabPages[0].Controls.Add(new PropertiesListView(measureClass));
@@ -191,7 +209,7 @@ namespace ClassLibraryTreeView.Forms
                         listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
                         listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
 
-                        foreach (MeasureUnit unit in measureClass.Units)
+                        foreach (ConceptualModelMeasureUnit unit in measureClass.Units)
                         {
                             string[] items = { $"{unit.Id}",
                                                 $"{unit.Name}",

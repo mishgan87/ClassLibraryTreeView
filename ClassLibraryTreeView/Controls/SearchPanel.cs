@@ -391,7 +391,7 @@ namespace ClassLibraryTreeView.Controls
 
             List<KeyValuePair<string, object>> results = ConceptualModelSearcher.SearchText(text, model, filter);
 
-            Action<ListView, IIdentifiable, string, Color> AddObject = (listView, element, type, color) =>
+            Action<ListView, IConceptualModelObject, string, Color> AddObject = (listView, element, type, color) =>
             {
                 ListViewItem listViewItem = new ListViewItem(new string[] { $"{element.Id}", $"{element.Name}", $"{type}" });
                 listViewItem.Tag = element;
@@ -443,13 +443,13 @@ namespace ClassLibraryTreeView.Controls
 
                     if (type.Equals("measureunit"))
                     {
-                        MeasureUnit measureUnit = (MeasureUnit)result.Value;
+                        ConceptualModelMeasureUnit measureUnit = (ConceptualModelMeasureUnit)result.Value;
                         AddObject(listViewResult, measureUnit, $"Measure Unit", Color.LightGreen);
                     }
 
                     if (type.Equals("measureclass"))
                     {
-                        MeasureClass measureClass = (MeasureClass)result.Value;
+                        ConceptualModelMeasureClass measureClass = (ConceptualModelMeasureClass)result.Value;
                         AddObject(listViewResult, measureClass, $"Measure Class", Color.SpringGreen);
                     }
                 }

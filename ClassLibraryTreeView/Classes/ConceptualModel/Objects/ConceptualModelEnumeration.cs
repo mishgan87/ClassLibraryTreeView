@@ -11,7 +11,7 @@ namespace ClassLibraryTreeView.Classes
         {
             Clone(xElement);
         }
-        public override void Clone(IIdentifiable source)
+        public override void Clone(IConceptualModelObject source)
         {
             Id = source.Id;
             Name = source.Name;
@@ -53,9 +53,9 @@ namespace ClassLibraryTreeView.Classes
             Items = new List<ConceptualModelEnumerationItem>();
         }
 
-        public override KeyValuePair<string, string>[] Attributes()
+        public override KeyValuePair<string, string>[] Properties()
         {
-            return base.Attributes();
+            return base.Properties();
         }
 
         public override string ToString()

@@ -5,7 +5,7 @@ using System.Xml.Linq;
 
 namespace ClassLibraryTreeView.Classes
 {
-    public class ConceptualModelObject : IIdentifiable
+    public class ConceptualModelObject : IConceptualModelObject
     {
         public string Id { get; set; }
         public string Name { get; set; }
@@ -27,22 +27,26 @@ namespace ClassLibraryTreeView.Classes
             Init();
             Clone(xElement);
         }
-        public virtual KeyValuePair<string, string>[] Attributes()
+        public bool ContainsText(string text, bool idSearch, bool nameSearch)
         {
-            List<KeyValuePair<string, string>> attributes = new List<KeyValuePair<string, string>>();
-            attributes.Add(new KeyValuePair<string, string>($"Id", this.Id));
-            attributes.Add(new KeyValuePair<string, string>($"Name", this.Name));
-            attributes.Add(new KeyValuePair<string, string>($"Description", this.Description));
-            attributes.Add(new KeyValuePair<string, string>($"IsObsolete", this.IsObsolete.ToString()));
-            attributes.Add(new KeyValuePair<string, string>($"SortOrder", this.SortOrder));
+            return ((idSearch && Id.Contains(text)) || (nameSearch && Name.Contains(text)));
+        }
+        public virtual KeyValuePair<string, string>[] Properties()
+        {
+            List<KeyValuePair<string, string>> properties = new List<KeyValuePair<string, string>>();
+            properties.Add(new KeyValuePair<string, string>($"Id", this.Id));
+            properties.Add(new KeyValuePair<string, string>($"Name", this.Name));
+            properties.Add(new KeyValuePair<string, string>($"Description", this.Description));
+            properties.Add(new KeyValuePair<string, string>($"IsObsolete", this.IsObsolete.ToString()));
+            properties.Add(new KeyValuePair<string, string>($"SortOrder", this.SortOrder));
             for (int aspectIndex = 0; aspectIndex < this.Aspect.Count; aspectIndex++)
             {
-                attributes.Add(new KeyValuePair<string, string>($"Aspect", Aspect[aspectIndex]));
+                properties.Add(new KeyValuePair<string, string>($"Aspect", Aspect[aspectIndex]));
             }
-            return attributes.ToArray();
+            return properties.ToArray();
         }
 
-        public virtual void Clone(IIdentifiable other)
+        public virtual void Clone(IConceptualModelObject other)
         {
             this.Id = other.Id;
             this.Name = other.Name;
@@ -101,7 +105,7 @@ namespace ClassLibraryTreeView.Classes
         }
         public override bool Equals(object otherObject)
         {
-            if ( !(otherObject is ConceptualModelObject) || otherObject == null)
+            if (!Object.ReferenceEquals(this.GetType(), otherObject.GetType()) || otherObject == null)
             {
                 return false;
             }

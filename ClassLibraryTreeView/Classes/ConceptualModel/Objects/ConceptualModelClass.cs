@@ -6,19 +6,16 @@ namespace ClassLibraryTreeView.Classes
 {
     public class ConceptualModelClass : ConceptualModelObject
     {
-        public ConceptualModelClass()
+        public ConceptualModelClass() : base()
         {
-            Init();
         }
 
-        public ConceptualModelClass(ConceptualModelObject other)
+        public ConceptualModelClass(ConceptualModelObject other) : base(other)
         {
-            Clone(other);
         }
 
-        public ConceptualModelClass(XElement xElement)
+        public ConceptualModelClass(XElement xElement) : base(xElement)
         {
-            Clone(xElement);
         }
         public override void Init()
         {
@@ -34,10 +31,10 @@ namespace ClassLibraryTreeView.Classes
             Children = new Dictionary<string, ConceptualModelClass>();
         }
 
-        public override KeyValuePair<string, string>[] Attributes()
+        public override KeyValuePair<string, string>[] Properties()
         {
             List<KeyValuePair<string, string>> attributes = new List<KeyValuePair<string, string>>();
-            attributes.AddRange(base.Attributes());
+            attributes.AddRange(base.Properties());
             attributes.Add(new KeyValuePair<string, string>($"IsAbstract", IsAbstract.ToString()));
             attributes.Add(new KeyValuePair<string, string>($"Extends", Extends));
             attributes.Add(new KeyValuePair<string, string>($"Concept", Concept));
@@ -50,7 +47,7 @@ namespace ClassLibraryTreeView.Classes
             return attributes.ToArray();
         }
 
-        public override void Clone(IIdentifiable otherObject)
+        public override void Clone(IConceptualModelObject otherObject)
         {
             base.Clone(otherObject);
             ConceptualModelClass other = (ConceptualModelClass)otherObject;
@@ -116,21 +113,14 @@ namespace ClassLibraryTreeView.Classes
         }
         public override bool Equals(object otherObject)
         {
-            if (!(otherObject is ConceptualModelAttribute) || otherObject == null)
+            if (!base.Equals(otherObject))
             {
                 return false;
             }
 
             ConceptualModelClass other = (ConceptualModelClass)otherObject;
 
-            bool baseEquals = (this.Id.Equals(other.Id)
-                                && this.Name.Equals(other.Name)
-                                && this.Description.Equals(other.Description)
-                                && this.IsObsolete.Equals(other.IsObsolete)
-                                && this.SortOrder.Equals(other.SortOrder)
-                                && this.Aspect.Equals(other.Aspect));
-
-            bool thisEquals = (this.IsAbstract.Equals(other.IsAbstract)
+            return (this.IsAbstract.Equals(other.IsAbstract)
                                 && this.Extends.Equals(other.Extends)
                                 && this.Concept.Equals(other.Concept)
                                 && this.LifeCycleType.Equals(other.LifeCycleType)
@@ -138,13 +128,6 @@ namespace ClassLibraryTreeView.Classes
                                 && this.PermissibleAttributes.Equals(other.PermissibleAttributes)
                                 && this.Xtype.Equals(other.Xtype)
                                 && this.Parent.Equals(other.Parent));
-
-            if (!baseEquals || !thisEquals)
-            {
-                return false;
-            }
-
-            return true;
         }
 
         public override string ToString()

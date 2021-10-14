@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -64,7 +65,7 @@ namespace ClassLibraryTreeView.Classes
 
                 System.Windows.Forms.ContextMenuStrip menu = new System.Windows.Forms.ContextMenuStrip();
 
-                IIdentifiable nodeObject = (IIdentifiable)this.SelectedNode.Tag;
+                IConceptualModelObject nodeObject = (IConceptualModelObject)this.SelectedNode.Tag;
 
                 if (nodeObject == null)
                 {
@@ -99,9 +100,8 @@ namespace ClassLibraryTreeView.Classes
         }
         protected override void OnNodeMouseDoubleClick(TreeNodeMouseClickEventArgs eventArgs)
         {
-            if (eventArgs.Button == MouseButtons.Left)
+            if (eventArgs.Button == MouseButtons.Left && this.SelectedNode.Tag != null && this.SelectedNode.Tag is ConceptualModelObject)
             {
-
                 this.NodeClicked?.Invoke(this, this.SelectedNode);
             }
         }
@@ -220,7 +220,7 @@ namespace ClassLibraryTreeView.Classes
         public void AddMeasures(ConceptualModel model)
         {
             TreeNode rootUnitsNode = new TreeNode($"Measure Units");
-            Dictionary<string, MeasureUnit> map = model.measureUnits;
+            Dictionary<string, ConceptualModelMeasureUnit> map = model.measureUnits;
             foreach (string key in map.Keys)
             {
                 TreeNode treeNode = new TreeNode(key);
@@ -231,7 +231,7 @@ namespace ClassLibraryTreeView.Classes
             this.Nodes.Add(rootUnitsNode);
 
             TreeNode rootClassesNode = new TreeNode($"Measure Classes");
-            Dictionary<string, MeasureClass> mapClasses = model.measureClasses;
+            Dictionary<string, ConceptualModelMeasureClass> mapClasses = model.measureClasses;
             foreach (string key in mapClasses.Keys)
             {
                 TreeNode treeNode = new TreeNode(key);
@@ -245,30 +245,23 @@ namespace ClassLibraryTreeView.Classes
         public void AddTaxomies(ConceptualModel model)
         {
             TreeNode rootNode = new TreeNode($"Taxonomies");
-            Dictionary<string, ConceptualModelTaxonomy> map = model.taxonomies;
-            foreach (string key in map.Keys)
+            foreach (ConceptualModelTaxonomy taxonomy in model.Taxonomies)
             {
-                TreeNode treeNode = new TreeNode(key);
-                treeNode.Text = map[key].Name;
-                treeNode.Tag = map[key];
-
-                if (map[key].Nodes.Count > 0)
+                TreeNode treeNode = new TreeNode(taxonomy.Id);
+                treeNode.Text = taxonomy.Name;
+                treeNode.Tag = taxonomy;
+                for (int nodeIndex = 0; nodeIndex < taxonomy.Nodes.Count; nodeIndex++)
                 {
-                    foreach (ConceptualModelTaxonomyNode node in map[key].Nodes)
+                    ConceptualModelTaxonomyNode node = taxonomy.Nodes[nodeIndex];
+                    TreeNode treeSubNode = new TreeNode();
+                    treeSubNode.Text = node.Name;
+                    treeSubNode.Tag = node;
+                    for (int classIndex = 0; classIndex < node.Classes.Count; classIndex++)
                     {
-                        TreeNode treeSubNode = new TreeNode();
-                        treeSubNode.Text = node.Name;
-                        treeSubNode.Tag = node;
-
-                        foreach (string id in node.Classes)
-                        {
-                            treeSubNode.Nodes.Add(new TreeNode(id));
-                        }
-
-                        treeNode.Nodes.Add(treeSubNode);
+                        treeSubNode.Nodes.Add(new TreeNode(node.Classes[classIndex]));
                     }
+                    treeNode.Nodes.Add(treeSubNode);
                 }
-
                 rootNode.Nodes.Add(treeNode);
             }
             this.Nodes.Add(rootNode);

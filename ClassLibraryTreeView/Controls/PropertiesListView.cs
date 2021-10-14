@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -16,10 +17,22 @@ namespace ClassLibraryTreeView.Classes
         private int editedSubItemIndex = -1;
         private ComboBox comboBoxProperty = new ComboBox();
         private Rectangle ClickedItem = new Rectangle();
-        private IIdentifiable parentTag = null;
+        private IConceptualModelObject parentTag = null;
         public PropertiesListView()
         {
             Init();
+        }
+        public PropertiesListView(KeyValuePair<string, string>[] properties)
+        {
+            Init();
+
+            this.Columns.Add($"Property", 150, HorizontalAlignment.Left);
+            this.Columns.Add($"Value", 150, HorizontalAlignment.Left);
+
+            for (int index = 0; index < properties.Length; index++)
+            {
+                this.Items.Add(new ListViewItem(new string[] { properties[index].Key, properties[index].Value }));
+            }
         }
         public PropertiesListView(Dictionary<string, ConceptualModelClass> applicableClasses)
         {
@@ -31,7 +44,7 @@ namespace ClassLibraryTreeView.Classes
             Init();
             ViewPermissibleAttributes(permissibleAttributes);
         }
-        public PropertiesListView(IIdentifiable element) : base()
+        public PropertiesListView(IConceptualModelObject element) : base()
         {
             Init();
             ViewElementProperties(element);
@@ -172,7 +185,7 @@ namespace ClassLibraryTreeView.Classes
                 return;
             }
 
-            KeyValuePair<string, string>[] names = applicableClasses.Values.First().Attributes();
+            KeyValuePair<string, string>[] names = applicableClasses.Values.First().Properties();
             foreach (KeyValuePair<string, string> name in names)
             {
                 this.Columns.Add($"{name.Key}", 150, HorizontalAlignment.Left);
@@ -181,7 +194,7 @@ namespace ClassLibraryTreeView.Classes
             foreach (ConceptualModelClass cmClass in applicableClasses.Values)
             {
                 List<string> items = new List<string>();
-                KeyValuePair<string, string>[] properties = cmClass.Attributes();
+                KeyValuePair<string, string>[] properties = cmClass.Properties();
                 foreach (KeyValuePair<string, string> property in properties)
                 {
                     items.Add(property.Value);
@@ -191,7 +204,7 @@ namespace ClassLibraryTreeView.Classes
                 this.Items.Add(item);
             }
         }
-        public void ViewElementProperties(IIdentifiable element)
+        public void ViewElementProperties(IConceptualModelObject element)
         {
             this.Items.Clear();
 
@@ -205,7 +218,7 @@ namespace ClassLibraryTreeView.Classes
             this.Columns.Add("Property", 300, HorizontalAlignment.Left);
             this.Columns.Add("Value", 300, HorizontalAlignment.Left);
 
-            KeyValuePair<string, string>[] properties = element.Attributes();
+            KeyValuePair<string, string>[] properties = element.Properties();
             foreach (KeyValuePair<string, string> property in properties)
             {
                 string[] items = { $"{property.Key}", $"{property.Value}" };
@@ -222,8 +235,8 @@ namespace ClassLibraryTreeView.Classes
                 return;
             }
 
-            // KeyValuePair<string, string>[] names = permissibleAttributes.Values.First().Attributes();
-            List<KeyValuePair<string, string>> names = permissibleAttributes.Values.First().Attributes().ToList();
+            // KeyValuePair<string, string>[] names = permissibleAttributes.Values.First().Properties();
+            List<KeyValuePair<string, string>> names = permissibleAttributes.Values.First().Properties().ToList();
             names.Insert(0, new KeyValuePair<string, string>("Came From", ""));
 
             foreach (KeyValuePair<string, string> name in names)
@@ -240,7 +253,7 @@ namespace ClassLibraryTreeView.Classes
 
             foreach (ConceptualModelAttribute attribute in permissibleAttributes.Values)
             {
-                KeyValuePair<string, string>[] properties = attribute.Attributes();
+                KeyValuePair<string, string>[] properties = attribute.Properties();
                 List<string> items = new List<string>();
                 if (attribute.CameFrom != null)
                 {

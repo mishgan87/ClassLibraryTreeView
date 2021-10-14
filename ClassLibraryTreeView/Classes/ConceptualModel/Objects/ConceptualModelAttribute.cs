@@ -20,7 +20,7 @@ namespace ClassLibraryTreeView.Classes
         {
             Clone(xElement);
         }
-        public override void Clone(IIdentifiable other)
+        public override void Clone(IConceptualModelObject other)
         {
             base.Clone(other);
             ConceptualModelAttribute otherAttribute = (ConceptualModelAttribute)other;
@@ -169,10 +169,10 @@ namespace ClassLibraryTreeView.Classes
                 this.ApplicableClasses.Add(cmClass.Id, cmClass);
             }
         }
-        public override KeyValuePair<string, string>[] Attributes()
+        public override KeyValuePair<string, string>[] Properties()
         {
             List<KeyValuePair<string, string>> attributes = new List<KeyValuePair<string, string>>();
-            attributes.AddRange(base.Attributes());
+            attributes.AddRange(base.Properties());
 
             attributes.Add(new KeyValuePair<string, string>($"ClassOfMeasure", this.ClassOfMeasure));
             attributes.Add(new KeyValuePair<string, string>($"DataType", this.DataType));
@@ -190,7 +190,7 @@ namespace ClassLibraryTreeView.Classes
             attributes.Add(new KeyValuePair<string, string>($"Discipline", this.Discipline));
             attributes.Add(new KeyValuePair<string, string>($"IsUomRequired", this.IsUoMRequired.ToString()));
 
-            return base.Attributes();
+            return base.Properties();
         }
         string ClassOfMeasure { get; set; } // measure class id
         public string DataType { get; set; }

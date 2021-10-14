@@ -23,12 +23,12 @@ namespace ClassLibraryTreeView.Classes
             Clone(xElement);
         }
 
-        public override KeyValuePair<string, string>[] Attributes()
+        public override KeyValuePair<string, string>[] Properties()
         {
-            return base.Attributes();
+            return base.Properties();
         }
 
-        public override void Clone(IIdentifiable otherObject)
+        public override void Clone(IConceptualModelObject otherObject)
         {
             base.Clone(otherObject);
 

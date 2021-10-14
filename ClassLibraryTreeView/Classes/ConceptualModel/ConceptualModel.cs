@@ -12,18 +12,22 @@ namespace ClassLibraryTreeView
         public Dictionary<string, Dictionary<string, ConceptualModelClass>> classes = new Dictionary<string, Dictionary<string, ConceptualModelClass>>();
         public Dictionary<string, Dictionary<string, ConceptualModelAttribute>> attributes = new Dictionary<string, Dictionary<string, ConceptualModelAttribute>>();
 
-        public Dictionary<string, ConceptualModelTaxonomy> taxonomies = new Dictionary<string, ConceptualModelTaxonomy>();
-        public Dictionary<string, MeasureUnit> measureUnits = new Dictionary<string, MeasureUnit>();
-        public Dictionary<string, MeasureClass> measureClasses = new Dictionary<string, MeasureClass>();
+        public HashSet<ConceptualModelTaxonomy> taxonomies = new HashSet<ConceptualModelTaxonomy>();
+        public Dictionary<string, ConceptualModelMeasureUnit> measureUnits = new Dictionary<string, ConceptualModelMeasureUnit>();
+        public Dictionary<string, ConceptualModelMeasureClass> measureClasses = new Dictionary<string, ConceptualModelMeasureClass>();
         public Dictionary<string, ConceptualModelEnumeration> enumerations = new Dictionary<string, ConceptualModelEnumeration>();
+
+
+        
 
         public int AttributesCount { get; set; }
         public string FullPathXml { get; set; }
         public string ModelName { get; set; }
-        public Dictionary<string, ConceptualModelTaxonomy> Taxonomies => taxonomies;
+        // public Dictionary<string, ConceptualModelTaxonomy> Taxonomies => taxonomies;
+        public HashSet<ConceptualModelTaxonomy> Taxonomies => taxonomies;
         public Dictionary<string, ConceptualModelEnumeration> Enumerations => enumerations;
-        public Dictionary<string, MeasureUnit> MeasureUnits => measureUnits;
-        public Dictionary<string, MeasureClass> MeasureClasses => measureClasses;
+        public Dictionary<string, ConceptualModelMeasureUnit> ConceptualModelMeasureUnits => measureUnits;
+        public Dictionary<string, ConceptualModelMeasureClass> MeasureClasses => measureClasses;
         public Dictionary<string, ConceptualModelClass> MergedClasses
         {
             get
@@ -68,9 +72,9 @@ namespace ClassLibraryTreeView
             classes = new Dictionary<string, Dictionary<string, ConceptualModelClass>>();
             attributes = new Dictionary<string, Dictionary<string, ConceptualModelAttribute>>();
 
-            taxonomies = new Dictionary<string, ConceptualModelTaxonomy>();
-            measureClasses = new Dictionary<string, MeasureClass>();
-            measureUnits = new Dictionary<string, MeasureUnit>();
+            taxonomies = new HashSet<ConceptualModelTaxonomy>();
+            measureClasses = new Dictionary<string, ConceptualModelMeasureClass>();
+            measureUnits = new Dictionary<string, ConceptualModelMeasureUnit>();
             enumerations = new Dictionary<string, ConceptualModelEnumeration>();
 
             AttributesCount = 0;
@@ -88,25 +92,18 @@ namespace ClassLibraryTreeView
         }
         public ConceptualModelAttribute GetAttributeById(string id)
         {
+            ConceptualModelAttribute attribute = null;
             foreach (string group in attributes.Keys)
             {
-                if (attributes[group].ContainsKey(id))
+                // if (attributes[group].ContainsKey(id))
+                if (attributes[group].TryGetValue(id, out attribute))
                 {
-                    return attributes[group][id];
+                    // return attributes[group][id];
+                    break;
                 }
             }
-            return null;
-        }
-        private void MapFromXElement(XElement element, Dictionary<string, ConceptualModelClass> map)
-        {
-            foreach (XElement child in element.Elements())
-            {
-                if (!child.Name.LocalName.ToLower().Equals("extension"))
-                {
-                    ConceptualModelClass newClass = new ConceptualModelClass(child);
-                    map.Add(newClass.Id, newClass);
-                }
-            }
+            // return null;
+            return attribute;
         }
         private void GetUoM(XElement referenceDataElement)
         {
@@ -118,7 +115,7 @@ namespace ClassLibraryTreeView
                 {
                     foreach (XElement child in element.Elements())
                     {
-                        MeasureUnit measureUnit = new MeasureUnit(child);
+                        ConceptualModelMeasureUnit measureUnit = new ConceptualModelMeasureUnit(child);
                         measureUnits.Add(measureUnit.Id, measureUnit);
                     }
                 }
@@ -127,12 +124,13 @@ namespace ClassLibraryTreeView
                 {
                     foreach (XElement child in element.Elements())
                     {
-                        MeasureClass measureClass = new MeasureClass(child);
+                        ConceptualModelMeasureClass measureClass = new ConceptualModelMeasureClass(child);
                         measureClasses.Add(measureClass.Id, measureClass);
                     }
                 }
             }
         }
+
         private void GetReferenceData(XElement referenceDataElement)
         {
             foreach (XElement element in referenceDataElement.Elements())
@@ -156,7 +154,7 @@ namespace ClassLibraryTreeView
                     foreach (XElement child in element.Elements())
                     {
                         ConceptualModelTaxonomy taxonomy = new ConceptualModelTaxonomy(child);
-                        taxonomies.Add(taxonomy.Id, taxonomy);
+                        taxonomies.Add(taxonomy);
                     }
                 }
             }
@@ -255,17 +253,15 @@ namespace ClassLibraryTreeView
         {
             foreach (Dictionary<string, ConceptualModelClass> map in classes.Values)
             {
-                if (map.Count > 0)
+                for (int index = 0; index < map.Values.Count; index++)
                 {
-                    foreach (ConceptualModelClass cmClass in map.Values)
+                    ConceptualModelClass cmClass = map.Values.ElementAt(index);
+                    if (!cmClass.Extends.Equals("") && !cmClass.Extends.ToLower().Equals("not found"))
                     {
-                        if (!cmClass.Extends.Equals("") && !cmClass.Extends.ToLower().Equals("not found"))
-                        {
-                            var parent = map[cmClass.Extends];
-                            cmClass.Parent = map[cmClass.Extends];
-                            MergeAttributes(cmClass.Parent, cmClass);
-                            map[cmClass.Extends].Children.Add(cmClass.Id, cmClass);
-                        }
+                        var parent = map[cmClass.Extends];
+                        cmClass.Parent = map[cmClass.Extends];
+                        MergeAttributes(cmClass.Parent, cmClass);
+                        map[cmClass.Extends].Children.Add(cmClass.Id, cmClass);
                     }
                 }
             }
@@ -275,7 +271,6 @@ namespace ClassLibraryTreeView
             Clear();
             FullPathXml = fileName;
             XDocument doc = XDocument.Load(fileName);
-
             foreach (XElement element in doc.Elements().First().Elements())
             {
                 string name = element.Name.LocalName.ToLower();
@@ -288,7 +283,14 @@ namespace ClassLibraryTreeView
                 if (name.Equals("functionals") || name.Equals("physicals") || name.Equals("documents"))
                 {
                     classes.Add(name, new Dictionary<string, ConceptualModelClass>());
-                    MapFromXElement(element, classes[name]);
+                    foreach (XElement child in element.Elements())
+                    {
+                        if (!child.Name.LocalName.ToLower().Equals("extension"))
+                        {
+                            ConceptualModelClass newClass = new ConceptualModelClass(child);
+                            classes[name].Add(newClass.Id, newClass);
+                        }
+                    }
                 }
 
                 if (name.Equals("attributes"))

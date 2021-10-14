@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.Drawing;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -23,7 +24,6 @@ namespace ClassLibraryTreeView
             InitializeComponent();
             model = new ConceptualModel();
             tabControl.MouseClick += new MouseEventHandler(this.OnTabControlMouseClick);
-            treeTabs.LostFocus += new EventHandler(this.DisableButtons);
         }
         private void SetExportProgress(object sender, int progressValue)
         {
@@ -40,11 +40,6 @@ namespace ClassLibraryTreeView
         private void SetProgress(int progress)
         {
             progressBar.Value = progress;
-        }
-        private void DisableButtons(object sender, EventArgs e)
-        {
-            this.btnAdd.Enabled = false;
-            this.btnDelete.Enabled = false;
         }
         private void OnTabControlMouseClick(object sender, MouseEventArgs e)
         {
@@ -68,50 +63,13 @@ namespace ClassLibraryTreeView
                 }
             }
         }
-        // private void ViewProperties(object sender, TreeNodeMouseClickEventArgs eventArgs)
-        private void ViewProperties(object sender, TreeNode selectedNode)
+        private void ViewProperties(object sender, TreeNode treeNode)
         {
-            this.btnAdd.Enabled = true;
-            this.btnDelete.Enabled = true;
-            object tag = selectedNode.Tag;
-
-            if (selectedNode.Tag == null)
-            {
-                return;
-            }
-
-            SelectedTreeNode = selectedNode;
-
-            PropertiesView propertiesView = new PropertiesView();
-            TabPage tabPage = new TabPage(SelectedTreeNode.Text);
-            tabPage.Controls.Add(propertiesView);
+            TabPage tabPage = new TabPage(treeNode.Text);
+            tabPage.Controls.Add(new PropertiesView(treeNode.Tag));
             tabControl.TabPages.Add(tabPage);
             tabControl.SelectedTab = tabPage;
-
-            if (tag is ConceptualModelAttribute)
-            {
-                propertiesView.ViewAttributeProperties((ConceptualModelAttribute)selectedNode.Tag);
-            }
-
-            if (tag is ConceptualModelClass)
-            {
-                propertiesView.ViewClassProperties((ConceptualModelClass)selectedNode.Tag);
-            }
-
-            if (tag is ConceptualModelEnumeration || tag is ConceptualModelEnumerationItem)
-            {
-                propertiesView.ViewEnumerationProperties(selectedNode.Tag);
-            }
-
-            if (tag is ConceptualModelTaxonomy || tag is ConceptualModelTaxonomyNode)
-            {
-                propertiesView.ViewConceptualModelTaxonomyProperties(selectedNode.Tag);
-            }
-
-            if (tag is MeasureClass || tag is MeasureUnit)
-            {
-                propertiesView.ViewMeasureProperties(selectedNode);
-            }
+            SelectedTreeNode = treeNode;
         }
         private async void ExportPermissibleGrid()
         {
@@ -169,9 +127,7 @@ namespace ClassLibraryTreeView
 
                 this.btnExportPermissibleGrid.Enabled = true;
 
-                this.btnDelete.Enabled = false;
                 this.btnUndo.Enabled = false;
-                this.btnAdd.Enabled = false;
                 this.btnSave.Enabled = false;
                 this.btnReport.Enabled = true;
                 this.btnSearch.Enabled = true;
