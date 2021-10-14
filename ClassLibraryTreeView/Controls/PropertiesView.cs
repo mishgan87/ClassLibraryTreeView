@@ -18,12 +18,13 @@ namespace ClassLibraryTreeView.Forms
         {
             Init();
         }
-        public PropertiesView(Object cmObject)
+        public PropertiesView(object cmObject)
         {
             Init();
 
             IConceptualModelObject obj = (IConceptualModelObject)cmObject;
             KeyValuePair<string, string>[] properties = obj.Properties();
+            var arraysProperties = obj.ArraysProperties();
 
             label.Text = $"{cmObject.GetType().Name}";
             tabControl.TabPages.Clear();

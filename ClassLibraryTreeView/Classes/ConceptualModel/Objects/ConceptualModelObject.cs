@@ -1,6 +1,7 @@
 ﻿using ClassLibraryTreeView.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Xml.Linq;
 
 namespace ClassLibraryTreeView.Classes
@@ -128,6 +129,24 @@ namespace ClassLibraryTreeView.Classes
             this.IsObsolete = false;
             this.SortOrder = "";
             this.Aspect = new List<string>();
+        }
+
+        public Dictionary<string, KeyValuePair<string, string>[]> ArraysProperties()
+        {
+            Dictionary<string, KeyValuePair<string, string>[]> arraysProperties = new Dictionary<string, KeyValuePair<string, string>[]>();
+            Type objectType = Type.GetType(this.GetType().FullName);
+            PropertyInfo[] properties = objectType.GetProperties();
+            foreach (PropertyInfo property in properties)
+            {
+                string propertyType = property.PropertyType.FullName.ToLower();
+                if (propertyType.Contains("collection"))
+                {
+                    List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
+                    arraysProperties.Add(property.Name, list.ToArray());
+                }
+                
+            }
+            return arraysProperties;
         }
     }
 }
