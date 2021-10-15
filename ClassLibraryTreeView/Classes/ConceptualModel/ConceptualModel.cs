@@ -267,7 +267,7 @@ namespace ClassLibraryTreeView
         private HashSet<ConceptualModelClass> GetClasses(string concept, XElement xRootElement)
         {
             IEnumerable<XElement> rootOfClasses = from xElement in xRootElement.Elements()
-                                         where xElement.Name.LocalName.ToLower().Equals("concept")
+                                         where xElement.Name.LocalName.ToLower().Equals(concept)
                                          select xElement;
 
             IEnumerable<ConceptualModelClass> classesCollection = from xElement in rootOfClasses.Elements()
@@ -285,7 +285,9 @@ namespace ClassLibraryTreeView
 
             var functionals = GetClasses("functionals", docRoot);
             var physicals = GetClasses("physicals", docRoot);
-
+            var documents = GetClasses("documents", docRoot);
+            var attributes = GetClasses("attributes", docRoot);
+            /*
             foreach (XElement element in doc.Elements().First().Elements())
             {
                 string name = element.Name.LocalName.ToLower();
@@ -331,7 +333,7 @@ namespace ClassLibraryTreeView
                     }
                 }
             }
-
+            */
             DefinePermissibleAttributesNames();
             SetClassesInheritance();
 
