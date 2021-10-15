@@ -117,19 +117,16 @@ namespace ClassLibraryTreeView.Classes
         {
             return base.ToString();
         }
-        public int Depth
+        public static int Depth(ConceptualModelClass cmClass)
         {
-            get
+            int depth = 0;
+            ConceptualModelClass parent = cmClass.Parent;
+            while (parent != null)
             {
-                int depth = 0;
-                ConceptualModelClass parent = this.Parent;
-                while (parent != null)
-                {
-                    depth++;
-                    parent = parent.Parent;
-                }
-                return depth;
+                depth++;
+                parent = parent.Parent;
             }
+            return depth;
         }
         public bool ContainsChild(ConceptualModelClass cmClass) => Children.ContainsValue(cmClass);
         public string PermissibleAttributePresence(string id)

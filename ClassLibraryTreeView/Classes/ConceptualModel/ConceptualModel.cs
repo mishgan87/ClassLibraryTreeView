@@ -17,13 +17,11 @@ namespace ClassLibraryTreeView
         public Dictionary<string, ConceptualModelMeasureClass> measureClasses = new Dictionary<string, ConceptualModelMeasureClass>();
         public Dictionary<string, ConceptualModelEnumeration> enumerations = new Dictionary<string, ConceptualModelEnumeration>();
 
-
-        
+        // public HashSet<ConceptualModelObject> modelObjects = new HashSet<ConceptualModelObject>();
 
         public int AttributesCount { get; set; }
         public string FullPathXml { get; set; }
         public string ModelName { get; set; }
-        // public Dictionary<string, ConceptualModelTaxonomy> Taxonomies => taxonomies;
         public HashSet<ConceptualModelTaxonomy> Taxonomies => taxonomies;
         public Dictionary<string, ConceptualModelEnumeration> Enumerations => enumerations;
         public Dictionary<string, ConceptualModelMeasureUnit> ConceptualModelMeasureUnits => measureUnits;
@@ -266,11 +264,28 @@ namespace ClassLibraryTreeView
                 }
             }
         }
+        private HashSet<ConceptualModelClass> GetClasses(string concept, XElement xRootElement)
+        {
+            IEnumerable<XElement> rootOfClasses = from xElement in xRootElement.Elements()
+                                         where xElement.Name.LocalName.ToLower().Equals("concept")
+                                         select xElement;
+
+            IEnumerable<ConceptualModelClass> classesCollection = from xElement in rootOfClasses.Elements()
+                                                            where !xElement.Name.LocalName.ToLower().Equals("extension")
+                                                            select new ConceptualModelClass(xElement);
+
+            return classesCollection.ToHashSet();
+        }
         public void ImportXml(string fileName)
         {
             Clear();
             FullPathXml = fileName;
             XDocument doc = XDocument.Load(fileName);
+            XElement docRoot = doc.Elements().First();
+
+            var functionals = GetClasses("functionals", docRoot);
+            var physicals = GetClasses("physicals", docRoot);
+
             foreach (XElement element in doc.Elements().First().Elements())
             {
                 string name = element.Name.LocalName.ToLower();

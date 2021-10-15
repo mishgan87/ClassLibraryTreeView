@@ -24,7 +24,7 @@ namespace ClassLibraryTreeView.Forms
 
             IConceptualModelObject obj = (IConceptualModelObject)cmObject;
             KeyValuePair<string, string>[] properties = obj.Properties();
-            var arraysProperties = obj.ArraysProperties();
+            Dictionary<string, KeyValuePair<string, string>[]> arraysProperties = obj.ArraysProperties();
 
             label.Text = $"{cmObject.GetType().Name}";
             tabControl.TabPages.Clear();

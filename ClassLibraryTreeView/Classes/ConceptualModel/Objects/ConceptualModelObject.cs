@@ -32,34 +32,52 @@ namespace ClassLibraryTreeView.Classes
         {
             return ((idSearch && Id.Contains(text)) || (nameSearch && Name.Contains(text)));
         }
-        public KeyValuePair<string, string>[] Properties()
+        private static KeyValuePair<string, string>[] GetPropertyValues(Object obj)
         {
             List<KeyValuePair<string, string>> properties = new List<KeyValuePair<string, string>>();
+            Type t = obj.GetType();
+            // Console.WriteLine("Type is: {0}", t.Name);
+            PropertyInfo[] props = t.GetProperties();
+
+            foreach (PropertyInfo prop in props)
+            {
+                if (!prop.PropertyType.FullName.ToLower().Contains("collection"))
+                {
+                    if (prop.GetIndexParameters().Length == 0)
+                    {
+                        properties.Add(new KeyValuePair<string, string>(prop.Name, $"{prop.GetValue(obj)}"));
+                    }
+                    else
+                    {
+                        properties.Add(new KeyValuePair<string, string>(prop.Name, "<Indexed>"));
+                    }
+                }
+            }
+
+            return properties.ToArray();
+        }
+        public KeyValuePair<string, string>[] Properties()
+        {
+            return GetPropertyValues(this);
+        }
+        public Dictionary<string, KeyValuePair<string, string>[]> ArraysProperties()
+        {
+            Dictionary<string, KeyValuePair<string, string>[]> arraysProperties = new Dictionary<string, KeyValuePair<string, string>[]>();
             Type objectType = Type.GetType(this.GetType().FullName);
-            PropertyInfo[] typeProperties = objectType.GetProperties();
-            foreach (PropertyInfo property in typeProperties)
+            PropertyInfo[] properties = objectType.GetProperties();
+            foreach (PropertyInfo property in properties)
             {
                 string propertyType = property.PropertyType.FullName.ToLower();
-                if (!propertyType.Contains("collection"))
+                if (propertyType.Contains("collection"))
                 {
-                    properties.Add(new KeyValuePair<string, string>(property.Name, property.Name));
+                    var obj = Activator.CreateInstance(property.PropertyType);
+                    List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
+                    arraysProperties.Add(property.Name, list.ToArray());
                 }
 
             }
-            /*
-            properties.Add(new KeyValuePair<string, string>($"Id", this.Id));
-            properties.Add(new KeyValuePair<string, string>($"Name", this.Name));
-            properties.Add(new KeyValuePair<string, string>($"Description", this.Description));
-            properties.Add(new KeyValuePair<string, string>($"IsObsolete", this.IsObsolete.ToString()));
-            properties.Add(new KeyValuePair<string, string>($"SortOrder", this.SortOrder));
-            for (int aspectIndex = 0; aspectIndex < this.Aspect.Count; aspectIndex++)
-            {
-                properties.Add(new KeyValuePair<string, string>($"Aspect", Aspect[aspectIndex]));
-            }
-            */
-            return properties.ToArray();
+            return arraysProperties;
         }
-
         public virtual void Clone(IConceptualModelObject other)
         {
             this.Id = other.Id;
@@ -104,7 +122,7 @@ namespace ClassLibraryTreeView.Classes
         }
         public override string ToString()
         {
-            return this.Name;
+            return this.Id;
         }
         public override int GetHashCode()
         {
@@ -142,24 +160,6 @@ namespace ClassLibraryTreeView.Classes
             this.IsObsolete = false;
             this.SortOrder = "";
             this.Aspect = new List<string>();
-        }
-
-        public Dictionary<string, KeyValuePair<string, string>[]> ArraysProperties()
-        {
-            Dictionary<string, KeyValuePair<string, string>[]> arraysProperties = new Dictionary<string, KeyValuePair<string, string>[]>();
-            Type objectType = Type.GetType(this.GetType().FullName);
-            PropertyInfo[] properties = objectType.GetProperties();
-            foreach (PropertyInfo property in properties)
-            {
-                string propertyType = property.PropertyType.FullName.ToLower();
-                if (propertyType.Contains("collection"))
-                {
-                    List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
-                    arraysProperties.Add(property.Name, list.ToArray());
-                }
-                
-            }
-            return arraysProperties;
         }
     }
 }

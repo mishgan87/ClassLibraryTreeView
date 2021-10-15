@@ -117,7 +117,7 @@ namespace ClassLibraryTreeView
                 IXLStyle disciplineCellStyle = cellStyleFactory.CreateCellStyleForDiscipline();
 
                 ConceptualModelClass cmClass = classRow.Value;
-                int classDepth = cmClass.Depth;
+                int classDepth = ConceptualModelClass.Depth(cmClass);
 
                 SetCellValue(worksheet.Cell(CellName(classRow.Key, maxDepth + 2)), classIdCellStyle, cmClass.Id); // set class id cell
                 SetCellValue(worksheet.Cell(CellName(classRow.Key, classDepth)), classCellStyle, cmClass.Name); // set class name cell
@@ -155,7 +155,7 @@ namespace ClassLibraryTreeView
                 {
                     foreach (ConceptualModelClass cmClass in map.Values)
                     {
-                        int depth = cmClass.Depth;
+                        int depth = ConceptualModelClass.Depth(cmClass);
                         if (depth > maxDepth)
                         {
                             maxDepth = depth;
@@ -271,7 +271,7 @@ namespace ClassLibraryTreeView
                     foreach (var classRow in classRows)
                     {
                         ConceptualModelClass cmClass = classRow.Value;
-                        int classDepth = cmClass.Depth;
+                        int classDepth = ConceptualModelClass.Depth(cmClass);
                         List<string> rowItems = new List<string>();
 
                         for (int columnIndex = 0; columnIndex < maxDepth + 1; columnIndex++)
