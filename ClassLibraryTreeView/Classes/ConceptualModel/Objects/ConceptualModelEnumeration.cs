@@ -24,17 +24,10 @@ namespace ClassLibraryTreeView.Classes
             ConceptualModelEnumeration enumerationList = (ConceptualModelEnumeration)source;
             Items = new List<ConceptualModelEnumerationItem>(enumerationList.Items);
         }
-        public override Dictionary<string, string[]> PropertiesArrays()
+        public override Dictionary<string, object[]> PropertiesArrays()
         {
-            Dictionary<string, string[]> propertiesArrays = base.PropertiesArrays();
-
-            List<string> idList = new List<string>();
-            if (Items.Count > 0)
-            {
-                idList.AddRange(from ConceptualModelEnumerationItem item in Items select item.Id);
-            }
-            propertiesArrays.Add($"Items ({idList.Count})", idList.ToArray());
-
+            Dictionary<string, object[]> propertiesArrays = base.PropertiesArrays();
+            propertiesArrays.Add($"Items ({Items.Count})", Items.ToArray());
             return propertiesArrays;
         }
         public override void Clone(XElement xElement)

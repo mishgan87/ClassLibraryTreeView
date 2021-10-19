@@ -18,7 +18,21 @@ namespace ClassLibraryTreeView
         public Dictionary<string, ConceptualModelMeasureClass> measureClasses = new Dictionary<string, ConceptualModelMeasureClass>();
         public Dictionary<string, ConceptualModelEnumeration> enumerations = new Dictionary<string, ConceptualModelEnumeration>();
 
-        public int AttributesCount { get; set; }
+        public int AttributesCount
+        { 
+            get
+            {
+                int count = 0;
+                if (attributes.Count > 0)
+                {
+                    foreach (KeyValuePair<string, Dictionary<string, ConceptualModelAttribute>> group in attributes)
+                    {
+                        count += group.Value.Count;
+                    }
+                }
+                return count;
+            }
+        }
         public string FullPathXml { get; set; }
         public string ModelName { get; set; }
         public Dictionary<string, ConceptualModelTaxonomy> Taxonomies => taxonomies;
@@ -68,78 +82,19 @@ namespace ClassLibraryTreeView
         {
             classes = new Dictionary<string, Dictionary<string, ConceptualModelClass>>();
             attributes = new Dictionary<string, Dictionary<string, ConceptualModelAttribute>>();
-
             taxonomies = new Dictionary<string, ConceptualModelTaxonomy>();
             measureClasses = new Dictionary<string, ConceptualModelMeasureClass>();
             measureUnits = new Dictionary<string, ConceptualModelMeasureUnit>();
             enumerations = new Dictionary<string, ConceptualModelEnumeration>();
-
-            AttributesCount = 0;
         }
         public void Clear()
         {
-            AttributesCount = 0;
-
             classes.Clear();
             attributes.Clear();
             taxonomies.Clear();
             enumerations.Clear();
             measureUnits.Clear();
             measureClasses.Clear();
-        }
-        private void GetUoM(XElement referenceDataElement)
-        {
-            foreach (XElement element in referenceDataElement.Elements())
-            {
-                string name = element.Name.LocalName.ToLower();
-
-                if (name.Equals("units"))
-                {
-                    foreach (XElement child in element.Elements())
-                    {
-                        ConceptualModelMeasureUnit measureUnit = new ConceptualModelMeasureUnit(child);
-                        measureUnits.Add(measureUnit.Id, measureUnit);
-                    }
-                }
-
-                if (name.Equals("measureclasses"))
-                {
-                    foreach (XElement child in element.Elements())
-                    {
-                        ConceptualModelMeasureClass measureClass = new ConceptualModelMeasureClass(child);
-                        measureClasses.Add(measureClass.Id, measureClass);
-                    }
-                }
-            }
-        }
-
-        private void GetReferenceData(XElement referenceDataElement)
-        {
-            foreach (XElement element in referenceDataElement.Elements())
-            {
-                string name = element.Name.LocalName;
-                if (name.ToLower().Equals("enumerations"))
-                {
-                    foreach (XElement child in element.Elements())
-                    {
-                        ConceptualModelEnumeration enumerationList = new ConceptualModelEnumeration(child);
-                        enumerations.Add(enumerationList.Id, enumerationList);
-                    }
-                }
-
-                if (name.ToLower().Equals("uom"))
-                {
-                    GetUoM(element);
-                }
-                if (name.ToLower().Equals("taxonomies"))
-                {
-                    foreach (XElement child in element.Elements())
-                    {
-                        ConceptualModelTaxonomy taxonomy = new ConceptualModelTaxonomy(child);
-                        taxonomies.Add(taxonomy.Id, taxonomy);
-                    }
-                }
-            }
         }
         public bool OpenFile()
         {
@@ -172,12 +127,14 @@ namespace ClassLibraryTreeView
                     {
                         if (cmClass.PermissibleAttributes.Count > 0)
                         {
-                            foreach (KeyValuePair<string, ConceptualModelAttribute> permissibleAttribute in cmClass.PermissibleAttributes)
+                            foreach (var (permissibleAttribute, suitableAttribute) in from KeyValuePair<string, ConceptualModelAttribute> permissibleAttribute in cmClass.PermissibleAttributes
+                                                                                      let suitableAttributes = from cmAttributeGroup in conceptualModelAttributes.Values
+                                                                                                               where cmAttributeGroup.ContainsKey(permissibleAttribute.Key)
+                                                                                                               select cmAttributeGroup[permissibleAttribute.Key]
+                                                                                      where suitableAttributes.Count() > 0
+                                                                                      let suitableAttribute = suitableAttributes.First()
+                                                                                      select (permissibleAttribute, suitableAttribute))
                             {
-                                IEnumerable<ConceptualModelAttribute> suitableAttributes = from cmAttributeGroup in conceptualModelAttributes.Values
-                                                                                           where cmAttributeGroup.ContainsKey(permissibleAttribute.Key)
-                                                                                           select cmAttributeGroup[permissibleAttribute.Key];
-                                ConceptualModelAttribute suitableAttribute = suitableAttributes.First();
                                 permissibleAttribute.Value.Description = suitableAttribute.Description;
                                 permissibleAttribute.Value.Name = suitableAttribute.Name;
                                 permissibleAttribute.Value.AddApplicableClass(cmClass);
@@ -287,35 +244,33 @@ namespace ClassLibraryTreeView
             classes.Add("documents", GetClasses("documents", docRoot));
             classes.Add("generals", GetClasses("generals", docRoot));
 
+            // get conceptual model reference data
+
             var rootOfRefenceData = GetElements(docRoot, "referencedata").First();
 
             IEnumerable<ConceptualModelTaxonomy> taxonomiesCollection = from xElement in GetElements(rootOfRefenceData, "taxonomies").Elements()
                                                                         where xElement.Name.LocalName.ToLower().Equals("taxonomy")
                                                                         select new ConceptualModelTaxonomy(xElement);
-            this.taxonomies = taxonomiesCollection.ToDictionary(cmTax => cmTax.Id);
 
             IEnumerable<ConceptualModelEnumeration> enumerationsCollection = from xElement in GetElements(rootOfRefenceData, "enumerations").Elements()
                                                                         where xElement.Name.LocalName.ToLower().Equals("list")
                                                                         select new ConceptualModelEnumeration(xElement);
-            this.enumerations = enumerationsCollection.ToDictionary(cmList => cmList.Id);
 
             IEnumerable<XElement> uomElements = from xElement in GetElements(rootOfRefenceData, "uom").Elements()
-                                                where xElement.Name.LocalName.ToLower().Equals("units")
-                                                // where xElement.Name.LocalName.ToLower().Equals("measureclasses")
+                                                where xElement.Name.LocalName.ToLower().Equals("units") ||
+                                                xElement.Name.LocalName.ToLower().Equals("measureclasses")
                                                 select xElement;
 
             IEnumerable<ConceptualModelMeasureUnit> measureUnitsCollection = from xElement in uomElements.Elements()
                                                                              where xElement.Name.LocalName.ToLower().Equals("unit")
                                                                              select new ConceptualModelMeasureUnit(xElement);
 
-            uomElements = from xElement in GetElements(rootOfRefenceData, "uom").Elements()
-                                                where xElement.Name.LocalName.ToLower().Equals("measureclasses")
-                                                select xElement;
-
             IEnumerable<ConceptualModelMeasureClass> measureClassesCollection = from xElement in uomElements.Elements()
                                                                              where xElement.Name.LocalName.ToLower().Equals("measureclass")
                                                                              select new ConceptualModelMeasureClass(xElement);
 
+            this.taxonomies = taxonomiesCollection.ToDictionary(cmTax => cmTax.Id);
+            this.enumerations = enumerationsCollection.ToDictionary(cmList => cmList.Id);
             this.measureUnits = measureUnitsCollection.ToDictionary(cmMeasureUnit => cmMeasureUnit.Id);
             this.measureClasses = measureClassesCollection.ToDictionary(cmMeasureClass => cmMeasureClass.Id);
 
@@ -327,22 +282,21 @@ namespace ClassLibraryTreeView
                 return;
             }
 
+            foreach (var physicalClass in
             // merge permissible attributes of roots functional and physical classes
-
-            foreach (ConceptualModelClass physicalClass in classes["physicals"].Values)
+            from ConceptualModelClass physicalClass in classes["physicals"].Values
+            where physicalClass.Parent == null
+            select physicalClass)
             {
-                if (physicalClass.Parent == null)
+                foreach (var functionalClass in from ConceptualModelClass functionalClass in classes["functionals"].Values
+                                                where functionalClass.Parent == null
+                                                select functionalClass)
                 {
-                    foreach (ConceptualModelClass functionalClass in classes["functionals"].Values)
-                    {
-                        if (functionalClass.Parent == null)
-                        {
-                            MergeAttributes(functionalClass, physicalClass, attributes);
-                            break;
-                        }
-                    }
+                    MergeAttributes(functionalClass, physicalClass, attributes);
                     break;
                 }
+
+                break;
             }
 
             // merge permissible attributes of functional and physical classes (classes merged by name)

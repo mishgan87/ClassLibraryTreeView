@@ -148,27 +148,12 @@ namespace ClassLibraryTreeView.Classes
 
             return "";
         }
-        public override Dictionary<string, string[]> PropertiesArrays()
+        public override Dictionary<string, object[]> PropertiesArrays()
         {
-            Dictionary<string, string[]> propertiesArrays = base.PropertiesArrays();
-
-            List<string> idList = new List<string>();
-            if (PermissibleAttributes.Count > 0)
-            {
-                idList.AddRange(from KeyValuePair<string, ConceptualModelAttribute> permissibleAttribute in PermissibleAttributes
-                                select permissibleAttribute.Key);
-            }
-            propertiesArrays.Add($"Permissible Attributes ({idList.Count})", idList.ToArray());
-
-            idList.Clear();
-            if (Children.Count > 0)
-            {
-                idList.AddRange(from KeyValuePair<string, ConceptualModelClass> child in Children select child.Key);
-            }
-            propertiesArrays.Add($"Descendants ({idList.Count})", idList.ToArray());
-
+            Dictionary<string, object[]> propertiesArrays = base.PropertiesArrays();
+            propertiesArrays.Add($"Permissible Attributes ({PermissibleAttributes.Count})", PermissibleAttributes.Values.ToArray());
+            propertiesArrays.Add($"Descendants ({Children.Count})", Children.Values.ToArray());
             propertiesArrays.Add($"Naming Templates ({NamingTemplates.Count})", NamingTemplates.ToArray());
-
             return propertiesArrays;
         }
         public bool IsAbstract { get; set; }

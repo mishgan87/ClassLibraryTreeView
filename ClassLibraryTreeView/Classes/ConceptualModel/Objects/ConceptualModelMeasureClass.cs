@@ -27,17 +27,10 @@ namespace ClassLibraryTreeView.Classes
             ConceptualModelMeasureClass measureClass = (ConceptualModelMeasureClass)other;
             Group = measureClass.Group;
         }
-        public override Dictionary<string, string[]> PropertiesArrays()
+        public override Dictionary<string, object[]> PropertiesArrays()
         {
-            Dictionary<string, string[]> propertiesArrays = base.PropertiesArrays();
-
-            List<string> idList = new List<string>();
-            if (Units.Count > 0)
-            {
-                idList.AddRange(from ConceptualModelMeasureUnit unit in Units select unit.Id);
-            }
-            propertiesArrays.Add($"Nodes ({idList.Count})", idList.ToArray());
-
+            Dictionary<string, object[]> propertiesArrays = base.PropertiesArrays();
+            propertiesArrays.Add($"Units ({Units.Count})", Units.ToArray());
             return propertiesArrays;
         }
         public override void Clone(XElement xElement)

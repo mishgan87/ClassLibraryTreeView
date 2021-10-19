@@ -20,7 +20,7 @@ namespace ClassLibraryTreeView.Forms
 
             IConceptualModelObject obj = (IConceptualModelObject)cmObject;
             KeyValuePair<string, string>[] properties = obj.Properties();
-            Dictionary<string,string[]> propertiesArrays = obj.PropertiesArrays();
+            Dictionary<string,object[]> propertiesArrays = obj.PropertiesArrays();
 
             label.Text = $"{cmObject.GetType().Name}";
             tabControl.TabPages.Clear();
@@ -34,7 +34,7 @@ namespace ClassLibraryTreeView.Forms
 
             if (propertiesArrays.Count > 0)
             {
-                foreach (KeyValuePair<string, string[]> propertiesArray in propertiesArrays)
+                foreach (KeyValuePair<string, object[]> propertiesArray in propertiesArrays)
                 {
                     TabPage tabPage = new TabPage($"{propertiesArray.Key}");
                     tabPage.Controls.Add(new PropertiesListView(propertiesArray));

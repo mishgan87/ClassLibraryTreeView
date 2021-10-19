@@ -55,11 +55,11 @@ namespace ClassLibraryTreeView.Classes
 
             return properties.ToArray();
         }
-        public virtual Dictionary<string, string[]> PropertiesArrays()
+        public virtual Dictionary<string, object[]> PropertiesArrays()
         {
-            Dictionary<string, string[]> propertiesArrays = new Dictionary<string, string[]>();
+            Dictionary<string, object[]> propertiesArrays = new Dictionary<string, object[]>();
 
-            propertiesArrays.Add($"Aspect ({Aspect.Count})", Aspect.ToArray());
+            propertiesArrays.Add($"Aspect", Aspect.ToArray());
 
             /*
             Type objectType = Type.GetType(this.GetType().FullName);

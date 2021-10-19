@@ -22,16 +22,44 @@ namespace ClassLibraryTreeView.Classes
         {
             Init();
         }
-        public PropertiesListView(KeyValuePair<string, string[]> properties)
+        public PropertiesListView(KeyValuePair<string, object[]> properties)
         {
             Init();
 
-            this.Columns.Add($"{properties.Key}", 150, HorizontalAlignment.Left);
-            this.HeaderStyle = ColumnHeaderStyle.None;
+            if (properties.Value.Length == 0)
+            {
+                return;
+            }
+
+            if (properties.Value[0] is string)
+            {
+                this.Columns.Add($"", 200, HorizontalAlignment.Left);
+                this.HeaderStyle = ColumnHeaderStyle.None;
+                for (int index = 0; index < properties.Value.Length; index++)
+                {
+                    this.Items.Add(new ListViewItem(new string[] { (string)properties.Value[index] }));
+                }
+                return;
+            }
+
+            ConceptualModelObject cmObject = (ConceptualModelObject)properties.Value[0];
+            KeyValuePair<string, string>[] objectProperties = cmObject.Properties();
+            for (int index = 0; index < objectProperties.Length; index++)
+            {
+                this.Columns.Add($"{objectProperties[index].Key}", 200, HorizontalAlignment.Left);
+            }
 
             for (int index = 0; index < properties.Value.Length; index++)
             {
-                this.Items.Add(new ListViewItem(new string[] { properties.Value[index] }));
+                cmObject = (ConceptualModelObject)properties.Value[index];
+                objectProperties = cmObject.Properties();
+                List<string> values = new List<string>();
+                for (int indexProperty = 0; indexProperty < objectProperties.Length; indexProperty++)
+                {
+                    values.Add(objectProperties[indexProperty].Value);
+                }
+
+                this.Items.Add(new ListViewItem(values.ToArray()));
             }
         }
         public PropertiesListView(KeyValuePair<string, string>[] properties)
@@ -166,6 +194,11 @@ namespace ClassLibraryTreeView.Classes
                     return;
                 }
 
+                if (editedItem.Text.ToLower().Equals("system"))
+                {
+                    ShowComboBox(new object[] { "Unselect", "Metric", "US", "Imperial" });
+                    return;
+                }
 
                 ShowTextBox();
             }
