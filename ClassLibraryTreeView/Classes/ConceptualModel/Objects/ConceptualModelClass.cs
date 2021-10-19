@@ -1,6 +1,7 @@
 ﻿using ClassLibraryTreeView.Interfaces;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace ClassLibraryTreeView.Classes
 {
@@ -75,6 +76,11 @@ namespace ClassLibraryTreeView.Classes
                 }
             }
 
+            if (Concept.Equals(""))
+            {
+                Concept = $"{xElement.Parent.Name.LocalName}";
+            }
+
             Xtype = $"{xElement.Parent.Name.LocalName}";
 
             foreach (XElement child in xElement.Elements())
@@ -141,6 +147,29 @@ namespace ClassLibraryTreeView.Classes
             }
 
             return "";
+        }
+        public override Dictionary<string, string[]> PropertiesArrays()
+        {
+            Dictionary<string, string[]> propertiesArrays = base.PropertiesArrays();
+
+            List<string> idList = new List<string>();
+            if (PermissibleAttributes.Count > 0)
+            {
+                idList.AddRange(from KeyValuePair<string, ConceptualModelAttribute> permissibleAttribute in PermissibleAttributes
+                                select permissibleAttribute.Key);
+            }
+            propertiesArrays.Add($"Permissible Attributes ({idList.Count})", idList.ToArray());
+
+            idList.Clear();
+            if (Children.Count > 0)
+            {
+                idList.AddRange(from KeyValuePair<string, ConceptualModelClass> child in Children select child.Key);
+            }
+            propertiesArrays.Add($"Descendants ({idList.Count})", idList.ToArray());
+
+            propertiesArrays.Add($"Naming Templates ({NamingTemplates.Count})", NamingTemplates.ToArray());
+
+            return propertiesArrays;
         }
         public bool IsAbstract { get; set; }
         public string Extends { get; set; }

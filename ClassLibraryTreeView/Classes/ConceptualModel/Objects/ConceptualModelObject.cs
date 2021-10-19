@@ -32,12 +32,11 @@ namespace ClassLibraryTreeView.Classes
         {
             return ((idSearch && Id.Contains(text)) || (nameSearch && Name.Contains(text)));
         }
-        private static KeyValuePair<string, string>[] GetPropertyValues(Object obj)
+        public KeyValuePair<string, string>[] Properties()
         {
             List<KeyValuePair<string, string>> properties = new List<KeyValuePair<string, string>>();
-            Type t = obj.GetType();
-            // Console.WriteLine("Type is: {0}", t.Name);
-            PropertyInfo[] props = t.GetProperties();
+
+            PropertyInfo[] props = this.GetType().GetProperties();
 
             foreach (PropertyInfo prop in props)
             {
@@ -45,7 +44,7 @@ namespace ClassLibraryTreeView.Classes
                 {
                     if (prop.GetIndexParameters().Length == 0)
                     {
-                        properties.Add(new KeyValuePair<string, string>(prop.Name, $"{prop.GetValue(obj)}"));
+                        properties.Add(new KeyValuePair<string, string>(prop.Name, $"{prop.GetValue(this)}"));
                     }
                     else
                     {
@@ -56,13 +55,13 @@ namespace ClassLibraryTreeView.Classes
 
             return properties.ToArray();
         }
-        public KeyValuePair<string, string>[] Properties()
+        public virtual Dictionary<string, string[]> PropertiesArrays()
         {
-            return GetPropertyValues(this);
-        }
-        public Dictionary<string, KeyValuePair<string, string>[]> ArraysProperties()
-        {
-            Dictionary<string, KeyValuePair<string, string>[]> arraysProperties = new Dictionary<string, KeyValuePair<string, string>[]>();
+            Dictionary<string, string[]> propertiesArrays = new Dictionary<string, string[]>();
+
+            propertiesArrays.Add($"Aspect ({Aspect.Count})", Aspect.ToArray());
+
+            /*
             Type objectType = Type.GetType(this.GetType().FullName);
             PropertyInfo[] properties = objectType.GetProperties();
             foreach (PropertyInfo property in properties)
@@ -72,11 +71,11 @@ namespace ClassLibraryTreeView.Classes
                 {
                     var obj = Activator.CreateInstance(property.PropertyType);
                     List<KeyValuePair<string, string>> list = new List<KeyValuePair<string, string>>();
-                    arraysProperties.Add(property.Name, list.ToArray());
+                    propertiesArrays.Add(property.Name, list.ToArray());
                 }
-
             }
-            return arraysProperties;
+            */
+            return propertiesArrays;
         }
         public virtual void Clone(IConceptualModelObject other)
         {

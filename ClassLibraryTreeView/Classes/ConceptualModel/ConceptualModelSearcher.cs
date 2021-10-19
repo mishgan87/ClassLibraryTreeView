@@ -87,7 +87,7 @@ namespace ClassLibraryTreeView.Classes
                     return null;
                 });
                 */
-                foreach (ConceptualModelTaxonomy taxonomy in model.Taxonomies)
+                foreach (ConceptualModelTaxonomy taxonomy in model.Taxonomies.Values)
                 {
                     if (taxonomy.ContainsText(text, searchId, searchName))
                     {

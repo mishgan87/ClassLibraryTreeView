@@ -50,14 +50,12 @@ namespace ClassLibraryTreeView.Classes
 
             ConceptualModelEnumerationItem other = (ConceptualModelEnumerationItem)otherObject;
 
-            bool baseEquals = (this.Id.Equals(other.Id)
+            return (this.Id.Equals(other.Id)
                 && this.Name.Equals(other.Name)
                 && this.Description.Equals(other.Description)
                 && this.IsObsolete.Equals(other.IsObsolete)
                 && this.SortOrder.Equals(other.SortOrder)
                 && this.Aspect.Equals(other.Aspect));
-
-            return baseEquals;
         }
 
         public override void Init()

@@ -22,6 +22,18 @@ namespace ClassLibraryTreeView.Classes
         {
             Init();
         }
+        public PropertiesListView(KeyValuePair<string, string[]> properties)
+        {
+            Init();
+
+            this.Columns.Add($"{properties.Key}", 150, HorizontalAlignment.Left);
+            this.HeaderStyle = ColumnHeaderStyle.None;
+
+            for (int index = 0; index < properties.Value.Length; index++)
+            {
+                this.Items.Add(new ListViewItem(new string[] { properties.Value[index] }));
+            }
+        }
         public PropertiesListView(KeyValuePair<string, string>[] properties)
         {
             Init();

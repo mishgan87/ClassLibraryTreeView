@@ -1,6 +1,7 @@
 ﻿using ClassLibraryTreeView.Interfaces;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace ClassLibraryTreeView.Classes
 {
@@ -23,7 +24,19 @@ namespace ClassLibraryTreeView.Classes
             ConceptualModelEnumeration enumerationList = (ConceptualModelEnumeration)source;
             Items = new List<ConceptualModelEnumerationItem>(enumerationList.Items);
         }
+        public override Dictionary<string, string[]> PropertiesArrays()
+        {
+            Dictionary<string, string[]> propertiesArrays = base.PropertiesArrays();
 
+            List<string> idList = new List<string>();
+            if (Items.Count > 0)
+            {
+                idList.AddRange(from ConceptualModelEnumerationItem item in Items select item.Id);
+            }
+            propertiesArrays.Add($"Items ({idList.Count})", idList.ToArray());
+
+            return propertiesArrays;
+        }
         public override void Clone(XElement xElement)
         {
             Init();

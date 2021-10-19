@@ -67,6 +67,13 @@ namespace ClassLibraryTreeView.Classes
         {
             return base.ToString();
         }
+        public override Dictionary<string, string[]> PropertiesArrays()
+        {
+            Dictionary<string, string[]> propertiesArrays = base.PropertiesArrays();
+            propertiesArrays.Add($"Classes ({Classes.Count})", Classes.ToArray());
+
+            return propertiesArrays;
+        }
         public List<string> Classes { get; set; }
     }
 }

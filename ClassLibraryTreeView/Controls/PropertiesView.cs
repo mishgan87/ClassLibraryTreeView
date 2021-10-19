@@ -14,20 +14,17 @@ namespace ClassLibraryTreeView.Forms
     {
         Label label = new Label();
         TabControl tabControl = new TabControl();
-        public PropertiesView()
-        {
-            Init();
-        }
         public PropertiesView(object cmObject)
         {
             Init();
 
             IConceptualModelObject obj = (IConceptualModelObject)cmObject;
             KeyValuePair<string, string>[] properties = obj.Properties();
-            Dictionary<string, KeyValuePair<string, string>[]> arraysProperties = obj.ArraysProperties();
+            Dictionary<string,string[]> propertiesArrays = obj.PropertiesArrays();
 
             label.Text = $"{cmObject.GetType().Name}";
             tabControl.TabPages.Clear();
+            
             if (properties.Length > 0)
             {
                 TabPage tabPage = new TabPage("Properties");
@@ -35,16 +32,36 @@ namespace ClassLibraryTreeView.Forms
                 tabControl.TabPages.Add(tabPage);
             }
 
-        }
-        public PropertiesView(ConceptualModelAttribute attribute)
-        {
-            Init();
-            ViewAttributeProperties(attribute);
-        }
-        public PropertiesView(ConceptualModelClass cmClass)
-        {
-            Init();
-            ViewClassProperties(cmClass);
+            if (propertiesArrays.Count > 0)
+            {
+                foreach (KeyValuePair<string, string[]> propertiesArray in propertiesArrays)
+                {
+                    TabPage tabPage = new TabPage($"{propertiesArray.Key}");
+                    tabPage.Controls.Add(new PropertiesListView(propertiesArray));
+                    tabControl.TabPages.Add(tabPage);
+                }
+            }
+            /*
+            if (cmObject is ConceptualModelClass)
+            {
+                ViewClassProperties((ConceptualModelClass)cmObject);
+            }
+
+            if (cmObject is ConceptualModelAttribute)
+            {
+                ViewAttributeProperties((ConceptualModelAttribute)cmObject);
+            }
+
+            if (cmObject is ConceptualModelMeasureClass)
+            {
+                ViewMeasureClassProperties(cmObject);
+            }
+
+            if (cmObject is ConceptualModelMeasureUnit)
+            {
+                ViewMeasureUnitProperties(cmObject);
+            }
+            */
         }
         private void Init()
         {
@@ -181,52 +198,42 @@ namespace ClassLibraryTreeView.Forms
             }
 
         }
-        public void ViewMeasureProperties(TreeNode selectedNode)
+        public void ViewMeasureUnitProperties(object cmObject)
         {
-            tabControl.TabPages.Clear();
-            if (selectedNode.Tag != null)
-            {
-                if (selectedNode.Parent != null)
-                {
-                    if (selectedNode.Parent.Text.ToLower().Contains("units"))
-                    {
-                        ConceptualModelMeasureUnit measureUnit = (ConceptualModelMeasureUnit)selectedNode.Tag;
-                        label.Text = $"Measure Unit : {measureUnit.Name}";
-                        tabControl.TabPages.Add(new TabPage("Properties"));
-                        tabControl.TabPages[0].Controls.Add(new PropertiesListView(measureUnit));
-                    }
-                    if (selectedNode.Parent.Text.ToLower().Contains("classes"))
-                    {
-                        ConceptualModelMeasureClass measureClass = (ConceptualModelMeasureClass)selectedNode.Tag;
-                        label.Text = $"Measure Class : {measureClass.Name}";
-                        tabControl.TabPages.Add(new TabPage("Properties"));
-                        tabControl.TabPages[0].Controls.Add(new PropertiesListView(measureClass));
-                        ListView listViewItems = new ListView();
-                        listViewItems.View = View.Details;
-                        listViewItems.Columns.Clear();
-                        listViewItems.Items.Clear();
-                        listViewItems.GridLines = true;
-                        listViewItems.Columns.Add("Id", 300, HorizontalAlignment.Left);
-                        listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
-                        listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
+            ConceptualModelMeasureUnit measureUnit = (ConceptualModelMeasureUnit)cmObject;
+            label.Text = $"Measure Unit : {measureUnit.Name}";
+            tabControl.TabPages.Add(new TabPage("Properties"));
+            tabControl.TabPages[0].Controls.Add(new PropertiesListView(measureUnit));
+        }
+        public void ViewMeasureClassProperties(object cmObject)
+        {
+            ConceptualModelMeasureClass measureClass = (ConceptualModelMeasureClass)cmObject;
+            label.Text = $"Measure Class : {measureClass.Name}";
+            tabControl.TabPages.Add(new TabPage("Properties"));
+            tabControl.TabPages[0].Controls.Add(new PropertiesListView(measureClass));
+            ListView listViewItems = new ListView();
+            listViewItems.View = View.Details;
+            listViewItems.Columns.Clear();
+            listViewItems.Items.Clear();
+            listViewItems.GridLines = true;
+            listViewItems.Columns.Add("Id", 300, HorizontalAlignment.Left);
+            listViewItems.Columns.Add("Name", 300, HorizontalAlignment.Left);
+            listViewItems.Columns.Add("Description", 300, HorizontalAlignment.Left);
 
-                        foreach (ConceptualModelMeasureUnit unit in measureClass.Units)
-                        {
-                            string[] items = { $"{unit.Id}",
+            foreach (ConceptualModelMeasureUnit unit in measureClass.Units)
+            {
+                string[] items = { $"{unit.Id}",
                                                 $"{unit.Name}",
                                                 $"{unit.Description}" };
-                            listViewItems.Items.Add(new ListViewItem(items));
-                        }
-
-                        listViewItems.Dock = DockStyle.Fill;
-                        listViewItems.Font = tabControl.Font;
-
-                        TabPage pageItems = new TabPage($"Units ({measureClass.Units.Count})");
-                        pageItems.Controls.Add(listViewItems);
-                        tabControl.TabPages.Add(pageItems);
-                    }
-                }
+                listViewItems.Items.Add(new ListViewItem(items));
             }
+
+            listViewItems.Dock = DockStyle.Fill;
+            listViewItems.Font = tabControl.Font;
+
+            TabPage pageItems = new TabPage($"Units ({measureClass.Units.Count})");
+            pageItems.Controls.Add(listViewItems);
+            tabControl.TabPages.Add(pageItems);
         }
     }
 }

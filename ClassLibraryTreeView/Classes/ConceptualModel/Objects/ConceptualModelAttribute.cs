@@ -1,6 +1,7 @@
 ﻿using ClassLibraryTreeView.Interfaces;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace ClassLibraryTreeView.Classes
 {
@@ -152,6 +153,7 @@ namespace ClassLibraryTreeView.Classes
             Concept = "";
             Discipline = "";
             IsUoMRequired = false;
+            this.ApplicableClasses = new Dictionary<string, ConceptualModelClass>();
         }
 
         public override string ToString()
@@ -160,14 +162,26 @@ namespace ClassLibraryTreeView.Classes
         }
         public void AddApplicableClass(ConceptualModelClass cmClass)
         {
-            if (this.ApplicableClasses == null)
-            {
-                this.ApplicableClasses = new Dictionary<string, ConceptualModelClass>();
-            }
             if (!this.ApplicableClasses.ContainsKey(cmClass.Id))
             {
                 this.ApplicableClasses.Add(cmClass.Id, cmClass);
             }
+        }
+        public override Dictionary<string, string[]> PropertiesArrays()
+        {
+            Dictionary<string, string[]> propertiesArrays = base.PropertiesArrays();
+
+            List<string> idList = new List<string>();
+            if (ApplicableClasses.Count > 0)
+            {
+                idList.AddRange(from KeyValuePair<string, ConceptualModelClass> applicableClass in ApplicableClasses
+                                select applicableClass.Key);
+            }
+            propertiesArrays.Add($"Applicable Classes ({idList.Count})", idList.ToArray());
+
+            propertiesArrays.Add($"Maturity Levels ({MaturityLevels.Count})", MaturityLevels.ToArray());
+
+            return propertiesArrays;
         }
         string ClassOfMeasure { get; set; } // measure class id
         public string DataType { get; set; }

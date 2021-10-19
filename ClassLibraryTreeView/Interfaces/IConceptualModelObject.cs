@@ -12,7 +12,7 @@ namespace ClassLibraryTreeView.Interfaces
         string SortOrder { get; set; }
         List<string> Aspect { get; set; }
         KeyValuePair<string, string>[] Properties();
-        Dictionary<string, KeyValuePair<string, string>[]> ArraysProperties();
+        Dictionary<string, string[]> PropertiesArrays();
         void Clone(IConceptualModelObject other);
         void Clone(XElement xElement);
         void Init();

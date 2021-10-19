@@ -1,6 +1,7 @@
 ﻿using ClassLibraryTreeView.Interfaces;
 using System.Collections.Generic;
 using System.Xml.Linq;
+using System.Linq;
 
 namespace ClassLibraryTreeView.Classes
 {
@@ -25,6 +26,19 @@ namespace ClassLibraryTreeView.Classes
 
         public string Concept { get; set; }
         public List<ConceptualModelTaxonomyNode> Nodes { get; set; }
+        public override Dictionary<string, string[]> PropertiesArrays()
+        {
+            Dictionary<string, string[]> propertiesArrays = base.PropertiesArrays();
+
+            List<string> idList = new List<string>();
+            if (Nodes.Count > 0)
+            {
+                idList.AddRange(from ConceptualModelTaxonomyNode node in Nodes select node.Id);
+            }
+            propertiesArrays.Add($"Nodes ({idList.Count})", idList.ToArray());
+
+            return propertiesArrays;
+        }
 
         public override void Clone(IConceptualModelObject otherObject)
         {

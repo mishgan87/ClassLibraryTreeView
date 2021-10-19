@@ -173,7 +173,7 @@ namespace ClassLibraryTreeView.Classes
         }
         public void AddClasses(ConceptualModel model)
         {
-            foreach (var classKey in model.classes.Keys)
+            foreach (string classKey in model.classes.Keys)
             {
                 this.AddClassMap(model.classes[classKey], classKey);
             }
@@ -185,7 +185,6 @@ namespace ClassLibraryTreeView.Classes
                 TreeNode rootNode = new TreeNode(xtype);
                 foreach (ConceptualModelClass cmClass in map.Values)
                 {
-                    // if (cmClass.Extends.Equals("") || cmClass.Extends.ToLower().Equals("not found"))
                     if (cmClass.Parent == null)
                     {
                         TreeNode newNode = NewClassNode(cmClass);
@@ -245,7 +244,7 @@ namespace ClassLibraryTreeView.Classes
         public void AddTaxomies(ConceptualModel model)
         {
             TreeNode rootNode = new TreeNode($"Taxonomies");
-            foreach (ConceptualModelTaxonomy taxonomy in model.Taxonomies)
+            foreach (ConceptualModelTaxonomy taxonomy in model.Taxonomies.Values)
             {
                 TreeNode treeNode = new TreeNode(taxonomy.Id);
                 treeNode.Text = taxonomy.Name;
