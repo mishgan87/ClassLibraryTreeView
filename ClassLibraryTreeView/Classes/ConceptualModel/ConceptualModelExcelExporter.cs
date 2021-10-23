@@ -242,8 +242,11 @@ namespace ClassLibraryTreeView
                     {
                         if (range.Value != null)
                         {
-                            worksheet.Range(range.Key).Merge();
+                            worksheet.Range(range.Key).Select();
                             worksheet.Range(range.Key).Style = range.Value;
+                            worksheet.Range(range.Key).Style.Alignment.Horizontal = XLAlignmentHorizontalValues.CenterContinuous;
+                            // worksheet.Range(range.Key).Merge();
+                            // worksheet.Range(range.Key).Style = range.Value;
                         }
                     }
 

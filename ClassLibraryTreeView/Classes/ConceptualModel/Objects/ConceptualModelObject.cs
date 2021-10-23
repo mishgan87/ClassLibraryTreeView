@@ -1,6 +1,7 @@
 ﻿using ClassLibraryTreeView.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
 
@@ -34,25 +35,13 @@ namespace ClassLibraryTreeView.Classes
         }
         public KeyValuePair<string, string>[] Properties()
         {
-            List<KeyValuePair<string, string>> properties = new List<KeyValuePair<string, string>>();
-
             PropertyInfo[] props = this.GetType().GetProperties();
-
-            foreach (PropertyInfo prop in props)
-            {
-                if (!prop.PropertyType.FullName.ToLower().Contains("collection"))
-                {
-                    if (prop.GetIndexParameters().Length == 0)
-                    {
-                        properties.Add(new KeyValuePair<string, string>(prop.Name, $"{prop.GetValue(this)}"));
-                    }
-                    else
-                    {
-                        properties.Add(new KeyValuePair<string, string>(prop.Name, "<Indexed>"));
-                    }
-                }
-            }
-
+            IEnumerable<KeyValuePair<string, string>> properties =
+                from prop in props
+                where !prop.PropertyType.FullName.ToLower().Contains("collection") && (prop.GetIndexParameters().Length == 0)
+                orderby prop.Name ascending
+                // group prop by prop.Name into propPair
+                select new KeyValuePair<string, string>(prop.Name, $"{prop.GetValue(this)}");
             return properties.ToArray();
         }
         public virtual Dictionary<string, object[]> PropertiesArrays()
