@@ -177,6 +177,9 @@ namespace ClassLibraryTreeView.Classes
             {
                 this.AddClassMap(model.classes[classKey], classKey);
             }
+
+            var merged = model.MergedClasses();
+            this.AddClassMap(merged, "Merged");
         }
         private void AddClassMap(Dictionary<string, ConceptualModelClass> map, string xtype)
         {

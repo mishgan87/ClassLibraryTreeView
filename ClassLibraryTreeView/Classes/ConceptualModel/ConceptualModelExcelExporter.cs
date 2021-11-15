@@ -178,7 +178,7 @@ namespace ClassLibraryTreeView
                     };
 
                     // define classes attributes rows
-                    Dictionary<string, ConceptualModelClass> map = model.MergedClasses;
+                    Dictionary<string, ConceptualModelClass> map = model.MergedClasses();
 
                     // fill dictionary of pairs <row number, conceptual model class>
                     ConcurrentDictionary<int, ConceptualModelClass> classRows = AddClassToClassRows(map, 3);
@@ -306,9 +306,108 @@ namespace ClassLibraryTreeView
                 }
                 return dataTable;
             }
+            public void ExportClassAttributesForDifferentApps(ConceptualModel model)
+            {
+                Dictionary<string, ConceptualModelClass> map = model.MergedClasses();
+
+                Action<IXLCell, IXLStyle, string> SetCellValue = (cellReference, cellStyle, cellValue) =>
+                {
+                    cellReference.Style = cellStyle;
+                    cellReference.Value = cellValue;
+                };
+
+                List<string> attributesList = (from KeyValuePair<string, Dictionary<string, ConceptualModelAttribute>> attributesGroup in model.attributes
+                                               from ConceptualModelAttribute attribute in attributesGroup.Value.Values
+                                               select attribute.Name).ToList();
+
+                List<string> attributesListApps = new List<string>();
+                foreach (ConceptualModelClass cmClass in map.Values)
+                {
+                    Dictionary<string, ConceptualModelAttribute> attributes = cmClass.PermissibleAttributes;
+                    if (attributes.Count > 0)
+                    {
+                        foreach (ConceptualModelAttribute attribute in attributes.Values)
+                        {
+                            if (!attributesListApps.Contains(attribute.Name))
+                            {
+                                attributesListApps.Add(attribute.Name);
+                            }
+                        }
+                    }
+                }
+
+                Action<IXLWorksheet, string[]> AddAttributesWorksheet = (worksheet, attributes) =>
+                {
+                    // insert header
+                    IXLStyle headerCellStyle = cellStyleFactory.CreateCellStyleForHeader();
+                    SetCellValue(worksheet.Cell(CellName(0, 0)), headerCellStyle, $"Attribute Name");
+
+                    // insert attributes
+                    IXLStyle classCellStyle = cellStyleFactory.CreateCellStyleForClass();
+                    IXLStyle classDarkCellStyle = cellStyleFactory.CreateCellStyleForClassDark();
+
+                    for (int index = 0; index < attributes.Length; index++)
+                    {
+                        SetCellValue(worksheet.Cell(CellName(index + 1, 0)), classCellStyle, attributes[index]);
+                        int progress = (index * 100) / attributes.Length;
+                        this.ExportProgress?.Invoke(this, progress);
+                    }
+
+                    worksheet.Column(1).AdjustToContents();
+                };
+
+                Action<IXLWorksheet, int, string[]> FillWorksheet = (worksheet, appcode, attributes) =>
+                {
+                    // insert header
+                    IXLStyle headerCellStyle = cellStyleFactory.CreateCellStyleForHeader();
+                    SetCellValue(worksheet.Cell(CellName(0, 0)), headerCellStyle, $"Attribute Name");
+
+                    // insert attributes
+                    IXLStyle classCellStyle = cellStyleFactory.CreateCellStyleForClass();
+                    IXLStyle classDarkCellStyle = cellStyleFactory.CreateCellStyleForClassDark();
+                    int rindex = 1;
+                    for (int index = 0; index < attributes.Length; index++)
+                    {
+                        if ((index % 2 == 0 && appcode == 1)
+                            || (index % 2 != 0 && appcode == 2)
+                            || (appcode == 0))
+                        {
+                        SetCellValue(worksheet.Cell(CellName(rindex, 0)), classCellStyle, attributes[index]);
+                            int progress = (index * 100) / attributes.Length;
+                            this.ExportProgress?.Invoke(this, progress);
+                            rindex++;
+                        }
+                    }
+
+                    worksheet.Column(1).AdjustToContents();
+                };
+
+                using (XLWorkbook workbook = new XLWorkbook())
+                {
+                    AddAttributesWorksheet(workbook.Worksheets.Add($"AllAttributes"), attributesList.ToArray());
+                    FillWorksheet(workbook.Worksheets.Add($"AD_ClassAttributes"), 0, attributesListApps.ToArray());
+                    FillWorksheet(workbook.Worksheets.Add($"AE_ClassAttributes"), 1, attributesListApps.ToArray());
+                    FillWorksheet(workbook.Worksheets.Add($"SPI_ClassAttributes"), 2, attributesListApps.ToArray());
+
+                    string filename = model.FullPathXml;
+                    filename = filename.Remove(filename.LastIndexOf("."), filename.Length - filename.LastIndexOf("."));
+                    filename += "_ClassAttributes.xlsx";
+                    try
+                    {
+                        workbook.SaveAs(filename);
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message);
+                    }
+                }
+            }
             public void ExportClassAttributes(ConceptualModel model)
             {
-                Dictionary<string, ConceptualModelClass> map = model.MergedClasses;
+                ExportClassAttributesForDifferentApps(model);
+                return;
+
+                Dictionary<string, ConceptualModelClass> map = model.MergedClasses();
 
                 Action<IXLCell, IXLStyle, string> SetCellValue = (cellReference, cellStyle, cellValue) =>
                 {

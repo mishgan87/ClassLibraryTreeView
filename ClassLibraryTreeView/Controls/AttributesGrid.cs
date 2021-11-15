@@ -31,7 +31,7 @@ namespace ClassLibraryTreeView.Classes
                 items[index] = new List<string>();
             }
 
-            Dictionary<string, ConceptualModelClass> map = model.MergedClasses;
+            Dictionary<string, ConceptualModelClass> map = model.MergedClasses();
 
              
             foreach (ConceptualModelClass cmClass in map.Values)

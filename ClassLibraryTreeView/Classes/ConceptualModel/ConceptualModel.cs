@@ -39,17 +39,61 @@ namespace ClassLibraryTreeView
         public Dictionary<string, ConceptualModelEnumeration> Enumerations => enumerations;
         public Dictionary<string, ConceptualModelMeasureUnit> ConceptualModelMeasureUnits => measureUnits;
         public Dictionary<string, ConceptualModelMeasureClass> MeasureClasses => measureClasses;
-        public Dictionary<string, ConceptualModelClass> MergedClasses
+
+        private static void SetClassesInheritanceAux(Dictionary<string,
+                                                    Dictionary<string, ConceptualModelClass>> classesMaps,
+                                                    Dictionary<string, Dictionary<string, ConceptualModelAttribute>> conceptualModelAttributes)
         {
-            get
+            
+            foreach (Dictionary<string, ConceptualModelClass> map in classesMaps.Values)
             {
-                Dictionary<string, ConceptualModelClass> map = Physicals;
-                if (map.Count == 0)
+                for (int index = 0; index < map.Values.Count; index++)
                 {
-                    map = Functionals;
+                    ConceptualModelClass cmClass = map.Values.ElementAt(index);
+                    if (!cmClass.Extends.Equals("") && !cmClass.Extends.ToLower().Equals("not found"))
+                    {
+                        var parent = map[cmClass.Extends];
+                        cmClass.Parent = map[cmClass.Extends];
+                        MergeAttributes(cmClass.Parent, cmClass, conceptualModelAttributes);
+                        map[cmClass.Extends].Children.Add(cmClass.Id, cmClass);
+                    }
                 }
-                return map;
             }
+        }
+        public Dictionary<string, ConceptualModelClass> MergedClasses()
+        {
+            Dictionary<string, ConceptualModelClass> physMap = Physicals;
+            Dictionary<string, ConceptualModelClass> funcMap = Functionals;
+            Dictionary<string, ConceptualModelClass> merged = new Dictionary<string, ConceptualModelClass>();
+
+            foreach (KeyValuePair<string, ConceptualModelClass> functional in funcMap)
+            {
+                merged.Add(functional.Key, new ConceptualModelClass(functional.Value));
+            }
+
+            if (physMap.Count == 0)
+            {
+                return merged;
+            }
+
+            foreach (KeyValuePair<string, ConceptualModelClass> functional in funcMap)
+            {
+                foreach (KeyValuePair<string, ConceptualModelClass> physical in physMap)
+                {
+                    if (functional.Value.Name.Equals(physical.Value.Name))
+                    {
+                        foreach (ConceptualModelClass physChild in physical.Value.Children.Values)
+                        {
+                            if (!functional.Value.Children.ContainsKey(physChild.Id))
+                            {
+                                functional.Value.Children.Add(physChild.Id, physChild);
+                                physChild.Parent = functional.Value;
+                            }
+                        }
+                    }
+                }
+            }
+            return funcMap;
         }
         public Dictionary<string, ConceptualModelClass> Functionals
         {
